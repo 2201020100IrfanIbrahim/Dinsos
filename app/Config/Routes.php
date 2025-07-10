@@ -30,7 +30,15 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('bankel/input', 'BankelController::new');
     // Rute untuk MENYIMPAN data dari form (metode POST)
     $routes->post('bankel/create', 'BankelController::create');
+    // rute edit 
+    $routes->get('bankel/edit/(:num)', 'BankelController::edit/$1');
+    $routes->post('bankel/update/(:num)', 'BankelController::update/$1');
+    // rute hapus
+    $routes->get('bankel/delete/(:num)', 'BankelController::delete/$1');
     
+    // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
+    $routes->get('bankel/get-kelurahan/(:num)', 'BankelController::getKelurahanByKecamatan/$1');
+
     
     //============================MONEVKUEB=============================//
     $routes->get('monevkuep', 'MonevkuepController::index');

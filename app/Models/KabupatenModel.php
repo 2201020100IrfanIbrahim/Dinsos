@@ -8,5 +8,5 @@ class KabupatenModel extends Model
 {
     protected $table            = 'kabupaten';
     protected $primaryKey       = 'id';
-    protected $allowedFields    = ['nama_kabupaten'];
+    protected $allowedFields    = ['id_kabupaten'];
 }
