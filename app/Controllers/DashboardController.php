@@ -6,27 +6,36 @@ use App\Models\KabupatenModel; // Panggil model yang baru dibuat
 
 class DashboardController extends BaseController
 {
-    public function index()
+   public function index()
     {
         $session = session();
-        
-        // Siapkan data untuk dikirim ke view
-        $data = [
-            'username' => $session->get('username'),
-            'role'     => $session->get('role')
-        ];
+        $role = $session->get('role');
 
-        // Jika yang login adalah admin, ambil nama kabupatennya
-        if ($session->get('role') === 'admin') {
-            $kabupatenModel = new KabupatenModel();
-            $id_kabupaten = $session->get('id_kabupaten');
-            
-            // Cari data kabupaten berdasarkan ID dari sesi
-            $kabupatenData = $kabupatenModel->find($id_kabupaten);
-            $data['nama_kabupaten'] = $kabupatenData['nama_kabupaten'] ?? 'Wilayah Tidak Ditemukan';
+        // Jika tidak ada role di sesi, lempar kembali ke login
+        if (!$role) {
+            return redirect()->to('/login');
         }
 
-        // Tampilkan view dashboard dan kirim datanya
-        return view('dashboard_view', $data);
+        // Siapkan data dasar untuk dikirim ke view
+        $data = [
+            'username' => $session->get('username'),
+            'role'     => $role
+        ];
+
+        // Pilih view berdasarkan role
+        if ($role === 'superadmin') {
+            return view('dashboard_superadmin_view', $data);
+        }
+
+        if ($role === 'admin') {
+            // Jika admin, ambil juga data nama kabupatennya
+            $kabupatenModel = new \App\Models\KabupatenModel();
+            $id_kabupaten = $session->get('id_kabupaten');
+
+            $kabupatenData = $kabupatenModel->find($id_kabupaten);
+            $data['nama_kabupaten'] = $kabupatenData['nama_kabupaten'] ?? 'Wilayah Tidak Ditemukan';
+
+            return view('dashboard_admin_view', $data); 
+        }
     }
 }

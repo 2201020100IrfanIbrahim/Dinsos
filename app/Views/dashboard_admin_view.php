@@ -7,7 +7,7 @@
         body { font-family: sans-serif; padding: 20px; }
         .container { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
         a { color: #007bff; }
-    </style>
+    </style> 
 </head>
 <body>
     <div class="container">

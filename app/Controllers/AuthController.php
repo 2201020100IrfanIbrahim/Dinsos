@@ -37,7 +37,7 @@ class AuthController extends BaseController
             return redirect()->to('/dashboard'); 
         } else {
             $session->setFlashdata('error', 'Username atau Password salah.');
-            return redirect()->to('/login');
+            return redirect()->to('/login'); 
         }
     }
 
