@@ -3,11 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Dashboard Admin</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .container { max-width: 800px; margin: auto; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
-        a { color: #007bff; }
-    </style> 
+    <link rel="stylesheet" href="<?= base_url('css/admin.css') ?>">
+    
 </head>
 <body>
     <div class="container">
@@ -24,8 +21,25 @@
             <p>Anda memiliki akses penuh untuk memantau data dari semua wilayah.</p>
         <?php endif; ?>
 
-        <hr>
-        <a href="<?= site_url('/logout') ?>">Logout</a>
+    <hr>
+
+    <h3>Pilih Sistem untuk Dikelola:</h3>
+    <div class="system-choice-container">
+        <a href="<?= site_url('admin/bankel') ?>" class="system-card">
+            <h4>SIM-BANKEL</h4>
+            <p>Monitoring Bantuan Sosial Keluarga</p>
+        </a>
+        <a href="<?= site_url('admin/monevkuep') ?>" class="system-card">
+            <h4>SIM-MONEVKUEP</h4>
+            <p>Monitoring & Evaluasi Bantuan UEP</p>
+        </a>
+        <a href="<?= site_url('admin/difabelkepri') ?>" class="system-card">
+            <h4>SIM-DIFABELKEPRI</h4>
+            <p>Monitoring Data Penyandang Difabel</p>
+        </a>
+    </div>
+    <hr>
+    <a href="<?= site_url('logout') ?>">Logout</a>
     </div>
 </body>
 </html>
