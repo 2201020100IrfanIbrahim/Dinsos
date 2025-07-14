@@ -71,15 +71,9 @@ class BankelController extends BaseController
 
     public function update($id = null)
     {
-        // 1. Validasi dasar: pastikan ID ada
-        if (!$id) {
-            return redirect()->to('/admin/bankel')->with('error', 'Permintaan tidak valid.');
-        }
-
         $bankelModel = new \App\Models\BankelModel();
 
-        
-        // 2. Kumpulkan SEMUA data dari form yang bisa di-edit
+        // Ambil semua data dari form
         $data = [
             'nik'              => $this->request->getPost('nik'),
             'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
@@ -88,16 +82,22 @@ class BankelController extends BaseController
             'rw'               => $this->request->getPost('rw'),
             'kategori_bantuan' => $this->request->getPost('kategori_bantuan'),
             'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
-            // Tambahkan field lain dari form jika ada
+            // (Tambahkan field lain dari form jika ada)
         ];
 
-        // 3. Jalankan proses update dari model
-        if ($bankelModel->update($id, $data)) {
-            // Jika berhasil, kembali ke halaman daftar dengan pesan sukses
+        // =================================================================
+        // BAGIAN KUNCI PERUBAHAN
+        // =================================================================
+        // 1. Tambahkan ID dari URL ke dalam array $data secara manual
+        $data['id'] = $id;
+
+        // 2. Gunakan metode save() yang akan otomatis mendeteksi 'id' dan melakukan UPDATE
+        if ($bankelModel->save($data)) {
+        // =================================================================
+
             return redirect()->to('/admin/bankel')->with('message', 'Data berhasil diupdate!');
         } else {
-            // Jika validasi gagal, kembali ke form edit dengan semua error
-            return redirect()->back()->withInput()->with('errors', $bankelModel->errors());
+            return redirect()->back()->withInput()->with('errors', 'Terjadi kesalahan validasi.');
         }
     }
 

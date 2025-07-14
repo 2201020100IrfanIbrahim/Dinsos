@@ -38,7 +38,8 @@ class BankelModel extends Model
 
     // Aturan Validasi
     protected $validationRules      = [
-        'nik' => 'required|numeric|exact_length[16]',
+        'id'            => 'permit_empty|is_natural_no_zero',
+        'nik' => 'required|numeric|exact_length[16]|is_unique[data_bankel.nik,id,{id}]',
         'nama_lengkap'  => 'required|min_length[3]',
         'id_kabupaten'  => 'required|integer',
         'id_kecamatan'  => 'required|integer',

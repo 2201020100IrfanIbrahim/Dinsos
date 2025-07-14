@@ -3,12 +3,36 @@
 <head>
     <title>Edit Data Bantuan</title>
     <style>
-        body { font-family: sans-serif; } .form-container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; } .form-group { margin-bottom: 15px; } label { display: block; margin-bottom: 5px; } input, select { width: 100%; padding: 8px; box-sizing: border-box; } button { padding: 10px 15px; background-color: #ffc107; color: black; border: none; cursor: pointer; }
+        body { font-family: sans-serif; } 
+        .form-container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; } 
+        .form-group { margin-bottom: 15px; } 
+        label { display: block; margin-bottom: 5px; } input, 
+        select { width: 100%; padding: 8px; box-sizing: border-box; } 
+        button { padding: 10px 15px; background-color: #ffc107; color: black; border: none; cursor: pointer; }
+        .error-box { 
+            color: #721c24; 
+            background-color: #f8d7da; 
+            border: 1px solid #f5c6cb; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            border-radius: 4px; 
+        }
     </style>
 </head>
 <body>
     <div class="form-container">
+        
         <h2>Formulir Edit Data Bantuan</h2>
+            <?php if (session()->get('errors')): ?>
+            <div class="error-box">
+                <strong>Gagal menyimpan data:</strong>
+                <ul>
+                    <?php foreach (session()->get('errors') as $error): ?>
+                        <li><?= esc($error) ?></li>
+                    <?php endforeach ?>
+                </ul>
+            </div>
+        <?php endif; ?>
 
         <form action="<?= site_url('admin/bankel/update/' . $bantuan['id']) ?>" method="post">
             <?= csrf_field() ?>
