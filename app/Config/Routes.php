@@ -22,6 +22,9 @@ $routes->get('/testhash', function() {
     echo password_hash('adminlingga', PASSWORD_DEFAULT);
 });
 
+$routes->get('peta', 'Peta::index');
+$routes->get('peta/geojson/(:segment)', 'Peta::geojson/$1');
+
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
     // Rute untuk menampilkan daftar data (halaman utama)
@@ -39,7 +42,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
     $routes->get('bankel/get-kelurahan/(:num)', 'BankelController::getKelurahanByKecamatan/$1');
 
-    
+
     //============================MONEVKUEB=============================//
     $routes->get('monevkuep', 'MonevkuepController::index');
     // Rute untuk menampilkan form tambah data baru
