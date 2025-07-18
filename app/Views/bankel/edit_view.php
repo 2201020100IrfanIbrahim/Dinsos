@@ -1,29 +1,60 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <title>Edit Data Bantuan</title>
     <style>
-        body { font-family: sans-serif; } 
-        .form-container { max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; } 
-        .form-group { margin-bottom: 15px; } 
-        label { display: block; margin-bottom: 5px; } input, 
-        select { width: 100%; padding: 8px; box-sizing: border-box; } 
-        button { padding: 10px 15px; background-color: #ffc107; color: black; border: none; cursor: pointer; }
-        .error-box { 
-            color: #721c24; 
-            background-color: #f8d7da; 
-            border: 1px solid #f5c6cb; 
-            padding: 15px; 
-            margin-bottom: 20px; 
-            border-radius: 4px; 
+        body {
+            font-family: sans-serif;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            cursor: pointer;
+        }
+
+        .error-box {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 4px;
         }
     </style>
 </head>
+
 <body>
     <div class="form-container">
-        
+
         <h2>Formulir Edit Data Bantuan</h2>
-            <?php if (session()->get('errors')): ?>
+        <?php if (session()->get('errors')): ?>
             <div class="error-box">
                 <strong>Gagal menyimpan data:</strong>
                 <ul>
@@ -34,7 +65,7 @@
             </div>
         <?php endif; ?>
 
-        <form action="<?= site_url('admin/bankel/update/' . $bantuan['id']) ?>" method="post">
+        <form action="<?= site_url('admin/bankel/update/' . $bantuan['id']) ?>" method="post" enctype="multipart/form-data">
             <?= csrf_field() ?>
 
             <div class="form-group">
@@ -94,6 +125,11 @@
                 <label for="tahun_penerimaan">Tahun Penerimaan</label>
                 <input type="number" name="tahun_penerimaan" id="tahun_penerimaan" value="<?= old('tahun_penerimaan', $bantuan['tahun_penerimaan']) ?>" required>
             </div>
+            <!-- Tambahan input untuk upload gambar -->
+            <div class="form-group">
+                <label for="gambar">Upload Gambar Lokasi (Opsional)</label>
+                <input type="file" name="gambar" id="gambar" class="form-control">
+            </div>
 
             <button type="submit">Update Data</button>
         </form>
@@ -128,4 +164,5 @@
         });
     </script>
 </body>
+
 </html>

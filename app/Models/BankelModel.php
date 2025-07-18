@@ -27,7 +27,9 @@ class BankelModel extends Model
         'kategori_bantuan',
         'status_penerimaan',
         'tahun_penerimaan',
-        'id_admin_input'
+        'id_admin_input',
+        'gambar',
+        'koordinat'
     ];
 
     // Menggunakan timestamp otomatis

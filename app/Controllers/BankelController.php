@@ -11,10 +11,10 @@ class BankelController extends BaseController
     {
         $bankelModel = new \App\Models\BankelModel();
         $kabupatenModel = new \App\Models\KabupatenModel(); // Panggil model kabupaten
-        
+
         $role = session()->get('role');
         $id_kabupaten_admin = session()->get('id_kabupaten');
-        
+
         $data_bantuan = [];
         $page_title = 'Manajemen Data SIM-BANKEL'; // Judul default
 
@@ -26,7 +26,7 @@ class BankelController extends BaseController
         if ($role === 'admin') {
             // Admin: Ambil data dari kabupatennya saja
             $data_bantuan = $bankelModel->getBankelData($id_kabupaten_admin);
-            
+
             // Ambil nama kabupaten untuk judul
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
             if ($kabupaten) {
@@ -39,7 +39,7 @@ class BankelController extends BaseController
             'message' => session()->getFlashdata('message'),
             'title'   => $page_title // Kirim judul ke view
         ];
-        
+
         return view('bankel/SIM-BANKEL', $data); // Pastikan nama view sudah benar
     }
 
@@ -85,6 +85,36 @@ class BankelController extends BaseController
             // (Tambahkan field lain dari form jika ada)
         ];
 
+        // Tangani upload gambar baru (jika ada)
+        $file = $this->request->getFile('gambar');
+        if ($file && $file->isValid() && !$file->hasMoved()) {
+            $namaGambar = $file->getRandomName();
+
+            // ✅ Ekstrak koordinat dari EXIF sebelum file dipindah
+            $exif = @exif_read_data($file->getTempName(), 0, true);
+            if (isset($exif['GPS'])) {
+                $lat_ref = $exif['GPS']['GPSLatitudeRef'];
+                $lon_ref = $exif['GPS']['GPSLongitudeRef'];
+                $lat = $this->convertToDecimal($exif['GPS']['GPSLatitude'], $lat_ref);
+                $lon = $this->convertToDecimal($exif['GPS']['GPSLongitude'], $lon_ref);
+                $data['koordinat'] = "$lat,$lon";
+            }
+
+            // ✅ Hapus gambar lama (jika ada)
+            $lama = $bankelModel->find($id);
+            if ($lama && !empty($lama['gambar'])) {
+                $pathLama = ROOTPATH . 'public/uploads/' . $lama['gambar'];
+                if (file_exists($pathLama)) {
+                    unlink($pathLama);
+                }
+            }
+
+            // ✅ Pindahkan file gambar baru
+            $file->move(ROOTPATH . 'public/uploads/', $namaGambar);
+            $data['gambar'] = $namaGambar;
+        }
+
+
         // =================================================================
         // BAGIAN KUNCI PERUBAHAN
         // =================================================================
@@ -93,7 +123,7 @@ class BankelController extends BaseController
 
         // 2. Gunakan metode save() yang akan otomatis mendeteksi 'id' dan melakukan UPDATE
         if ($bankelModel->save($data)) {
-        // =================================================================
+            // =================================================================
 
             return redirect()->to('/admin/bankel')->with('message', 'Data berhasil diupdate!');
         } else {
@@ -146,6 +176,24 @@ class BankelController extends BaseController
         $bankelModel = new \App\Models\BankelModel();
         $session = session();
 
+        // ==== HANDLE GAMBAR & EKSTRAK KOORDINAT ====
+        $gambarFile = $this->request->getFile('gambar');
+        $namaGambar = null;
+        $koordinat = null;
+
+        if ($gambarFile && $gambarFile->isValid() && !$gambarFile->hasMoved()) {
+            $namaGambar = $gambarFile->getRandomName();
+            $gambarFile->move(FCPATH . 'uploads', $namaGambar);
+
+            // Ambil koordinat dari EXIF jika ada
+            $exif = @exif_read_data(FCPATH . 'uploads/' . $namaGambar);
+            if ($exif && isset($exif['GPSLatitude'], $exif['GPSLongitude'])) {
+                $lat = $this->convertExifToCoordinate($exif['GPSLatitude'], $exif['GPSLatitudeRef']);
+                $lon = $this->convertExifToCoordinate($exif['GPSLongitude'], $exif['GPSLongitudeRef']);
+                $koordinat = $lat . ',' . $lon;
+            }
+        }
+
         // Sesuaikan data yang diambil dari form
         $data = [
             'nik'              => $this->request->getPost('nik'),
@@ -160,6 +208,8 @@ class BankelController extends BaseController
             'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
             'id_kabupaten'     => $session->get('id_kabupaten'),
             'id_admin_input'   => $session->get('user_id'),
+            'gambar'           => $namaGambar,
+            'koordinat'        => $koordinat,
         ];
 
         if ($bankelModel->save($data)) {
@@ -167,6 +217,35 @@ class BankelController extends BaseController
         } else {
             return redirect()->back()->withInput()->with('errors', $bankelModel->errors());
         }
+    }
+
+    // Fungsi bantu: konversi EXIF ke desimal
+    private function convertExifToCoordinate($exifCoord, $ref)
+    {
+        $degrees = count($exifCoord) > 0 ? $this->fracToFloat($exifCoord[0]) : 0;
+        $minutes = count($exifCoord) > 1 ? $this->fracToFloat($exifCoord[1]) : 0;
+        $seconds = count($exifCoord) > 2 ? $this->fracToFloat($exifCoord[2]) : 0;
+
+        $coord = $degrees + ($minutes / 60.0) + ($seconds / 3600.0);
+        return ($ref == 'S' || $ref == 'W') ? -$coord : $coord;
+    }
+
+    private function fracToFloat($fraction)
+    {
+        $parts = explode('/', $fraction);
+        if (count($parts) <= 0) return 0;
+        if (count($parts) == 1) return (float)$parts[0];
+        return (float)$parts[0] / (float)$parts[1];
+    }
+
+    private function convertToDecimal($coord, $ref)
+    {
+        $degrees = count($coord) > 0 ? eval('return ' . $coord[0] . ';') : 0;
+        $minutes = count($coord) > 1 ? eval('return ' . $coord[1] . ';') : 0;
+        $seconds = count($coord) > 2 ? eval('return ' . $coord[2] . ';') : 0;
+
+        $decimal = $degrees + ($minutes / 60) + ($seconds / 3600);
+        return ($ref == 'S' || $ref == 'W') ? -$decimal : $decimal;
     }
 
     public function getKelurahanByKecamatan($id_kecamatan)
