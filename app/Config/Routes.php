@@ -42,6 +42,10 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Rute untuk koordinat map
     $routes->get('bankel/leaflet_map/(:num)', 'BankelController::leaflet_map/$1');
 
+    $routes->get('bankel/export', 'BankelController::export');
+    //chart
+    $routes->get('bankel/chart-data', 'BankelController::getChartData');
+
 
     //============================MONEVKUEB=============================//
     $routes->get('monevkuep', 'MonevkuepController::index');
