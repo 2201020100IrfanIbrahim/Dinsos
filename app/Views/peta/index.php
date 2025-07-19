@@ -51,6 +51,12 @@
 
   <h2>Peta Sebaran Bantuan Sosial Kepri</h2>
 
+    <label for="tingkat">Pilih Tingkat Wilayah:</label>
+    <select id="tingkat">
+      <option value="kecamatan">Kecamatan</option>
+      <option value="kelurahan">Kelurahan</option>
+    </select>
+
   <label for="wilayah">Pilih Wilayah:</label>
   <select id="wilayah">
     <option value="karimun">Karimun</option>
@@ -91,10 +97,16 @@
       };
     }
 
-    function loadGeoJSON(wilayah) {
+    function loadGeoJSON() {
+      const wilayah = document.getElementById('wilayah').value;
+      const tingkat = document.getElementById('tingkat').value;
+
       loading.style.display = 'inline';
 
-      fetch(`<?= site_url('peta/geojson/') ?>${wilayah}`)
+      // Contoh nama file: karimun-kecamatan.geojson atau tanjungpinang-kelurahan.geojson
+      const url = `<?= site_url('peta/geojson/') ?>${wilayah}-${tingkat}`;
+
+      fetch(url)
         .then(res => {
           if (!res.ok) throw new Error("Gagal memuat GeoJSON");
           return res.json();
@@ -121,6 +133,7 @@
         });
     }
 
+
     // Tambah legenda
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = function () {
@@ -145,9 +158,10 @@
     // Load default
     loadGeoJSON('karimun');
 
-    document.getElementById('wilayah').addEventListener('change', function () {
+    document.getElementById('wilayah').addEventListener('change', loadGeoJSON);  
+    document.getElementById('tingkat').addEventListener('change', loadGeoJSON); {
       loadGeoJSON(this.value);
-    });
+    };
   </script>
 
 </body>
