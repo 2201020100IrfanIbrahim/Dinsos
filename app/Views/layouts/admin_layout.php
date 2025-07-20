@@ -4,20 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->renderSection('title', 'Dashboard') ?> - SIM DINSOS</title>
-    <style>
+<style>
+        /* 1. Panggil font Open Sans dari Google Fonts */
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&display=swap');
+
         /* Reset & Body */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; }
+        
+        /* 2. Terapkan font Open Sans ke seluruh halaman */
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            background-color: #f4f7f6;
+            color: #333333; /* Warna dasar untuk semua teks */
+        }
 
         /* Main Wrapper */
         .wrapper { display: flex; min-height: 100vh; position: relative; }
 
         /* Sidebar */
         .sidebar {
-            width: 260px;
+            width: 240px; /* Ukuran sidebar diperkecil */
             background-color: #ffffff;
-            padding: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
+            padding: 20px 15px; /* Padding disesuaikan */
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease-in-out;
@@ -26,11 +35,42 @@
             top: 0;
             height: 100vh;
         }
-        .sidebar-header { text-align: center; margin-bottom: 30px; position: relative; }
-        .sidebar-logo { font-size: 24px; font-weight: 700; color: #333; }
-        .sidebar-menu { list-style-type: none; flex-grow: 1; }
-        .sidebar-menu li a { display: block; padding: 12px 15px; color: #555; text-decoration: none; border-radius: 6px; margin-bottom: 5px; transition: background-color 0.2s, color 0.2s; }
-        .sidebar-menu li a:hover, .sidebar-menu li a.active { background-color: #007bff; color: #fff; }
+        .sidebar-header {
+            text-align: left; /* Teks header rata kiri */
+            margin-bottom: 30px;
+            padding-left: 10px;
+            position: relative;
+        }
+        .sidebar-logo {
+            font-size: 22px; /* Font logo disesuaikan */
+            font-weight: 700;
+            color: #333333;
+        }
+        .sidebar-menu {
+            list-style-type: none;
+            flex-grow: 1;
+        }
+        .sidebar-menu li a {
+            display: flex; /* Menggunakan flexbox untuk ikon dan teks */
+            align-items: center;
+            gap: 12px; /* Jarak antara ikon dan teks */
+            padding: 12px 15px;
+            color: #555;
+            text-decoration: none;
+            border-radius: 8px; /* Sudut lebih melengkung */
+            margin-bottom: 5px;
+            font-weight: 500; /* Font lebih tipis */
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .sidebar-menu li a:hover {
+            background-color: #f0f2f5; /* Warna hover lebih lembut */
+            color: #007bff;
+        }
+        .sidebar-menu li a.active {
+            background-color: transparent; /* Hapus latar belakang biru */
+            color: #007bff;            /* Ubah warna teks menjadi biru */
+            font-weight: 600;         /* Pertahankan teks tebal */
+        }
         .sidebar-footer { text-align: center; font-size: 12px; color: #999; }
         .footer-logout { display: block; margin-bottom: 15px; padding: 10px; font-weight: 600; text-align: center; color: #555; text-decoration: none; border-radius: 6px; transition: color 0.2s, background-color 0.2s; }
         .footer-logout:hover { color: #dc3545; background-color: #f8f9fa; }
@@ -64,6 +104,11 @@
             width: 100%; height: 100%;
             background-color: rgba(0,0,0,0.5);
             z-index: 999;
+        }
+        .required-star {
+            color: #e4626fff; /* Warna merah */
+            font-weight: bold;
+            margin-left: 4px;
         }
 
         /* Terapkan style ini jika layar di bawah 992px */
@@ -153,6 +198,6 @@
 
     </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script> ```
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
 </body>
 </html>

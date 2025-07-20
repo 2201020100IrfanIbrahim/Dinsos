@@ -39,11 +39,11 @@ Tambah Data Bantuan
             <h3>Data Penerima</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="nama_lengkap">Nama Lengkap</label>
+                    <label for="nama_lengkap">Nama Lengkap<span class="required-star">*</span></label></label>
                     <input type="text" name="nama_lengkap" id="nama_lengkap" class="form-input" placeholder="Masukkan nama" value="<?= old('nama_lengkap') ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="nik">NIK (KTP)</label>
+                    <label for="nik">NIK (KTP)<span class="required-star">*</span></label></label>
                     <input type="text" name="nik" id="nik" class="form-input" placeholder="Masukkan 16 digit NIK" value="<?= old('nik') ?>" required>
                 </div>
             </div>
@@ -53,7 +53,7 @@ Tambah Data Bantuan
             <h3>Wilayah & Alamat</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="id_kecamatan">Kecamatan</label>
+                    <label for="id_kecamatan">Kecamatan<span class="required-star">*</span></label></label>
                     <select name="id_kecamatan" id="id_kecamatan" required>
                         <option value="">-- Pilih Kecamatan --</option>
                         <?php foreach ($kecamatan_list as $kecamatan): ?>
@@ -64,7 +64,7 @@ Tambah Data Bantuan
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="id_kelurahan">Kelurahan/Desa</label>
+                    <label for="id_kelurahan">Kelurahan/Desa<span class="required-star">*</span></label></label>
                     <select name="id_kelurahan" id="id_kelurahan" required>
                         <option value="">-- Pilih Kecamatan Dulu --</option>
                     </select>
@@ -76,11 +76,11 @@ Tambah Data Bantuan
                     <input type="text" name="dusun" id="dusun" class="form-input" placeholder="Isikan dusun" value="<?= old('dusun') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="rt">RT</label>
+                    <label for="rt">RT<span class="required-star">*</span></label></label>
                     <input type="text" name="rt" id="rt" class="form-input" placeholder="001" value="<?= old('rt') ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="rw">RW</label>
+                    <label for="rw">RW<span class="required-star">*</span></label></label>
                     <input type="text" name="rw" id="rw" class="form-input" placeholder="001" value="<?= old('rw') ?>" required>
                 </div>
             </div>
@@ -94,11 +94,11 @@ Tambah Data Bantuan
             <h3>Detail Bantuan</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="kategori_bantuan">Jenis Bantuan</label>
+                    <label for="kategori_bantuan">Jenis Bantuan<span class="required-star">*</span></label></label>
                     <input type="text" name="kategori_bantuan" id="kategori_bantuan" class="form-input" placeholder="Contoh: Bantuan Pokok" value="<?= old('kategori_bantuan') ?>" required>
                 </div>
                 <div class="form-group">
-                    <label for="tahun_penerimaan">Tahun Penerimaan</label>
+                    <label for="tahun_penerimaan">Tahun Penerimaan<span class="required-star">*</span></label></label>
                     <input type="number" name="tahun_penerimaan" id="tahun_penerimaan" class="form-input" placeholder="Contoh: 2025" value="<?= old('tahun_penerimaan', date('Y')) ?>" required>
                 </div>
             </div>
