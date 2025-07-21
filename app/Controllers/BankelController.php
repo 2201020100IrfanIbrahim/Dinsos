@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Controllers;
+
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
@@ -65,20 +66,20 @@ class BankelController extends BaseController
         }
 
         $data = [
-                // ... (data lain seperti $bantuan, $pager, dll) ...
-                'bantuan' => $data_bantuan,
-                'pager'   => $pager,
-                'message' => session()->getFlashdata('message'),
-                'title'   => $page_title,
-                'filters' => $filters,
-                
-                // Data breadcrumbs untuk halaman index
-                'breadcrumbs' => [
-                    ['title' => 'Beranda', 'url' => '/dashboard'],
-                    ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel']
-                ]
-            ];
-            
+            // ... (data lain seperti $bantuan, $pager, dll) ...
+            'bantuan' => $data_bantuan,
+            'pager'   => $pager,
+            'message' => session()->getFlashdata('message'),
+            'title'   => $page_title,
+            'filters' => $filters,
+
+            // Data breadcrumbs untuk halaman index
+            'breadcrumbs' => [
+                ['title' => 'Beranda', 'url' => '/dashboard'],
+                ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel']
+            ]
+        ];
+
         return view('bankel/SIM-BANKEL', $data);
     }
 
@@ -136,7 +137,7 @@ class BankelController extends BaseController
         // 3. Proses upload gambar HANYA JIKA ada gambar baru yang diunggah
         $gambarFile = $this->request->getFile('gambar');
         if ($gambarFile && $gambarFile->isValid() && !$gambarFile->hasMoved()) {
-            
+
             // Ekstrak koordinat dari gambar BARU
             $exif = @exif_read_data($gambarFile->getTempName());
             if ($exif && isset($exif['GPSLatitude'], $exif['GPSLongitude'])) {
@@ -145,17 +146,41 @@ class BankelController extends BaseController
                 $data['koordinat'] = $lat . ',' . $lon;
             }
 
-            // Buat nama unik untuk gambar BARU
-            $namaGambarBaru = $gambarFile->getRandomName();
+            // ==== Generate folder berdasarkan waktu upload ====
+            $now = new \DateTime();
+            $tahun = $now->format('Y');
+            $bulan = $now->format('F');
+            $tanggal = $now->format('dmY');
 
-            // Kompres dan simpan gambar BARU
+            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
+
+            // Buat folder jika belum ada
+            if (!is_dir($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+
+            // Ambil ekstensi asli file
+            $ext = $gambarFile->getExtension();
+
+            // Cari nama file yang belum ada
+            $index = 0;
+            do {
+                $namaGambarBaru = $tanggal . '_' . $index . '.' . $ext;
+                $fullPath = $folderPath . '/' . $namaGambarBaru;
+                $index++;
+            } while (file_exists($fullPath));
+
+            // Simpan path relatif untuk database
+            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambarBaru;
+
+            // Kompres dan simpan gambar
             \Config\Services::image()
                 ->withFile($gambarFile)
                 ->resize(800, 800, true, 'height')
-                ->save(FCPATH . 'uploads/' . $namaGambarBaru, 70);
-            
-            // Masukkan nama gambar BARU ke dalam data yang akan disimpan
-            $data['gambar'] = $namaGambarBaru;
+                ->save($fullPath, 70);
+
+            // Simpan nama file ke database
+            $data['gambar'] = $relativePath;
 
             // Hapus file gambar LAMA jika ada
             if (!empty($dataLama['gambar'])) {
@@ -214,7 +239,7 @@ class BankelController extends BaseController
                 ['title' => 'Tambah Data', 'url' => ''] // URL kosong karena ini halaman aktif
             ]
         ];
-        
+
         return view('bankel/input', $data);
     }
 
@@ -240,14 +265,38 @@ class BankelController extends BaseController
                 $koordinat = $lat . ',' . $lon;
             }
 
-            // Buat nama file baru yang unik
-            $namaGambar = $gambarFile->getRandomName();
-            
-            // Proses kompresi dan resize gambar
+            // ==== Generate folder berdasarkan waktu ====
+            $now = new \DateTime();
+            $tahun = $now->format('Y');
+            $bulan = $now->format('F');
+            $tanggal = $now->format('dmY');
+
+            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
+
+            // Buat folder jika belum ada
+            if (!is_dir($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+
+            // Ambil ekstensi asli file
+            $ext = $gambarFile->getExtension();
+
+            // Cari nama file yang belum ada
+            $index = 0;
+            do {
+                $namaGambar = $tanggal . '_' . $index . '.' . $ext;
+                $fullPath = $folderPath . '/' . $namaGambar;
+                $index++;
+            } while (file_exists($fullPath));
+
+            // Simpan path relatif untuk database
+            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambar;
+
+            // Proses kompresi dan resize
             \Config\Services::image()
                 ->withFile($gambarFile)
-                ->resize(800, 800, true, 'height') // Resize gambar, maks tinggi 800px, lebar menyesuaikan
-                ->save(FCPATH . 'uploads/' . $namaGambar, 85); // Simpan dengan kualitas 85%
+                ->resize(800, 800, true, 'height')
+                ->save($fullPath, 85);
         }
 
         // Sesuaikan data yang diambil dari form
@@ -264,7 +313,7 @@ class BankelController extends BaseController
             'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
             'id_kabupaten'     => $session->get('id_kabupaten'),
             'id_admin_input'   => $session->get('user_id'),
-            'gambar'           => $namaGambar,
+            'gambar'           => $relativePath,
             'koordinat'        => $koordinat,
         ];
 
@@ -392,5 +441,4 @@ class BankelController extends BaseController
 
         return $this->response->setJSON($chartData);
     }
-
 }
