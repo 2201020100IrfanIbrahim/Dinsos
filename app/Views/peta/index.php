@@ -73,96 +73,112 @@
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
     const map = L.map('map').setView([1.1, 104], 9);
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // }).addTo(map);
 
     let geoLayer;
     const loading = document.getElementById('loading');
+    const wilayahSelect = document.getElementById('wilayah');
+    const tingkatSelect = document.getElementById('tingkat');
 
     function getColor(val) {
-      return val > 100 ? '#e31a1c' :
-             val > 50  ? '#fd8d3c' :
-             val > 10  ? '#fecc5c' :
-             val > 0   ? '#ffffb2' :
-                         '#ccc';
+        // Saya sesuaikan sedikit agar cocok dengan legenda Anda
+        return val > 100 ? '#e31a1c' :
+               val > 50  ? '#fd8d3c' :
+               val > 9   ? '#000000ff' : // Legenda Anda mulai dari 10, bukan 5
+               val > 0   ? '#ffffb2' :
+                           '#ccc';
     }
 
     function styleFeature(feature) {
-      const val = feature.properties.total_penerima || 0;
-      return {
-        fillColor: getColor(val),
-        color: "#333",
-        weight: 1,
-        fillOpacity: 0.8
-      };
+        const val = feature.properties.total_penerima || 0;
+        return {
+            fillColor: getColor(val),
+            color: "#333",
+            weight: 1,
+            fillOpacity: 0.8
+        };
     }
 
     function loadGeoJSON() {
-      const wilayah = document.getElementById('wilayah').value;
-      const tingkat = document.getElementById('tingkat').value;
+        const wilayah = wilayahSelect.value;
+        const tingkat = tingkatSelect.value;
 
-      loading.style.display = 'inline';
+        loading.style.display = 'inline';
 
-      // Contoh nama file: karimun-kecamatan.geojson atau tanjungpinang-kelurahan.geojson
-      const url = `<?= site_url('peta/geojson/') ?>${wilayah}-${tingkat}`;
+        // GANTI URL agar sesuai dengan route baru: /peta/geojson/wilayah/tingkat
+        const url = `<?= site_url('peta/geojson/') ?>${wilayah}/${tingkat}`;
 
-      fetch(url)
-        .then(res => {
-          if (!res.ok) throw new Error("Gagal memuat GeoJSON");
-          return res.json();
-        })
-        .then(data => {
-          if (geoLayer) map.removeLayer(geoLayer);
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error(`Gagal memuat GeoJSON (${res.status})`);
+                return res.json();
+            })
+            .then(data => {
+                if (data.error) throw new Error(data.error); // Tangani error dari PHP
+                
+                if (geoLayer) map.removeLayer(geoLayer);
 
-          geoLayer = L.geoJSON(data, {
-            style: styleFeature,
-            onEachFeature: function (feature, layer) {
-              const nama = feature.properties.NAMOBJ ?? 'Tidak diketahui';
-              const total = feature.properties.total_penerima ?? 0;
-              layer.bindPopup(`<strong>${nama}</strong><br>Total Penerima: ${total}`);
-            }
-          }).addTo(map);
+                geoLayer = L.geoJSON(data, {
+                    style: styleFeature,
+                    onEachFeature: function (feature, layer) {
+                        const nama = feature.properties.NAMOBJ ?? 'Tidak diketahui';
+                        const total = feature.properties.total_penerima ?? 0;
+                        layer.bindPopup(`<strong>${nama}</strong><br>Total Penerima: ${total}`);
+                    }
+                }).addTo(map);
 
-          map.fitBounds(geoLayer.getBounds());
-        })
-        .catch(err => {
-          alert('Terjadi kesalahan: ' + err.message);
-        })
-        .finally(() => {
-          loading.style.display = 'none';
-        });
+                // Hindari error jika data kosong
+                if (geoLayer.getBounds().isValid()) {
+                    map.fitBounds(geoLayer.getBounds());
+                }
+            })
+            .catch(err => {
+                console.error(err); // Tampilkan error di console untuk debug
+                alert('Terjadi kesalahan: ' + err.message);
+                if (geoLayer) map.removeLayer(geoLayer); // Bersihkan layer jika gagal
+            })
+            .finally(() => {
+                loading.style.display = 'none';
+            });
     }
-
 
     // Tambah legenda
     const legend = L.control({ position: 'bottomright' });
     legend.onAdd = function () {
-      const div = L.DomUtil.create('div', 'legend');
-      const grades = [0, 1, 10, 50, 100];
-      const labels = [];
+        const div = L.DomUtil.create('div', 'legend');
+        // Sesuaikan grades agar cocok dengan fungsi getColor
+        const grades = [0, 1, 10, 51, 101]; 
+        const labels = [];
 
-      for (let i = 0; i < grades.length; i++) {
-        const from = grades[i];
-        const to = grades[i + 1];
+        div.innerHTML = '<strong>Total Penerima</strong><br>';
+        
+        for (let i = 0; i < grades.length; i++) {
+            const from = grades[i];
+            const to = grades[i + 1];
 
-        labels.push(
-          `<i style="background:${getColor(from + 1)}"></i> ${from}${to ? '&ndash;' + (to - 1) : '+'}`
-        );
-      }
+            labels.push(
+                '<i style="background:' + getColor(from) + '"></i> ' +
+                (from === 0 ? '0' : from) + (to ? '&ndash;' + (to - 1) : '+')
+            );
+        }
 
-      div.innerHTML = `<strong>Keterangan:</strong><br>` + labels.join('<br>');
-      return div;
+        div.innerHTML += labels.join('<br>');
+        return div;
     };
     legend.addTo(map);
 
-    // Load default
-    loadGeoJSON('karimun');
+    // Perbaiki event listener dan pemanggilan awal
+    wilayahSelect.addEventListener('change', loadGeoJSON);
+    tingkatSelect.addEventListener('change', loadGeoJSON);
 
-    document.getElementById('wilayah').addEventListener('change', loadGeoJSON);  
-    document.getElementById('tingkat').addEventListener('change', loadGeoJSON); {
-      loadGeoJSON(this.value);
-    };
-  </script>
+    // Panggil fungsi saat halaman pertama kali dimuat
+    document.addEventListener('DOMContentLoaded', loadGeoJSON);
+</script>
 
 </body>
 </html>
