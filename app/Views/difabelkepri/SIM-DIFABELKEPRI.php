@@ -29,7 +29,7 @@ Manajemen Data Difabel
     .filter-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
     .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
-    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; }
+    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center;}
     .pagination-container { margin-top: 20px; display: flex; justify-content: center; }
     .pagination { display: inline-flex; list-style-type: none; padding: 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     .page-item .page-link { color: #007bff; padding: 10px 15px; text-decoration: none; transition: background-color .3s; border: 1px solid #ddd; margin: 0 -1px 0 0; display: block; }
@@ -37,6 +37,33 @@ Manajemen Data Difabel
     .page-item:last-child .page-link { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
     .page-item.active .page-link { z-index: 1; color: #fff; background-color: #007bff; border-color: #007bff; }
     .page-item .page-link:hover { background-color: #e9ecef; }
+    .table-responsive-wrapper {
+        overflow-x: auto; /* Membuat hanya div ini yang bisa di-scroll ke samping */
+        width: 100%;
+    }
+    /* ============================================= */
+    /* STYLE UNTUK TAMPILAN HP            */
+    /* ============================================= */
+    @media (max-width: 768px) {
+        /* 1. Mengubah layout visualisasi menjadi atas-bawah */
+        .visualization-section {
+            grid-template-columns: 1fr; /* Mengubah dari 2 kolom menjadi 1 kolom */
+        }
+
+        /* 2. Menyesuaikan ukuran font */
+        h1 { font-size: 22px; }
+        h2 { font-size: 18px; }
+        table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
+            font-size: 14px; /* Sedikit mengecilkan font di tabel dan tombol */
+        }
+        
+        /* 3. Membuat form filter menjadi responsif */
+        .filter-form form {
+            flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
+            align-items: stretch;   /* Membuat semua item selebar kontainer */
+            gap: 15px;
+        }
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -87,41 +114,43 @@ Manajemen Data Difabel
                         <a href="<?= site_url('admin/difabelkepri') ?>">Reset</a>
                     </form>
                 </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Pilihan</th>
-                            <th>No</th>
-                            <th>NIK</th>
-                            <th>Nama Lengkap</th>
-                            <th>Usia</th>
-                            <th>Kecamatan</th>
-                            <th>Kelurahan</th>
-                            <th>Golongan Disabilitas</th>
-                            <th>Jenis Disabilitas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($data_difabel)): ?> <?php foreach ($data_difabel as $index => $item): ?> <tr>
-                                    <td class="action-links">
-                                        <a href="<?= site_url('admin/difabelkepri/edit/' . $item['id']) ?>" class="btn btn-edit" title="Edit">📝</a> <a href="<?= site_url('admin/difabelkepri/delete/' . $item['id']) ?>" class="btn btn-delete tombol-hapus" title="Hapus">🗑️</a> </td>
-                                    <td><?= ($pager->getDetails('difabel')['currentPage'] - 1) * $pager->getDetails('difabel')['perPage'] + $index + 1 ?></td>
-                                    <td><?= esc($item['nik']) ?></td>
-                                    <td><?= esc($item['nama_lengkap']) ?></td>
-                                    <td><?= esc($item['usia']) ?></td>
-                                    <td><?= esc($item['nama_kecamatan']) ?></td>
-                                    <td><?= esc($item['nama_kelurahan']) ?></td>
-                                    <td><?= esc($item['golongan_disabilitas']) ?></td>
-                                    <td><?= esc($item['jenis_disabilitas_list']) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                <div class="table-responsive-wrapper">
+                    <table>
+                        <thead>
                             <tr>
-                                <td colspan="10" style="text-align: center;">Tidak ada data.</td>
+                                <th>Pilihan</th>
+                                <th>No</th>
+                                <th>NIK</th>
+                                <th>Nama Lengkap</th>
+                                <th>Usia</th>
+                                <th>Kecamatan</th>
+                                <th>Kelurahan</th>
+                                <th>Golongan Disabilitas</th>
+                                <th>Jenis Disabilitas</th>
                             </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($data_difabel)): ?> <?php foreach ($data_difabel as $index => $item): ?> <tr>
+                                        <td class="action-links">
+                                            <a href="<?= site_url('admin/difabelkepri/edit/' . $item['id']) ?>" class="btn btn-edit" title="Edit">📝</a> <a href="<?= site_url('admin/difabelkepri/delete/' . $item['id']) ?>" class="btn btn-delete tombol-hapus" title="Hapus">🗑️</a> </td>
+                                        <td><?= ($pager->getDetails('difabel')['currentPage'] - 1) * $pager->getDetails('difabel')['perPage'] + $index + 1 ?></td>
+                                        <td><?= esc($item['nik']) ?></td>
+                                        <td><?= esc($item['nama_lengkap']) ?></td>
+                                        <td><?= esc($item['usia']) ?></td>
+                                        <td><?= esc($item['nama_kecamatan']) ?></td>
+                                        <td><?= esc($item['nama_kelurahan']) ?></td>
+                                        <td><?= esc($item['golongan_disabilitas']) ?></td>
+                                        <td><?= esc($item['jenis_disabilitas_list']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="10" style="text-align: center;">Tidak ada data.</td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
+                </div>
             </div>
 
             <?php if (isset($pager)): ?>

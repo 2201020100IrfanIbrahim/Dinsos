@@ -30,7 +30,7 @@ Manajemen SIM-BANKEL
     .filter-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
     .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
-    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; }
+    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center; }
     
     .pagination-container { margin-top: 20px; display: flex; justify-content: center; }
     .pagination { display: inline-flex; list-style-type: none; padding: 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
