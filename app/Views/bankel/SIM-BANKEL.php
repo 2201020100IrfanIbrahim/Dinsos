@@ -209,8 +209,32 @@ Manajemen SIM-BANKEL
             </div>
         </div>
     </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+        const tombolHapus = document.querySelectorAll('.tombol-hapus');
+
+        tombolHapus.forEach(tombol => {
+            tombol.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                const href = this.getAttribute('href');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('kecamatanChart');
     if (!ctx) return;

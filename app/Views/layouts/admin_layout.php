@@ -141,9 +141,25 @@
                 <button class="close-sidebar" id="closeSidebar">&times;</button>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="<?= site_url('admin/bankel') ?>" class="active">SIM-BANKEL</a></li>
-                <li><a href="<?= site_url('admin/monevkuep') ?>">SIM-MONEVKUEP</a></li>
-                <li><a href="<?= site_url('admin/difabelkepri') ?>">SIM-DIFABELKEPRI</a></li>
+                <?php $uri = service('uri'); ?>
+                <li>
+                    <a href="<?= site_url('admin/bankel') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'bankel') ? 'active' : '' ?>">
+                    SIM-BANKEL
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/monevkuep') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'monevkuep') ? 'active' : '' ?>">
+                    SIM-MONEVKUEP
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/difabelkepri') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'difabelkepri') ? 'active' : '' ?>">
+                    SIM-DIFABELKEPRI
+                    </a>
+                </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="<?= site_url('logout') ?>" class="footer-logout">⏻ Logout</a>

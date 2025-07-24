@@ -62,5 +62,10 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Rute untuk MENYIMPAN data dari form (metode POST)
     $routes->post('difabelkepri/create', 'DifabelkepriController::create');
 
+    $routes->get('difabelkepri/edit/(:num)', 'DifabelkepriController::edit/$1');
+    $routes->post('difabelkepri/update/(:num)', 'DifabelkepriController::update/$1');
+    $routes->get('difabelkepri/delete/(:num)', 'DifabelkepriController::delete/$1');
+    $routes->get('difabelkepri/export', 'DifabelkepriController::export'); // <-- Tambahkan ini
+    // ...
     // Rute-rute CRUD lainnya akan ditambahkan di sini nanti
 });
