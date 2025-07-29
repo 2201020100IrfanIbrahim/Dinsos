@@ -12,15 +12,18 @@ $routes->get('/', 'Home::index');
 $routes->get('/login', 'AuthController::login');
 
 // Rute untuk memproses form login
-$routes->post('/login', 'AuthController::attemptLogin');
+$routes->post('/login', 'AuthController::attemptLogin'); 
 
 // Rute untuk logout
 $routes->get('/logout', 'AuthController::logout');
 
 $routes->get('/dashboard', 'DashboardController::index', ['filter' => 'auth']);
-$routes->get('/testhash', function () {
+$routes->get('/testhash', function() {
     echo password_hash('adminlingga', PASSWORD_DEFAULT);
 });
+
+$routes->get('peta/geojson/(:any)/(:any)', 'Peta::geojson/$1/$2');
+$routes->get('admin/bankel/chart-data', 'BankelController::getChartData');
 
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
@@ -35,7 +38,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('bankel/update/(:num)', 'BankelController::update/$1');
     // rute hapus
     $routes->get('bankel/delete/(:num)', 'BankelController::delete/$1');
-
+    
     // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
     $routes->get('bankel/get-kelurahan/(:num)', 'BankelController::getKelurahanByKecamatan/$1');
 
@@ -56,8 +59,8 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('monevkuep/input', 'MonevkuepController::new');
     // Rute untuk MENYIMPAN data dari form (metode POST)
     $routes->post('monevkuep/create', 'MonevkuepController::create');
-
-
+    
+    
     //============================DIFABELKEPRI=============================//
     $routes->get('difabelkepri', 'DifabelkepriController::index');
     // Rute untuk menampilkan form tambah data baru

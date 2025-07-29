@@ -11,7 +11,19 @@ Manajemen SIM-BANKEL
     .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
     .card-body { padding: 20px; }
     .visualization-section {display: grid; grid-template-columns: 1fr; /* Hanya 1 kolom */gap: 30px;}
-    .visualization-section .card-body { min-height: 200px; display:flex; justify-content:center; align-items:center; color: #999; }
+    .visualization-section .chart-container {
+        min-height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #999;
+    }
+
+    /* Aturan baru untuk card body peta (tanpa flexbox) */
+    .visualization-section .map-card-body {
+        padding: 0; /* Memberi ruang di sekitar kontrol dan peta */
+        min-height: 450px; /* Biarkan tingginya otomatis */
+    }
     table { width: 100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
     thead th { background-color: #e9ecef; }
@@ -86,6 +98,14 @@ Manajemen SIM-BANKEL
     /* ============================================= */
     /* STYLE UNTUK TAMPILAN HP            */
     /* ============================================= */
+
+    #map {
+            height: 500px; /* default untuk desktop */
+            width: 100%;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+        }
+
     @media (max-width: 768px) {
         /* 1. Mengubah layout visualisasi menjadi atas-bawah */
         .visualization-section {
@@ -105,7 +125,32 @@ Manajemen SIM-BANKEL
             align-items: stretch;   /* Membuat semua item selebar kontainer */
             gap: 15px;
         }
-    }
+
+        }
+        .map-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .map-controls select {
+            padding: 8px;
+            font-size: 14px;
+        }
+        .legend {
+            background: white;
+            padding: 6px;
+            line-height: 1.4em;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+        .legend i {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 0.8;
+        }
 </style>
 <?= $this->endSection() ?>
 
@@ -114,9 +159,35 @@ Manajemen SIM-BANKEL
     <h1><?= esc($title) ?></h1>
 
     <div class="visualization-section">
-        <div class="card">
-            <div class="card-header">Peta Persebaran</div>
-            <div class="card-body">Peta akan ditampilkan di sini.</div>
+  <div class="card">
+        <div class="card-header">Peta Persebaran</div>
+        <div class="card-body map-card-body">
+        <div class="map-controls">
+            <div>
+                <label for="tingkat">Tingkat:</label>
+                <select id="tingkat">
+                    <option value="kecamatan">Kecamatan</option>
+                    <option value="kelurahan">Kelurahan</option>
+                </select>
+            </div>
+                <div>
+                <label for="wilayah">Wilayah:</label>
+                    <select id="wilayah">
+                        <option value="tanjungpinang">Tanjung Pinang</option>
+                        <option value="batam">Batam</option>
+                        <option value="bintan">Bintan</option>
+                        <option value="karimun">Karimun</option>
+                        <option value="lingga">Lingga</option>
+                        <option value="natuna">Natuna</option>
+                        <option value="anambas">Anambas</option>
+                    </select>
+                </div>
+            </div>
+
+        <div id="loading">Memuat data geojson...</div>
+        
+        <div id="map"></div>
+        </div>
         </div>
         <div class="card">
             <div class="card-header">Grafik Analisis Bantuan per Kecamatan</div>
@@ -342,6 +413,7 @@ document.addEventListener('DOMContentLoaded', function() {
     fetch('<?= site_url('admin/bankel/chart-data') ?>')
         .then(response => response.json())
         .then(data => {
+            console.log('Data yang diterima untuk grafik:', data); 
             if (data.length === 0) return;
             const labels = data.map(item => item.nama_kecamatan);
             const values = data.map(item => Number(item.jumlah));
@@ -400,7 +472,103 @@ document.addEventListener('DOMContentLoaded', function() {
                 plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels],
             });
         });
-});
+        if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
+            const map = L.map('map').setView([1.1, 104], 8); // Zoom awal sedikit diubah
+            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // }).addTo(map);
+
+            let geoLayer;
+            const loading = document.getElementById('loading');
+            const wilayahSelect = document.getElementById('wilayah');
+            const tingkatSelect = document.getElementById('tingkat');
+
+            function getColor(val) {
+                return val > 100 ? '#e31a1c' :
+                    val > 50  ? '#fd8d3c' :
+                    val > 9   ? '#ffff76ff' :
+                    val > 0   ? '#ffffb2' :
+                                '#ccc';
+            }
+
+            function styleFeature(feature) {
+                const val = feature.properties.total_penerima || 0;
+                return {
+                    fillColor: getColor(val),
+                    color: "#333",
+                    weight: 1,
+                    fillOpacity: 0.8
+                };
+            }
+
+            function loadGeoJSON() {
+                const wilayah = wilayahSelect.value;
+                const tingkat = tingkatSelect.value;
+                loading.style.display = 'inline';
+
+                console.log('Nilai yang akan dikirim:', { wilayah_value: wilayah, tingkat_value: tingkat });
+                const url = `<?= site_url('peta/geojson/') ?>${wilayah}/${tingkat}`;
+
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`Gagal memuat GeoJSON (${res.status})`);
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        if (geoLayer) map.removeLayer(geoLayer);
+                        geoLayer = L.geoJSON(data, {
+                            style: styleFeature,
+                            onEachFeature: function (feature, layer) {
+                                const nama = feature.properties.NAMOBJ ?? 'Tidak diketahui';
+                                const total = feature.properties.total_penerima ?? 0;
+                                layer.bindPopup(`<strong>${nama}</strong><br>Total Penerima: ${total}`);
+                            }
+                        }).addTo(map);
+                        if (geoLayer.getBounds().isValid()) {
+                            map.fitBounds(geoLayer.getBounds());
+                        }
+
+                            setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Gagal memuat peta: ' + err.message);
+                        if (geoLayer) map.removeLayer(geoLayer);
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
+            }
+
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function () {
+                const div = L.DomUtil.create('div', 'legend');
+                const grades = [0, 1, 10, 51, 101]; 
+                const labels = [];
+                div.innerHTML = '<strong>Total Penerima</strong><br>';
+                for (let i = 0; i < grades.length; i++) {
+                    const from = grades[i];
+                    const to = grades[i + 1];
+                    labels.push(
+                        '<i style="background:' + getColor(from) + '"></i> ' +
+                        (from === 0 ? '0' : from) + (to ? '–' + (to - 1) : '+')
+                    );
+                }
+                div.innerHTML += labels.join('<br>');
+                return div;
+            };
+            legend.addTo(map);
+
+            wilayahSelect.addEventListener('change', loadGeoJSON);
+            tingkatSelect.addEventListener('change', loadGeoJSON);
+
+            // Langsung muat peta saat halaman pertama kali dibuka
+            loadGeoJSON(); 
+        }
+    });
 </script>
 
 <?= $this->endSection() ?>

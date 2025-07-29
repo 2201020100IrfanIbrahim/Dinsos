@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->renderSection('title', 'Dashboard') ?> - SIM DINSOS</title>
@@ -194,6 +195,8 @@
             <?= $this->renderSection('content') ?>
         </main>
     </div>
+                                
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <script>
         // SCRIPT UNTUK RESPONSIVE SIDEBAR
