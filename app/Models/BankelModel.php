@@ -56,12 +56,12 @@ class BankelModel extends Model
     // Pesan Error untuk Validasi
     protected $validationMessages   = [
         'nik' => [
-            'required'      => 'NIK wajib diisi.',
-            'exact_length'  => 'NIK harus terdiri dari 16 angka.',
-            'is_unique'     => 'NIK ini sudah terdaftar.'
+            'required'      => 'NIK wajib diisi',
+            'exact_length'  => 'NIK harus terdiri dari 16 angka',
+            'is_unique'     => 'NIK ini sudah terdaftar'
         ],
         'nama_lengkap' => [
-            'required' => 'Nama lengkap wajib diisi.'
+            'required' => 'Nama lengkap wajib diisi'
         ]
     ];
 

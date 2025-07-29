@@ -42,6 +42,16 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
     $routes->get('bankel/get-kelurahan/(:num)', 'BankelController::getKelurahanByKecamatan/$1');
 
+    // Rute untuk koordinat map
+    $routes->get('bankel/leaflet_map/(:num)', 'BankelController::leaflet_map/$1');
+
+    $routes->get('bankel/export', 'BankelController::export');
+    //chart
+    $routes->get('bankel/chart-data', 'BankelController::getChartData');
+    // Di dalam group('admin', ...)
+    $routes->get('bankel/import', 'BankelController::import'); // Menampilkan form
+    $routes->post('bankel/process-import', 'BankelController::processImport'); // Memproses file
+
 
     //============================MONEVKUEB=============================//
     $routes->get('monevkuep', 'MonevkuepController::index');
@@ -58,5 +68,10 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Rute untuk MENYIMPAN data dari form (metode POST)
     $routes->post('difabelkepri/create', 'DifabelkepriController::create');
 
+    $routes->get('difabelkepri/edit/(:num)', 'DifabelkepriController::edit/$1');
+    $routes->post('difabelkepri/update/(:num)', 'DifabelkepriController::update/$1');
+    $routes->get('difabelkepri/delete/(:num)', 'DifabelkepriController::delete/$1');
+    $routes->get('difabelkepri/export', 'DifabelkepriController::export'); // <-- Tambahkan ini
+    // ...
     // Rute-rute CRUD lainnya akan ditambahkan di sini nanti
 });

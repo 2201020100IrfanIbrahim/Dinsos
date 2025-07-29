@@ -18,6 +18,10 @@
             background-color: #f4f7f6;
             color: #333333; /* Warna dasar untuk semua teks */
         }
+        
+        ul {
+            list-style-type: none;
+        }
 
         /* Main Wrapper */
         .wrapper { display: flex; min-height: 100vh; position: relative; }
@@ -142,9 +146,25 @@
                 <button class="close-sidebar" id="closeSidebar">&times;</button>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="<?= site_url('admin/bankel') ?>" class="active">SIM-BANKEL</a></li>
-                <li><a href="<?= site_url('admin/monevkuep') ?>">SIM-MONEVKUEP</a></li>
-                <li><a href="<?= site_url('admin/difabelkepri') ?>">SIM-DIFABELKEPRI</a></li>
+                <?php $uri = service('uri'); ?>
+                <li>
+                    <a href="<?= site_url('admin/bankel') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'bankel') ? 'active' : '' ?>">
+                    SIM-BANKEL
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/monevkuep') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'monevkuep') ? 'active' : '' ?>">
+                    SIM-MONEVKUEP
+                    </a>
+                </li>
+                <li>
+                    <a href="<?= site_url('admin/difabelkepri') ?>" 
+                    class="<?= ($uri->getSegment(2) == 'difabelkepri') ? 'active' : '' ?>">
+                    SIM-DIFABELKEPRI
+                    </a>
+                </li>
             </ul>
             <div class="sidebar-footer">
                 <a href="<?= site_url('logout') ?>" class="footer-logout">⏻ Logout</a>

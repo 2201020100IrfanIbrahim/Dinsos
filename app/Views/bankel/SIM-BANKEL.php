@@ -25,7 +25,7 @@ Manajemen SIM-BANKEL
         min-height: 450px; /* Biarkan tingginya otomatis */
     }
     table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; }
+    th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
     thead th { background-color: #e9ecef; }
     tbody tr:hover { background-color: #f1f1f1; }
     .add-button, .export-button { display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; transition: background-color 0.2s; font-size: 14px; }
@@ -42,7 +42,7 @@ Manajemen SIM-BANKEL
     .filter-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
     .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
-    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; }
+    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center; }
     
     .pagination-container { margin-top: 20px; display: flex; justify-content: center; }
     .pagination { display: inline-flex; list-style-type: none; padding: 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
@@ -204,6 +204,7 @@ Manajemen SIM-BANKEL
         <div class="card-header">
             <span>Data Bantuan Sembako</span>
             <div>
+                <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
                 <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
                 <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">+ Tambah Data</a>
             </div>
@@ -230,9 +231,13 @@ Manajemen SIM-BANKEL
                             <th>Pilihan</th>
                             <th>No</th>
                             <th>NIK</th>
-                            <th>Nama Lengkap</th>
+                            <th>Nama</th>
                             <th>Kecamatan</th>
-                            <th>Kelurahan</th>
+                            <th>Kelurahan</th>            
+                            <th>RT/RW</th>
+                            <th>Jenis Bantuan</th>
+                            <th>Tahun</th>
+                            <th>Diinput Pada</th>
                             <th>Gambar</th>
                             <th>Koordinat</th>
                         </tr>
@@ -250,6 +255,10 @@ Manajemen SIM-BANKEL
                                     <td><?= esc($item['nama_lengkap']) ?></td>
                                     <td><?= esc($item['nama_kecamatan']) ?></td>
                                     <td><?= esc($item['nama_kelurahan']) ?></td>
+                                    <td>RT : <?= esc($item['rt']) ?> RW : <?= esc($item['rw']) ?></td>
+                                    <td><?= esc($item['kategori_bantuan']) ?></td>
+                                    <td><?= esc($item['tahun_penerimaan']) ?></td>
+                                    <td><?= date('d M Y', strtotime($item['created_at'])) ?></td>
                                     <td>
                                         <?php if (!empty($item['gambar'])): ?>
                                             <a href="<?= base_url('uploads/' . $item['gambar']) ?>" target="_blank">Lihat</a>
@@ -268,7 +277,7 @@ Manajemen SIM-BANKEL
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" style="text-align: center;">Tidak ada data yang cocok dengan kriteria pencarian Anda.</td>
+                                <td colspan="12" style="text-align: center;">Tidak ada data yang cocok dengan kriteria pencarian Anda.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -280,8 +289,32 @@ Manajemen SIM-BANKEL
             </div>
         </div>
     </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+        const tombolHapus = document.querySelectorAll('.tombol-hapus');
+
+        tombolHapus.forEach(tombol => {
+            tombol.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                const href = this.getAttribute('href');
+
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data yang dihapus tidak dapat dikembalikan!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = href;
+                    }
+                });
+            });
+        });
+
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('kecamatanChart');
     if (!ctx) return;
