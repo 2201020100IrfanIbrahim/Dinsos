@@ -277,6 +277,7 @@ class BankelController extends BaseController
         // 1. Inisialisasi variabel dengan nilai default (null)
         $namaGambar = null;
         $koordinat = null;
+        $relativePath = null;
 
         // 2. Cek dan proses file gambar HANYA JIKA ada yang di-upload
         $gambarFile = $this->request->getFile('gambar');
