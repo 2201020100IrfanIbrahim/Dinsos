@@ -45,6 +45,9 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('bankel/export', 'BankelController::export');
     //chart
     $routes->get('bankel/chart-data', 'BankelController::getChartData');
+    // Di dalam group('admin', ...)
+    $routes->get('bankel/import', 'BankelController::import'); // Menampilkan form
+    $routes->post('bankel/process-import', 'BankelController::processImport'); // Memproses file
 
 
     //============================MONEVKUEB=============================//

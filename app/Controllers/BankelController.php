@@ -240,21 +240,22 @@ class BankelController extends BaseController
         ];
         
         return view('bankel/input', $data);
-    }
+        }
 
-    /**
-     * Menyimpan data baru dari form ke database.
-     */
-    public function create()
+        /**
+         * Menyimpan data baru dari form ke database.
+         */
+        public function create()
     {
         $bankelModel = new \App\Models\BankelModel();
         $session = session();
 
-        // ==== HANDLE GAMBAR, EKSTRAK KOORDINAT, DAN KOMPRESI ====
-        $gambarFile = $this->request->getFile('gambar');
+        // 1. Inisialisasi variabel dengan nilai default (null)
         $namaGambar = null;
         $koordinat = null;
 
+        // 2. Cek dan proses file gambar HANYA JIKA ada yang di-upload
+        $gambarFile = $this->request->getFile('gambar');
         if ($gambarFile && $gambarFile->isValid() && !$gambarFile->hasMoved()) {
             // Ambil koordinat dari EXIF jika ada (dari file temporer asli)
             $exif = @exif_read_data($gambarFile->getTempName());
@@ -264,41 +265,15 @@ class BankelController extends BaseController
                 $koordinat = $lat . ',' . $lon;
             }
 
-            // ==== Generate folder berdasarkan waktu ====
-            $now = new \DateTime();
-            $tahun = $now->format('Y');
-            $bulan = $now->format('F');
-            $tanggal = $now->format('dmY');
-
-            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
-
-            // Buat folder jika belum ada
-            if (!is_dir($folderPath)) {
-                mkdir($folderPath, 0777, true);
-            }
-
-            // Ambil ekstensi asli file
-            $ext = $gambarFile->getExtension();
-
-            // Cari nama file yang belum ada
-            $index = 0;
-            do {
-                $namaGambar = $tanggal . '_' . $index . '.' . $ext;
-                $fullPath = $folderPath . '/' . $namaGambar;
-                $index++;
-            } while (file_exists($fullPath));
-
-            // Simpan path relatif untuk database
-            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambar;
-
-            // Proses kompresi dan resize
+            // Buat nama file baru yang unik dan kompres gambar
+            $namaGambar = $gambarFile->getRandomName();
             \Config\Services::image()
                 ->withFile($gambarFile)
                 ->resize(800, 800, true, 'height')
-                ->save($fullPath, 85);
+                ->save(FCPATH . 'uploads/' . $namaGambar, 85);
         }
 
-        // Sesuaikan data yang diambil dari form
+        // 3. Kumpulkan semua data untuk disimpan ke database
         $data = [
             'nik'              => $this->request->getPost('nik'),
             'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
@@ -312,10 +287,11 @@ class BankelController extends BaseController
             'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
             'id_kabupaten'     => $session->get('id_kabupaten'),
             'id_admin_input'   => $session->get('user_id'),
-            'gambar'           => $relativePath,
-            'koordinat'        => $koordinat,
+            'gambar'           => $namaGambar,   // Akan berisi nama file atau null
+            'koordinat'        => $koordinat,  // Akan berisi koordinat atau null
         ];
 
+        // 4. Simpan ke database
         if ($bankelModel->save($data)) {
             return redirect()->to('/admin/bankel')->with('message', 'Data berhasil ditambahkan!');
         } else {
@@ -439,6 +415,133 @@ class BankelController extends BaseController
         $chartData = $bankelModel->getChartDataByKecamatan($id_kabupaten);
 
         return $this->response->setJSON($chartData);
+    }
+
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------ IMPORT EXCEL -------------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    public function import()
+    {
+        $data = [
+            'title' => 'Import Data Bantuan dari Excel',
+            'breadcrumbs' => [
+                ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel'],
+                ['title' => 'Import Data', 'url' => '']
+            ]
+        ];
+        return view('bankel/import_view', $data);
+    }
+
+    // Method untuk memproses file Excel yang diupload
+    public function processImport()
+    {
+        $file = $this->request->getFile('excel_file');
+
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return redirect()->to('/admin/bankel/import')->with('error', 'Gagal mengupload file atau file tidak valid.');
+        }
+
+        $newName = $file->getRandomName();
+        $file->move(WRITEPATH . 'uploads', $newName);
+        $filePath = WRITEPATH . 'uploads/' . $newName;
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+        $sheet = $spreadsheet->getActiveSheet();
+        $rows = $sheet->toArray();
+        
+        $bankelModel = new \App\Models\BankelModel();
+        $kecamatanModel = new \App\Models\KecamatanModel();
+        $kelurahanModel = new \App\Models\KelurahanModel();
+
+        $dataToInsert = [];
+        $errors = [];
+        $rowCount = 0;
+
+        $session = session();
+        $id_kabupaten_admin = $session->get('id_kabupaten');
+        $id_admin_input = $session->get('user_id');
+
+        $kecamatanCache = [];
+        $kelurahanCache = [];
+
+        // Mulai dari baris ke-2 untuk melewati header
+        foreach ($rows as $index => $row) {
+            if ($index == 0) continue;
+            $excelRowNumber = $index + 1;
+            $rowCount++;
+
+            $nama_kecamatan = trim($row[7]);
+            $nama_kelurahan = trim($row[8]);
+
+            // Cari ID Kecamatan (dengan cache)
+            if (!isset($kecamatanCache[$nama_kecamatan])) {
+                $kec = $kecamatanModel->where('nama_kecamatan', $nama_kecamatan)->where('id_kabupaten', $id_kabupaten_admin)->first();
+                $kecamatanCache[$nama_kecamatan] = $kec ? $kec['id'] : null;
+            }
+            $id_kecamatan = $kecamatanCache[$nama_kecamatan];
+
+            if (!$id_kecamatan) {
+                $errors["Kecamatan '$nama_kecamatan' tidak ditemukan"][] = $excelRowNumber;
+                continue;
+            }
+
+            // Cari ID Kelurahan (dengan cache)
+            if (!isset($kelurahanCache[$nama_kelurahan])) {
+                $kel = $kelurahanModel->where('nama_kelurahan', $nama_kelurahan)->where('id_kecamatan', $id_kecamatan)->first();
+                $kelurahanCache[$nama_kelurahan] = $kel ? $kel['id'] : null;
+            }
+            $id_kelurahan = $kelurahanCache[$nama_kelurahan];
+
+            if (!$id_kelurahan) {
+                $errors["Kelurahan '$nama_kelurahan' tidak ditemukan di kec. '$nama_kecamatan'"][] = $excelRowNumber;
+                continue;
+            }
+            
+            $rowData = [
+                'nik'              => preg_replace('/[^0-9]/', '', $row[0]),
+                'nama_lengkap'     => $row[1],
+                'alamat_lengkap'   => $row[2],
+                'rt'               => $row[3],
+                'rw'               => $row[4],
+                'kategori_bantuan' => $row[5],
+                'tahun_penerimaan' => $row[6],
+                'id_kecamatan'     => $id_kecamatan,
+                'id_kelurahan'     => $id_kelurahan,
+                'id_kabupaten'     => $id_kabupaten_admin,
+                'id_admin_input'   => $id_admin_input,
+            ];
+
+            // Validasi Manual Setiap Baris
+            if ($bankelModel->validate($rowData) === false) {
+                $rowErrors = $bankelModel->errors();
+                foreach ($rowErrors as $message) {
+                    $errors[$message][] = $excelRowNumber;
+                }
+                continue;
+            }
+            
+            $dataToInsert[] = $rowData;
+        }
+
+        // Hanya jalankan insert jika ada data yang lolos validasi
+        if (!empty($dataToInsert)) {
+            $bankelModel->insertBatch($dataToInsert);
+        }
+        
+        // Siapkan pesan feedback yang baru dan terstruktur
+        $successCount = count($dataToInsert);
+        $failCount = $rowCount - $successCount;
+        $message = "Proses import selesai. <strong>Berhasil: $successCount data.</strong>";
+
+        if ($failCount > 0) {
+            $session->setFlashdata('fail_count', $failCount);
+            $session->setFlashdata('errors_list', $errors);
+        }
+
+        unlink($filePath);
+
+        return redirect()->to('/admin/bankel/import')->with('message', $message);
     }
 
 }

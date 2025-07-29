@@ -17,6 +17,10 @@
             background-color: #f4f7f6;
             color: #333333; /* Warna dasar untuk semua teks */
         }
+        
+        ul {
+            list-style-type: none;
+        }
 
         /* Main Wrapper */
         .wrapper { display: flex; min-height: 100vh; position: relative; }

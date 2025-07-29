@@ -270,8 +270,8 @@
         <!-- Left Side - Image -->
         <div class="left-side">
             <div class="left-content">
-                <h1>SPPS Kepri v1.0</h1>
-                <p>Sistem Pengamatan & Penilaian Bantuan Sosial</p>
+                <h1>SPBS-D Kepri v1.0</h1>
+                <p>Sistem Bantuan Pengelolaan Bantuan Sosial & Difabel</p>
             </div>
         </div>
 
