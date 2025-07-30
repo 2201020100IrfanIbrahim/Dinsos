@@ -24,6 +24,7 @@ $routes->get('/testhash', function() {
 
 $routes->get('peta/geojson/(:any)/(:any)', 'Peta::geojson/$1/$2');
 $routes->get('admin/bankel/chart-data', 'BankelController::getChartData');
+$routes->get('peta/geojson_difabel/(:any)/(:any)', 'Peta::geojson_difabel/$1/$2');
 
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
