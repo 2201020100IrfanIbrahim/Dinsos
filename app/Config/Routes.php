@@ -24,6 +24,7 @@ $routes->get('/testhash', function() {
 
 $routes->get('peta/geojson/(:any)/(:any)', 'Peta::geojson/$1/$2');
 $routes->get('admin/bankel/chart-data', 'BankelController::getChartData');
+$routes->get('peta/geojson_difabel/(:any)/(:any)', 'Peta::geojson_difabel/$1/$2');
 
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
@@ -51,6 +52,8 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Di dalam group('admin', ...)
     $routes->get('bankel/import', 'BankelController::import'); // Menampilkan form
     $routes->post('bankel/process-import', 'BankelController::processImport'); // Memproses file
+    // Rute untuk data grafik berdasarkan tahun
+    $routes->get('bankel/chart-data-by-year', 'BankelController::getChartDataByYear');
 
 
     //============================MONEVKUEB=============================//

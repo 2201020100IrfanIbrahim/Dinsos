@@ -57,11 +57,15 @@ class BankelController extends BaseController
 
         // Siapkan judul halaman
         $page_title = 'Data Bantuan Sembako';
+        // Di dalam method index()
         if ($role === 'admin') {
             $kabupatenModel = new \App\Models\KabupatenModel();
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
             if ($kabupaten) {
-                $page_title .= ' - Wilayah ' . $kabupaten['nama_kabupaten'];
+                $nama_kabupaten = $kabupaten['nama_kabupaten'];
+                // Ambil slug langsung dari database, bukan menebak-nebak lagi
+                $nama_kabupaten_slug = $kabupaten['slug']; 
+                $page_title .= ' - Wilayah ' . $nama_kabupaten;
             }
         }
 
@@ -80,7 +84,34 @@ class BankelController extends BaseController
             ]
         ];
 
+        $page_title = 'Data Bantuan Sembako';
+        $nama_kabupaten = null;
+        $nama_kabupaten_slug = null;
+
+        if ($role === 'admin') {
+            $kabupatenModel = new \App\Models\KabupatenModel();
+            $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
+            if ($kabupaten) {
+                $nama_kabupaten = $kabupaten['nama_kabupaten'];
+                // Buat 'slug' dari nama kabupaten, contoh: "Kabupaten Lingga" -> "lingga"
+                $nama_kabupaten_slug = $kabupaten['slug']; 
+                $page_title .= ' - Wilayah ' . $nama_kabupaten;
+            }
+        }
+
+        $data = [
+            'bantuan' => $data_bantuan,
+            'pager'   => $pager,
+            'message' => session()->getFlashdata('message'),
+            'title'   => $page_title,
+            'filters' => $filters,
+            'role'    => $role, // Kirim peran pengguna
+            'nama_kabupaten' => $nama_kabupaten, // Kirim nama kabupaten
+            'nama_kabupaten_slug' => $nama_kabupaten_slug // Kirim slug
+        ];
+        
         return view('bankel/SIM-BANKEL', $data);
+
     }
 
     public function edit($id = null)
@@ -460,6 +491,10 @@ class BankelController extends BaseController
         return $this->response->setJSON($kelurahanList);
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------- GRAFIK ----------------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
     public function getChartData()
     {
         $bankelModel = new \App\Models\BankelModel();
@@ -469,6 +504,18 @@ class BankelController extends BaseController
 
         $chartData = $bankelModel->getChartDataByKecamatan($id_kabupaten);
 
+        return $this->response->setJSON($chartData);
+    }
+
+    public function getChartDataByYear()
+    {
+        $bankelModel = new \App\Models\BankelModel();
+        
+        $role = session()->get('role');
+        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+
+        $chartData = $bankelModel->getChartDataByYear($id_kabupaten);
+        
         return $this->response->setJSON($chartData);
     }
 

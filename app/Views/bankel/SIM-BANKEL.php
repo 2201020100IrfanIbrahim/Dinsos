@@ -8,7 +8,9 @@ Manajemen SIM-BANKEL
 <style>
     /* CSS yang spesifik untuk halaman ini saja */
     .card { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 30px; overflow: hidden; }
-    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; 
+        /* align-items: center;  */
+    }
     .card-body { padding: 20px; }
     .visualization-section {display: grid; grid-template-columns: 1fr; /* Hanya 1 kolom */gap: 30px;}
     .visualization-section .chart-container {
@@ -28,8 +30,29 @@ Manajemen SIM-BANKEL
     th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
     thead th { background-color: #e9ecef; }
     tbody tr:hover { background-color: #f1f1f1; }
-    .add-button, .export-button { display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; transition: background-color 0.2s; font-size: 14px; }
-    .export-button { background-color: #17a2b8; margin-left: 10px; }
+    .add-button, .export-button { 
+        display: inline-block; 
+        padding: 8px 12px; 
+        background-color: #007bff; 
+        color: white; 
+        text-decoration: none; 
+        border-radius: 5px; 
+        transition: background-color 0.2s; 
+        font-size: 14px; 
+        text-align: center;
+        justify-content: center;
+    }
+
+    .tombol{
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        gap: 20px;
+    }
+    .tombol-aksi{
+
+    }
+    .export-button { background-color: #17a2b8;}
     .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
     .action-links { text-align: center; white-space: nowrap; }
     .btn { display: inline-block; padding: 6px 10px; border-radius: 5px; text-decoration: none; color: white; font-size: 14px; margin: 0 2px; transition: transform 0.2s; }
@@ -54,44 +77,71 @@ Manajemen SIM-BANKEL
     
 
     /* Tambahkan di dalam <style> */
-    .chart-container {
+/* Ganti semua style chart yang lama dengan ini */
+    .chart-section {
         display: flex;
-        flex-wrap: wrap; /* Agar responsif di HP */
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+    .chart-wrapper {
+        flex: 1;
+        min-width: 300px;
+        max-width: 500px; /* Lebar maksimal setiap chart wrapper */
+        text-align: center;
+    }
+    .chart-wrapper h4 {
+        margin-bottom: 15px;
+    }
+    .doughnut-container {
+        display: flex;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: center;
         gap: 20px;
     }
     .chart-canvas-container {
         position: relative;
+        margin: auto;
+    }
+    .doughnut-container .chart-canvas-container {
         width: 250px;
         height: 250px;
     }
-    .chart-legend-container {
-        list-style-type: none;
-        padding: 0 10px 0 0; /* Tambah padding kanan untuk ruang scrollbar */
-        margin: 0;
-
-        /* --- TAMBAHAN UNTUK SCROLL --- */
-        max-height: 200px;  /* Batasi tinggi maksimal, sesuaikan jika perlu (cukup untuk sekitar 6-7 item) */
-        overflow-y: auto; /* Tampilkan scrollbar vertikal jika konten melebihi max-height */
+    .bar-chart-container {
+        width: 100%;
+        height: 250px;
     }
+
+    .chart-legend-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px; /* Jarak dari chart */
+    
+    /* Menggunakan Flexbox untuk tata letak dinamis */
+    display: flex;
+    flex-wrap: wrap; /* Izinkan item turun ke baris baru */
+    justify-content: center; /* Pusatkan item */
+    gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
+    }
+
     .chart-legend-container li {
         cursor: pointer;
         display: flex;
         align-items: center;
-        margin-bottom: 5px;
-        padding: 4px 8px;
-        border-radius: 4px;
-        transition: background-color 0.2s;
+        font-size: 13px; /* Ukuran font lebih kecil */
+        transition: opacity 0.2s;
     }
+
     .chart-legend-container li:hover {
-        background-color: #f1f1f1;
+        opacity: 0.8;
     }
+
     .legend-color-box {
-        width: 15px;
-        height: 15px;
+        width: 12px;
+        height: 12px;
         display: inline-block;
-        margin-right: 10px;
+        margin-right: 8px;
         border-radius: 3px;
     }
 
@@ -104,6 +154,7 @@ Manajemen SIM-BANKEL
             width: 100%;
             background-color: #f9f9f9;
             border: 1px solid #ccc;
+            z-index: 1;
         }
 
     @media (max-width: 768px) {
@@ -119,6 +170,19 @@ Manajemen SIM-BANKEL
             font-size: 14px; /* Sedikit mengecilkan font di tabel dan tombol */
         }
         
+        /* === TAMBAHKAN ATURAN BARU DI SINI === */
+        .chart-container {
+            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
+            height: auto; /* Biarkan tinggi menyesuaikan konten */
+        }
+        .chart-canvas-container {
+            width: 100%; /* Lebar penuh */
+            height: 250px; /* Atur tinggi tetap untuk canvas */
+        }
+        .chart-legend-container {
+            margin-top: 20px; /* Beri jarak dari chart di atasnya */
+            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
+        }
         /* 3. Membuat form filter menjadi responsif */
         .filter-form form {
             flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
@@ -126,40 +190,58 @@ Manajemen SIM-BANKEL
             gap: 15px;
         }
 
+        .card-header{
+            flex-direction: column;
+            text-align: left;
         }
-        .map-controls {
-            display: flex;
+        .card-header .tombol {
+            flex-direction: column; /* Ubah arah item menjadi ke bawah */
+            align-items: stretch; /* Buat item meregang selebar card */
             gap: 15px;
-            margin-bottom: 15px;
-            align-items: center;
         }
-        .map-controls select {
-            padding: 8px;
-            font-size: 14px;
+        .card-header .tombol-aksi {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
+            gap: 10px;
         }
-        .legend {
-            background: white;
-            padding: 6px;
-            line-height: 1.4em;
-            border: 1px solid #ccc;
-            font-size: 14px;
+        .card-header .add-button {
+            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
         }
-        .legend i {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 0.8;
-        }
+    }
+    .legend {
+        background: white;
+        padding: 6px;
+        line-height: 1.4em;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.8;
+    }
+    .map-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+    .map-controls select {
+        padding: 8px;
+        font-size: 14px;
+    }
+    
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
     
-    <h1><?= esc($title) ?></h1>
+<h1><?= esc($title) ?></h1>
 
-    <div class="visualization-section">
-  <div class="card">
+<div class="visualization-section">
+    <div class="card">
         <div class="card-header">Peta Persebaran</div>
         <div class="card-body map-card-body">
         <div class="map-controls">
@@ -170,32 +252,44 @@ Manajemen SIM-BANKEL
                     <option value="kelurahan">Kelurahan</option>
                 </select>
             </div>
-                <div>
-                <label for="wilayah">Wilayah:</label>
-                    <select id="wilayah">
-                        <option value="tanjungpinang">Tanjung Pinang</option>
-                        <option value="batam">Batam</option>
-                        <option value="bintan">Bintan</option>
-                        <option value="karimun">Karimun</option>
-                        <option value="lingga">Lingga</option>
-                        <option value="natuna">Natuna</option>
-                        <option value="anambas">Anambas</option>
-                    </select>
-                </div>
+                <?php if ($role === 'superadmin'): ?>
+                    <div>
+                        <label for="wilayah">Wilayah:</label>
+                        <select id="wilayah">
+                            <option value="tanjungpinang">Tanjung Pinang</option>
+                            <option value="batam">Batam</option>
+                            </select>
+                    </div>
+                <?php else: ?>
+                    <input type="hidden" id="wilayah" value="<?= esc($nama_kabupaten_slug) ?>">
+                <?php endif; ?>
             </div>
 
         <div id="loading">Memuat data geojson...</div>
         
         <div id="map"></div>
         </div>
-        </div>
+    </div>
         <div class="card">
-            <div class="card-header">Grafik Analisis Bantuan per Kecamatan</div>
-            <div class="card-body chart-container">
-                <div class="chart-canvas-container">
-                    <canvas id="kecamatanChart"></canvas>
+            <div class="card-body chart-section">
+                
+                <div class="chart-wrapper">
+                    <h4>Analisis per Kecamatan</h4>
+                    <div class="doughnut-container">
+                        <div class="chart-canvas-container">
+                            <canvas id="kecamatanChart"></canvas>
+                        </div>
+                        <div id="chart-legend" class="chart-legend-container"></div>
+                    </div>
                 </div>
-                <div id="chart-legend" class="chart-legend-container"></div>
+                
+                <div class="chart-wrapper">
+                    <h4>Analisis per Tahun</h4>
+                    <div class="chart-canvas-container bar-chart-container">
+                        <canvas id="tahunChart"></canvas>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -203,10 +297,12 @@ Manajemen SIM-BANKEL
     <div class="card">
         <div class="card-header">
             <span>Data Bantuan Sembako</span>
-            <div>
-                <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
-                <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
-                <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">+ Tambah Data</a>
+            <div class="tombol">
+                <div class="tombol-aksi">
+                    <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
+                    <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
+                </div>
+                <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">Tambah Data</a>
             </div>
         </div>
         <div class="card-body">
@@ -234,7 +330,8 @@ Manajemen SIM-BANKEL
                             <th>Nama</th>
                             <th>Kecamatan</th>
                             <th>Kelurahan</th>            
-                            <th>RT/RW</th>
+                            <th>RT</th>
+                            <th>RW</th>
                             <th>Jenis Bantuan</th>
                             <th>Tahun</th>
                             <th>Diinput Pada</th>
@@ -255,7 +352,8 @@ Manajemen SIM-BANKEL
                                     <td><?= esc($item['nama_lengkap']) ?></td>
                                     <td><?= esc($item['nama_kecamatan']) ?></td>
                                     <td><?= esc($item['nama_kelurahan']) ?></td>
-                                    <td>RT : <?= esc($item['rt']) ?> RW : <?= esc($item['rw']) ?></td>
+                                    <td><?= esc($item['rt']) ?></td>
+                                    <td><?= esc($item['rw']) ?></td>
                                     <td><?= esc($item['kategori_bantuan']) ?></td>
                                     <td><?= esc($item['tahun_penerimaan']) ?></td>
                                     <td><?= date('d M Y', strtotime($item['created_at'])) ?></td>
@@ -277,7 +375,7 @@ Manajemen SIM-BANKEL
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="12" style="text-align: center;">Tidak ada data yang cocok dengan kriteria pencarian Anda.</td>
+                                <td colspan="12" style="text-align: center;">data nya ga ada lek 🤙🏻</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -323,7 +421,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function generateDynamicColors(count) {
         let colors = [];
         for (let i = 0; i < count; i++) {
-            const hue = (i * (360 / count)) % 360;
+            const hue = (i * (360 / count) * 0.8) % 360; // 0.8 untuk warna lebih lembut
             colors.push(`hsla(${hue}, 70%, 60%, 0.8)`);
         }
         return colors;
@@ -409,6 +507,51 @@ document.addEventListener('DOMContentLoaded', function() {
             ctx.save();
         }
     };
+
+
+        // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
+    const ctxTahun = document.getElementById('tahunChart');
+    if (ctxTahun) {
+        fetch('<?= site_url('admin/bankel/chart-data-by-year') ?>')
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) return;
+
+                const labels = data.map(item => item.tahun_penerimaan);
+                const values = data.map(item => Number(item.jumlah));
+                
+                // Gunakan fungsi yang sama untuk menghasilkan warna yang konsisten
+                const dynamicColors = generateDynamicColors(values.length);
+
+                new Chart(ctxTahun, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah Penerima',
+                            data: values,
+                            backgroundColor: dynamicColors, // Terapkan warna dinamis
+                            borderColor: dynamicColors.map(color => color.replace('0.8', '1')), // Warna border lebih solid
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false 
+                            }
+                        }
+                    }
+                });
+            });
+    }
 
     fetch('<?= site_url('admin/bankel/chart-data') ?>')
         .then(response => response.json())
@@ -568,7 +711,9 @@ document.addEventListener('DOMContentLoaded', function() {
             // Langsung muat peta saat halaman pertama kali dibuka
             loadGeoJSON(); 
         }
+    
     });
+
 </script>
 
 <?= $this->endSection() ?>

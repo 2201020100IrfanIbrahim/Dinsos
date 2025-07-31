@@ -8,10 +8,22 @@ Manajemen Data Difabel
 <style>
     /* Style ini bisa digunakan bersama karena tampilannya konsisten */
     .card { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 30px; overflow: hidden; }
-    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between;}
     .card-body { padding: 20px; }
     .visualization-section { display: grid; grid-template-columns: 1fr; gap: 30px; }
-    .visualization-section .card-body { min-height: 200px; display:flex; justify-content:center; align-items:center; color: #999; }
+    .visualization-section .chart-container {
+        min-height: 200px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #999;
+    }
+
+    /* Aturan baru untuk card body peta (tanpa flexbox) */
+    .visualization-section .map-card-body {
+        padding: 0; /* Memberi ruang di sekitar kontrol dan peta */
+        min-height: 450px; /* Biarkan tingginya otomatis */
+    }
     table { width: 100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; }
     thead th { background-color: #e9ecef; }
@@ -41,6 +53,15 @@ Manajemen Data Difabel
         overflow-x: auto; /* Membuat hanya div ini yang bisa di-scroll ke samping */
         width: 100%;
     }
+
+    #map {
+        height: 500px; /* default untuk desktop */
+        width: 100%;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        z-index: 1;
+    }
+
     /* ============================================= */
     /* STYLE UNTUK TAMPILAN HP            */
     /* ============================================= */
@@ -63,7 +84,51 @@ Manajemen Data Difabel
             align-items: stretch;   /* Membuat semua item selebar kontainer */
             gap: 15px;
         }
+
+        .card-header{
+            flex-direction: column;
+            text-align: left;
+        }
+        .card-header .tombol {
+            flex-direction: column; /* Ubah arah item menjadi ke bawah */
+            align-items: stretch; /* Buat item meregang selebar card */
+            gap: 15px;
+        }
+        .card-header .tombol-aksi {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
+            gap: 10px;
+        }
+        .card-header .add-button {
+            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
+        }
     }
+
+    .legend {
+        background: white;
+        padding: 6px;
+        line-height: 1.4em;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    .legend i {
+        width: 18px;
+        height: 18px;
+        float: left;
+        margin-right: 8px;
+        opacity: 0.8;
+    }
+    .map-controls {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 15px;
+        align-items: center;
+    }
+    .map-controls select {
+        padding: 8px;
+        font-size: 14px;
+    }
+
 </style>
 <?= $this->endSection() ?>
 
@@ -74,7 +139,32 @@ Manajemen Data Difabel
     <div class="visualization-section">
         <div class="card">
             <div class="card-header">Peta Persebaran</div>
-            <div class="card-body">Peta akan ditampilkan di sini.</div>
+            <div class="card-body map-card-body">
+            <div class="map-controls">
+                <div>
+                    <label for="tingkat">Tingkat:</label>
+                    <select id="tingkat">
+                        <option value="kecamatan">Kecamatan</option>
+                        <option value="kelurahan">Kelurahan</option>
+                    </select>
+                </div>
+                    <?php if ($role === 'superadmin'): ?>
+                        <div>
+                            <label for="wilayah">Wilayah:</label>
+                            <select id="wilayah">
+                                <option value="tanjungpinang">Tanjung Pinang</option>
+                                <option value="batam">Batam</option>
+                                </select>
+                        </div>
+                    <?php else: ?>
+                        <input type="hidden" id="wilayah" value="<?= esc($nama_kabupaten_slug) ?>">
+                    <?php endif; ?>
+                </div>
+
+            <div id="loading">Memuat data geojson...</div>
+            
+            <div id="map"></div>
+            </div>
         </div>
         <div class="card">
             <div class="card-header">Grafik Analisis</div>
@@ -187,7 +277,103 @@ Manajemen Data Difabel
                 });
             });
         });
+        
+             if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
+            const map = L.map('map').setView([1.1, 104], 8); // Zoom awal sedikit diubah
+            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // }).addTo(map);
 
+            let geoLayer;
+            const loading = document.getElementById('loading');
+            const wilayahSelect = document.getElementById('wilayah');
+            const tingkatSelect = document.getElementById('tingkat');
+
+            function getColor(val) {
+                return val > 100 ? '#e31a1c' :
+                    val > 50  ? '#fd8d3c' :
+                    val > 9   ? '#ffff76ff' :
+                    val > 0   ? '#ffffb2' :
+                                '#ccc';
+            }
+
+            function styleFeature(feature) {
+                const val = feature.properties.total_difabel || 0;
+                return {
+                    fillColor: getColor(val),
+                    color: "#333",
+                    weight: 1,
+                    fillOpacity: 0.8
+                };
+            }
+
+            function loadGeoJSON() {
+                const wilayah = wilayahSelect.value;
+                const tingkat = tingkatSelect.value;
+                loading.style.display = 'inline';
+
+                console.log('Nilai yang akan dikirim:', { wilayah_value: wilayah, tingkat_value: tingkat });
+                const url = `<?= site_url('peta/geojson_difabel/') ?>${wilayah}/${tingkat}`;
+
+                fetch(url)
+                    .then(res => {
+                        if (!res.ok) throw new Error(`Gagal memuat GeoJSON (${res.status})`);
+                        return res.json();
+                    })
+                    .then(data => {
+                        if (data.error) throw new Error(data.error);
+                        if (geoLayer) map.removeLayer(geoLayer);
+                        geoLayer = L.geoJSON(data, {
+                            style: styleFeature,
+                            onEachFeature: function (feature, layer) {
+                                const nama = feature.properties.NAMOBJ ?? 'Tidak diketahui';
+                                const total = feature.properties.total_difabel ?? 0;
+                                layer.bindPopup(`<strong>${nama}</strong><br>Total Difabel: ${total}`);
+                            }
+                        }).addTo(map);
+                        if (geoLayer.getBounds().isValid()) {
+                            map.fitBounds(geoLayer.getBounds());
+                        }
+
+                            setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        alert('Gagal memuat peta: ' + err.message);
+                        if (geoLayer) map.removeLayer(geoLayer);
+                    })
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
+            }
+
+            const legend = L.control({ position: 'bottomright' });
+            legend.onAdd = function () {
+                const div = L.DomUtil.create('div', 'legend');
+                const grades = [0, 1, 10, 51, 101]; 
+                const labels = [];
+                div.innerHTML = '<strong>Total Difabel</strong><br>';
+                for (let i = 0; i < grades.length; i++) {
+                    const from = grades[i];
+                    const to = grades[i + 1];
+                    labels.push(
+                        '<i style="background:' + getColor(from) + '"></i> ' +
+                        (from === 0 ? '0' : from) + (to ? '–' + (to - 1) : '+')
+                    );
+                }
+                div.innerHTML += labels.join('<br>');
+                return div;
+            };
+            legend.addTo(map);
+
+            wilayahSelect.addEventListener('change', loadGeoJSON);
+            tingkatSelect.addEventListener('change', loadGeoJSON);
+
+            // Langsung muat peta saat halaman pertama kali dibuka
+            loadGeoJSON(); 
+        }
         // (skrip lainnya seperti tombol back)
     });
 </script>

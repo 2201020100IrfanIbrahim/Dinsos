@@ -17,6 +17,10 @@ class DifabelkepriController extends BaseController
     {
         $difabelModel = new \App\Models\DifabelModel();
         $kabupatenModel = new \App\Models\KabupatenModel();
+
+        $role = session()->get('role');
+        $id_kabupaten_admin = session()->get('id_kabupaten');
+
         
         $filters = [
             'keyword'  => $this->request->getGet('keyword'),
@@ -53,12 +57,14 @@ class DifabelkepriController extends BaseController
         
         // TAMBAHKAN GROUP BY
         $query->groupBy('data_difabel.id');
-        
-        // Siapkan judul halaman
         $page_title = 'Manajemen Data Difabel';
+        $nama_kabupaten_slug = null; // Inisialisasi
         if ($role === 'admin') {
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
-            $page_title .= ' - Wilayah ' . $kabupaten['nama_kabupaten'];
+            if ($kabupaten) {
+                $page_title .= ' - Wilayah ' . $kabupaten['nama_kabupaten'];
+                $nama_kabupaten_slug = $kabupaten['slug'];
+            }
         }
         
         $data = [
@@ -70,7 +76,9 @@ class DifabelkepriController extends BaseController
             'breadcrumbs'  => [
                 ['title' => 'Beranda', 'url' => '/dashboard'],
                 ['title' => 'SIM-DIFABELKEPRI', 'url' => '/admin/difabelkepri']
-            ]
+            ],
+            'role' => $role,
+            'nama_kabupaten_slug' => $nama_kabupaten_slug
         ];
         
         return view('difabelkepri/SIM-DIFABELKEPRI', $data);
@@ -303,6 +311,37 @@ class DifabelkepriController extends BaseController
 
         $writer->save('php://output');
         exit();
+    }
+
+        public function geojson_difabel($wilayah, $tingkat)
+{
+    // 1. Ambil data polygon GeoJSON dari file (seperti yang sudah Anda lakukan)
+    $geojson_data = json_decode(file_get_contents(WRITEPATH . "geojson/{$wilayah}_{$tingkat}.geojson"), true);
+
+    // 2. Query ke tabel difabel untuk menghitung jumlah per wilayah
+    $db = \Config\Database::connect();
+    $builder = $db->table('data_difabel');
+    
+    // Bergantung pada 'tingkat', kita group berdasarkan nama kecamatan atau kelurahan
+    $group_by_field = ($tingkat == 'kecamatan') ? 'nama_kecamatan' : 'nama_kelurahan';
+
+    $builder->select("$group_by_field, COUNT(id) as total_difabel");
+    $builder->groupBy($group_by_field);
+    $query = $builder->get();
+    $difabel_counts = $query->getResultArray();
+
+    // 3. Ubah hasil query menjadi format yang mudah diakses [nama_wilayah => jumlah]
+    $counts_map = array_column($difabel_counts, 'total_difabel', $group_by_field);
+
+    // 4. Gabungkan data jumlah difabel ke dalam properti GeoJSON
+    foreach ($geojson_data['features'] as &$feature) {
+        $nama_wilayah = $feature['properties']['NAMOBJ'];
+        // Tetapkan total_difabel jika ada, jika tidak, 0
+        $feature['properties']['total_difabel'] = $counts_map[$nama_wilayah] ?? 0;
+    }
+
+    // 5. Kembalikan sebagai response JSON
+    return $this->response->setJSON($geojson_data);
     }
     // (Method index, edit, update, delete akan kita tambahkan nanti)
 }
