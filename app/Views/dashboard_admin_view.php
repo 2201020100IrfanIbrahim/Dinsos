@@ -1,45 +1,69 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard Admin</title>
-    <link rel="stylesheet" href="<?= base_url('css/admin.css') ?>">
+<?= $this->extend('layouts/admin_layout') ?>
+
+<?= $this->section('title') ?>
+Dashboard Admin
+<?= $this->endSection() ?>
+
+<?= $this->section('page_styles') ?>
+<style>
+    /* CSS Khusus untuk halaman dashboard */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+    }
+    .info-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        border-left: 5px solid;
+    }
+    .info-card.blue { border-color: #3498db; }
+    .info-card.green { border-color: #2ecc71; }
+    .info-card.orange { border-color: #f39c12; }
     
-</head>
-<body>
-    <div class="container">
-        <h1>Selamat Datang di Dashboard</h1>
-        
+.info-card h4 {
+        margin: 0 0 10px 0;
+        color: #6c757d;
+        font-size: 16px;
+    }
+    .info-card .value {
+        font-size: 28px;
+        font-weight: 700;
+        color: #343a40;
+    }
+
+    .welcome-card {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
+
+<div class="welcome-card">
         <h2>Halo, <?= esc($username) ?>!</h2>
-
-        <p>Anda login sebagai: <strong><?= esc(ucfirst($role)) ?></strong></p>
-
-        <?php if ($role === 'admin'): ?>
-            <p>Anda bertugas untuk wilayah: <strong><?= esc($nama_kabupaten) ?></strong>.</p>
-            <p>Anda hanya dapat mengelola data untuk wilayah ini.</p>
-        <?php else: ?>
-            <p>Anda memiliki akses penuh untuk memantau data dari semua wilayah.</p>
-        <?php endif; ?>
-
-    <hr>
-
-    <h3>Pilih Sistem untuk Dikelola:</h3>
-    <div class="system-choice-container">
-        <a href="<?= site_url('admin/bankel') ?>" class="system-card">
-            <h4>SIM-BANKEL</h4>
-            <p>Monitoring Bantuan Sosial Keluarga</p>
-        </a>
-        <a href="<?= site_url('admin/monevkuep') ?>" class="system-card">
-            <h4>SIM-MONEVKUEP</h4>
-            <p>Monitoring & Evaluasi Bantuan UEP</p>
-        </a>
-        <a href="<?= site_url('admin/difabelkepri') ?>" class="system-card">
-            <h4>SIM-DIFABELKEPRI</h4>
-            <p>Monitoring Data Penyandang Difabel</p>
-        </a>
+        <p>Anda login sebagai <strong><?= esc(ucfirst($role)) ?></strong> untuk wilayah <strong><?= get_nama_kabupaten() ?></strong>. Selamat datang di dasbor Sistem Informasi Manajemen DINSOS Kepri.</p>
     </div>
-    <hr>
-    <a href="<?= site_url('logout') ?>">Logout</a>
+    <div class="dashboard-grid">
+        <div class="info-card blue">
+            <h4>Total Bantuan Terdata (SIM-BANKEL)</h4>
+            <p class="value"><?= $total_bankel ?></p>
+        </div>
+
+        <div class="info-card green">
+            <h4>Total Penerima (SIM-DIFABELKEPRI)</h4>
+            <p class="value"><?= $total_difabel ?></p>
+        </div>
+
+        <div class="info-card orange">
+            <h4>Bantuan UEP (SIM-MONEVKUEP)</h4>
+            <p class="value"><?= $total_monevkuep ?></p>
+        </div>
     </div>
-</body>
-</html>
+<?= $this->endSection() ?>

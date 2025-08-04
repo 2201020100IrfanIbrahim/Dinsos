@@ -72,7 +72,7 @@ class Peta extends BaseController
 
     public function geojson_kuep($wilayah, $tingkat)
     {
-        $db = \Config\Database::connect();
+          $db = \Config\Database::connect();
         $builder = $db->table('monevkuep_penerima b');
         $mapJumlah = [];
 
@@ -89,20 +89,17 @@ class Peta extends BaseController
         } else {
              return $this->response->setStatusCode(400)->setJSON(['error' => 'Tingkat wilayah tidak valid.']);
         }
-        
+
         $result = $builder->get()->getResult();
 
         // Buat peta wilayah => total penerima
         foreach ($result as $row) {
-            $mapJumlah[$row->nama_wilayah] = $row->total_penerima;
+            $mapJumlah[$row->nama_wilayah] = $row->total_kuep;
         }
 
         // Nama file GeoJSON kini juga dinamis
         $namaFile = strtolower($wilayah) . '-' . strtolower($tingkat) . '.geojson';
         $path = FCPATH . 'assets/geojson/' . $namaFile;
-
-        
-        
 
         if (!is_file($path)) {
             return $this->response->setStatusCode(404)->setJSON([

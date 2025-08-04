@@ -315,6 +315,38 @@ class MonevkuepController extends BaseController
         exit();
     }
 
+    public function geojson_kuep($wilayah, $tingkat)
+{
+    // 1. Ambil data polygon GeoJSON dari file (seperti yang sudah Anda lakukan)
+    $geojson_data = json_decode(file_get_contents(WRITEPATH . "geojson/{$wilayah}_{$tingkat}.geojson"), true);
+
+    // 2. Query ke tabel difabel untuk menghitung jumlah per wilayah
+    $db = \Config\Database::connect();
+    $builder = $db->table('monevkuep_penerima');
+
+    // Bergantung pada 'tingkat', kita group berdasarkan nama kecamatan atau kelurahan
+    $group_by_field = ($tingkat == 'kecamatan') ? 'nama_kecamatan' : 'nama_kelurahan';
+
+    $builder->select("$group_by_field, COUNT(id) as total_kuep");
+    $builder->groupBy($group_by_field);
+    $query = $builder->get();
+    $kuep_counts = $query->getResultArray();
+
+    // 3. Ubah hasil query menjadi format yang mudah diakses [nama_wilayah => jumlah]
+    $counts_map = array_column($kuep_counts, 'total_kuep', $group_by_field);
+
+    // 4. Gabungkan data jumlah difabel ke dalam properti GeoJSON
+    foreach ($geojson_data['features'] as &$feature) {
+        $nama_wilayah = $feature['properties']['NAMOBJ'];
+        // Tetapkan total_difabel jika ada, jika tidak, 0
+        $feature['properties']['total_kuep'] = $counts_map[$nama_wilayah] ?? 0;
+    }
+
+    // 5. Kembalikan sebagai response JSON
+    return $this->response->setJSON($geojson_data);
+}
+
+
     // --- Helper eksisting di Bankel (dibiarkan ada; tidak dipakai di MONEVKUEP) ---
     private function convertExifToCoordinate($exifCoord, $ref)
     {
@@ -509,41 +541,5 @@ class MonevkuepController extends BaseController
         return view('admin/print_monevkuep', $data);
     }
 
-    public function geojson_kuep($wilayah, $tingkat)
-    {
-        // 1. Ambil data polygon GeoJSON dari file (seperti yang sudah Anda lakukan)
-        $filepath = FCPATH . "geojson/{$wilayah}_{$tingkat}.geojson";
-        if (!file_exists($filepath)) {
-            return $this->response->setStatusCode(404)->setJSON(['error' => 'File GeoJSON tidak ditemukan.']);
-        }
-        $geojson_data = json_decode(file_get_contents($filepath), true);
-        if (!isset($geojson_data['features']) || !is_array($geojson_data['features'])) {
-            return $this->response->setStatusCode(500)->setJSON(['error' => 'Format GeoJSON tidak valid.']);
-        }
-
-        // 2. Query ke tabel difabel untuk menghitung jumlah per wilayah
-        $db = \Config\Database::connect();
-        $builder = $db->table('monevkuep_penerima');
-        
-        // Bergantung pada 'tingkat', kita group berdasarkan nama kecamatan atau kelurahan
-        $group_by_field = ($tingkat == 'kecamatan') ? 'nama_kecamatan' : 'nama_kelurahan';
-
-        $builder->select("$group_by_field, COUNT(id) as total_kuep");
-        $builder->groupBy($group_by_field);
-        $query = $builder->get();
-        $difabel_counts = $query->getResultArray();
-
-        // 3. Ubah hasil query menjadi format yang mudah diakses [nama_wilayah => jumlah]
-        $counts_map = array_column($difabel_counts, 'total_kuep', $group_by_field);
-
-        // 4. Gabungkan data jumlah difabel ke dalam properti GeoJSON
-        foreach ($geojson_data['features'] as &$feature) {
-            $nama_wilayah = $feature['properties']['NAMOBJ'];
-            // Tetapkan total_difabel jika ada, jika tidak, 0
-            $feature['properties']['total_kuep'] = $counts_map[$nama_wilayah] ?? 0;
-        }
-
-        // 5. Kembalikan sebagai response JSON
-        return $this->response->setJSON($geojson_data);
-        }
+    
 }

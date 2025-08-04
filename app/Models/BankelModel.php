@@ -98,6 +98,10 @@ class BankelModel extends Model
         return $builder->get()->getResultArray();
     }
 
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------- GRAFIK ----------------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
     public function getChartDataByKecamatan($id_kabupaten = false)
     {
         $builder = $this->db->table($this->table);
@@ -114,6 +118,21 @@ class BankelModel extends Model
         // Kelompokkan hasilnya berdasarkan nama kecamatan
         $builder->groupBy('kecamatan.nama_kecamatan');
         $builder->orderBy('jumlah', 'DESC'); // Urutkan dari yang terbanyak
+
+        return $builder->get()->getResultArray();
+    }
+
+    public function getChartDataByYear($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('tahun_penerimaan, COUNT(id) as jumlah');
+
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+
+        $builder->groupBy('tahun_penerimaan');
+        $builder->orderBy('tahun_penerimaan', 'ASC');
 
         return $builder->get()->getResultArray();
     }
