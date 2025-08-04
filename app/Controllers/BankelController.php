@@ -598,5 +598,17 @@ class BankelController extends BaseController
         return redirect()->to('/admin/bankel/import')->with('message', $message);
     }
 
+    public function printAll()
+    {
+        $bankelModel = new \App\Models\BankelModel();
+        $role = session()->get('role');
+        $id_kabupaten_admin = session()->get('id_kabupaten');
+        $data['all_data'] = $role === 'superadmin' 
+            ? $bankelModel->getBankelData()
+            : $bankelModel->getBankelData($id_kabupaten_admin);
+
+        return view('admin/print_bankel', $data); // Buat view khusus cetak
+    }
+
 
 }

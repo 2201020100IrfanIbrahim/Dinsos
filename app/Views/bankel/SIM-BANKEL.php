@@ -204,6 +204,9 @@ Manajemen SIM-BANKEL
         <div class="card-header">
             <span>Data Bantuan Sembako</span>
             <div>
+                <a href="<?= base_url('admin/bankel/printAll') ?>" target="_blank" class="btn btn-secondary no-print" style="background-color: #28a745;">
+                    <i class="bi bi-printer"></i> Print Semua Data
+                </a>
                 <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
                 <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
                 <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">+ Tambah Data</a>
