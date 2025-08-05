@@ -2,21 +2,22 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Welcome to CodeIgniter 4!</title>
-    <meta name="description" content="The small framework with powerful features">
+    <title>MAU-KUEP - Sistem Informasi Manajemen Data Sosial</title>
+    <meta name="description" content="Platform terpadu untuk monitoring dan pendataan bantuan sosial, penyandang disabilitas, dan UMKM">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/png" href="/favicon.ico">
 
-    <!-- STYLES -->
-
-    <style {csp-style-nonce}>
+    <style>
         * {
-            transition: background-color 300ms ease, color 300ms ease;
+            transition: all 300ms ease;
+            box-sizing: border-box;
         }
+        
         *:focus {
             background-color: rgba(221, 72, 20, .2);
             outline: none;
         }
+        
         html, body {
             color: rgba(33, 37, 41, 1);
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
@@ -26,306 +27,1507 @@
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
+            line-height: 1.6;
         }
+
+        /* Header Styles */
         header {
-            background-color: rgba(247, 248, 249, 1);
-            padding: .4rem 0 0;
+            background: linear-gradient(135deg, rgba(247, 248, 249, 0.95), rgba(255, 255, 255, 0.95));
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
+
         .menu {
-            padding: .4rem 2rem;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1100px;
+            margin: 0 auto;
+            position: relative;
         }
-        header ul {
-            border-bottom: 1px solid rgba(242, 242, 242, 1);
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            height: 45px;
+        }
+
+        .logo-container a {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+            transition: transform 300ms ease;
+        }
+
+        .logo-container a:hover {
+            transform: scale(1.05);
+        }
+
+        .logo-container h1 {
+            font-size: 1.6rem;
+            margin: 0;
+            color: rgba(33, 37, 41, 1);
+            white-space: nowrap;
+            font-weight: 700;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-items {
             list-style-type: none;
             margin: 0;
-            overflow: hidden;
             padding: 0;
-            text-align: right;
+            display: flex;
+            align-items: center;
+            gap: 5px;
         }
-        header li {
-            display: inline-block;
-        }
-        header li a {
-            border-radius: 5px;
-            color: rgba(0, 0, 0, .5);
-            display: block;
-            height: 44px;
-            text-decoration: none;
-        }
-        header li.menu-item a {
-            border-radius: 5px;
-            margin: 5px 0;
-            height: 38px;
-            line-height: 36px;
-            padding: .4rem .65rem;
-            text-align: center;
-        }
-        header li.menu-item a:hover,
-        header li.menu-item a:focus {
-            background-color: rgba(221, 72, 20, .2);
-            color: rgba(221, 72, 20, 1);
-        }
-        header .logo {
-            float: left;
-            height: 44px;
-            padding: .4rem .5rem;
-        }
-        header .menu-toggle {
+
+        .menu-toggle {
             display: none;
-            float: right;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-        header .menu-toggle button {
-            background-color: rgba(221, 72, 20, .6);
+            background: none;
             border: none;
-            border-radius: 3px;
-            color: rgba(255, 255, 255, 1);
+            font-size: 1.5rem;
+            color: #dd4814;
             cursor: pointer;
-            font: inherit;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 300ms ease;
+        }
+
+        .menu-toggle:hover {
+            background: rgba(221, 72, 20, 0.1);
+            transform: scale(1.1);
+        }
+
+        .menu-item {
+            display: flex;
+        }
+
+        .menu-item a {
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            color: rgba(0, 0, 0, .7);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 300ms ease;
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .menu-item a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(221, 72, 20, 0.1), transparent);
+            transition: left 300ms ease;
+        }
+
+        .menu-item a:hover::before {
+            left: 100%;
+        }
+
+        .menu-item a:hover {
+            background: linear-gradient(135deg, rgba(221, 72, 20, .1), rgba(255, 107, 53, .1));
+            color: rgba(221, 72, 20, 1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(221, 72, 20, 0.2);
+        }
+
+        .user-icon a {
+            padding: 0.4rem !important;
+            margin-left: 10px;
+        }
+
+        .user-avatar {
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.8rem;
+            transition: all 300ms ease;
+            border: 2px solid transparent;
+        }
+
+        .user-avatar:hover {
+            border-color: rgba(221, 72, 20, 0.5);
+            transform: scale(1.1);
+        }
+
+        /* Enhanced Hero Section with Advanced Animations */
+        .hero-section {
+            position: relative;
+            height: 70vh;
+            min-height: 500px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 25%, #4a90e2 50%, #6bb6ff 75%, #87ceeb 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        /* Hero Background Image with Animated Overlay */
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url('images/tup2.jpeg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            animation: backgroundZoom 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundZoom {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, 
+                rgba(30, 60, 114, 0.85) 0%, 
+                rgba(42, 82, 152, 0.8) 25%, 
+                rgba(74, 144, 226, 0.75) 50%, 
+                rgba(107, 182, 255, 0.7) 75%, 
+                rgba(135, 206, 235, 0.65) 100%);
+            animation: gradientShift 8s ease-in-out infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% {
+                background: linear-gradient(135deg, 
+                    rgba(30, 60, 114, 0.85) 0%, 
+                    rgba(42, 82, 152, 0.8) 25%, 
+                    rgba(35, 95, 163, 0.75) 50%, 
+                    rgba(107, 182, 255, 0.7) 75%, 
+                    rgba(135, 206, 235, 0.65) 100%);
+            }
+        }
+
+        /* Enhanced Floating Particles */
+        .particle-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: particleFloat 15s infinite linear;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .particle-small {
+            width: 3px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.8);
+            animation-duration: 12s;
+        }
+
+        .particle-medium {
+            width: 6px;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.6);
+            animation-duration: 18s;
+        }
+
+        .particle-large {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.4);
+            animation-duration: 25s;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg) scale(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+                transform: translateY(90vh) translateX(20px) rotate(45deg) scale(1);
+            }
+            50% {
+                transform: translateY(50vh) translateX(-30px) rotate(180deg) scale(1.2);
+            }
+            90% {
+                opacity: 1;
+                transform: translateY(10vh) translateX(10px) rotate(315deg) scale(1);
+            }
+            100% {
+                transform: translateY(-10vh) translateX(0) rotate(360deg) scale(0);
+                opacity: 0;
+            }
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            animation: titleFloat 3s ease-out;
+        }
+
+        @keyframes titleFloat {
+            0% {
+                opacity: 0;
+                transform: translateY(50px) scale(0.9);
+            }
+            60% {
+                transform: translateY(-10px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .hero-content p {
             font-size: 1.3rem;
-            height: 36px;
-            padding: 0;
-            margin: 11px 0;
-            overflow: visible;
-            width: 40px;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+            animation: subtitleSlide 2s ease-out 0.5s both;
+            line-height: 1.8;
         }
-        header .menu-toggle button:hover,
-        header .menu-toggle button:focus {
-            background-color: rgba(221, 72, 20, .8);
-            color: rgba(255, 255, 255, .8);
+
+        @keyframes subtitleSlide {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
         }
-        header .heroe {
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: buttonsPopIn 2s ease-out 1s both;
+        }
+
+        @keyframes buttonsPopIn {
+            0% {
+                opacity: 0;
+                transform: translateY(30px) scale(0.8);
+            }
+            70% {
+                transform: translateY(-5px) scale(1.05);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 300ms ease;
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 500ms ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            color: #dd4814;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            box-shadow: 0 8px 25px rgba(255,255,255,0.4);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 3rem 1.5rem;
+        }
+
+        .stats-container {
+            max-width: 1200px;
             margin: 0 auto;
-            max-width: 1100px;
-            padding: 1rem 1.75rem 1.75rem 1.75rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
         }
-        header .heroe h1 {
+
+        .stat-card {
+            background: white;
+            padding: 1.8rem 1.5rem;
+            border-radius: 16px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: all 300ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+
+        .stat-icon {
             font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #dd4814;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 1rem;
+            color: #6c757d;
             font-weight: 500;
         }
-        header .heroe h2 {
-            font-size: 1.5rem;
-            font-weight: 300;
+
+        /* Features Section */
+        .features-section {
+            padding: 4rem 1.5rem;
+            background: white;
         }
-        section {
+
+        .features-container {
+            max-width: 1200px;
             margin: 0 auto;
-            max-width: 1100px;
-            padding: 2.5rem 1.75rem 3.5rem 1.75rem;
         }
-        section h1 {
+
+        .section-title {
+            text-align: center;
             margin-bottom: 2.5rem;
         }
-        section h2 {
-            font-size: 120%;
-            line-height: 2.5rem;
-            padding-top: 1.5rem;
+
+        .section-title h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
         }
-        section pre {
-            background-color: rgba(247, 248, 249, 1);
-            border: 1px solid rgba(242, 242, 242, 1);
-            display: block;
-            font-size: .9rem;
-            margin: 2rem 0;
-            padding: 1rem 1.5rem;
-            white-space: pre-wrap;
-            word-break: break-all;
+
+        .section-title p {
+            font-size: 1.1rem;
+            color: #6c757d;
+            max-width: 600px;
+            margin: 0 auto;
         }
-        section code {
-            display: block;
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
         }
-        section a {
-            color: rgba(221, 72, 20, 1);
+
+        .feature-card {
+            background: linear-gradient(135deg, #ffffff, #f8f9fa);
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+            transition: all 300ms ease;
+            border: 1px solid rgba(221, 72, 20, 0.1);
         }
-        section svg {
-            margin-bottom: -5px;
-            margin-right: 5px;
-            width: 25px;
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border-color: rgba(221, 72, 20, 0.3);
         }
-        .further {
-            background-color: rgba(247, 248, 249, 1);
-            border-bottom: 1px solid rgba(242, 242, 242, 1);
-            border-top: 1px solid rgba(242, 242, 242, 1);
+
+        .feature-icon {
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.2rem;
+            font-size: 1.4rem;
+            color: white;
         }
-        .further h2:first-of-type {
-            padding-top: 0;
+
+        .feature-card h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #333;
         }
-        .svg-stroke {
-            fill: none;
-            stroke: #000;
-            stroke-width: 32px;
+
+        .feature-card p {
+            color: #6c757d;
+            line-height: 1.6;
+            font-size: 0.95rem;
         }
+
+        /* News Section */
+        .news-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 4rem 1.5rem;
+        }
+
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2.5rem;
+        }
+
+        .news-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: all 300ms ease;
+            cursor: pointer;
+        }
+
+        .news-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+        }
+
+        .news-image {
+            height: 160px;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .news-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 300ms ease;
+        }
+
+        .news-card:hover .news-image img {
+            transform: scale(1.05);
+        }
+
+        .news-content {
+            padding: 1.5rem;
+        }
+
+        .news-category {
+            display: inline-block;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            color: white;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        .news-date {
+            color: #dd4814;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .news-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .news-excerpt {
+            color: #6c757d;
+            line-height: 1.6;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .news-link {
+            color: #dd4814;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 300ms ease;
+            font-size: 0.9rem;
+        }
+
+        .news-link:hover {
+            color: #ff6b35;
+        }
+
+        .news-author {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .author-avatar {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #dd4814, #ff6b35);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        /* Modal for News Detail */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 2% auto;
+            padding: 0;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            position: relative;
+            height: 300px;
+            overflow: hidden;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .modal-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 50%;
+            background: linear-gradient(transparent, rgba(0,0,0,0.7));
+        }
+
+        .modal-title {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            color: white;
+            z-index: 10;
+        }
+
+        .modal-title h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .modal-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 20;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+
+        .close:hover {
+            background: rgba(0,0,0,0.8);
+        }
+
+        .modal-body {
+            padding: 2rem;
+        }
+
+        .modal-body p {
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+            color: #333;
+            font-size: 1.05rem;
+        }
+
+        /* Footer */
         footer {
-            background-color: rgba(221, 72, 20, .8);
+            background: linear-gradient(135deg, #333, #222);
+            color: white;
             text-align: center;
+            padding: 3rem 2rem 1rem;
         }
-        footer .environment {
-            color: rgba(255, 255, 255, 1);
-            padding: 2rem 1.75rem;
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        footer .copyrights {
-            background-color: rgba(62, 62, 62, 1);
-            color: rgba(200, 200, 200, 1);
-            padding: .25rem 1.75rem;
+
+        .footer-info {
+            margin-bottom: 2rem;
         }
-        @media (max-width: 629px) {
-            header ul {
-                padding: 0;
+
+        .footer-info h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+        }
+
+        .footer-info p {
+            color: #ccc;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid #444;
+            padding-top: 1rem;
+            margin-top: 2rem;
+            color: #999;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
             }
-            header .menu-toggle {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 1s ease-out;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+            
+            .hero-content p {
+                font-size: 1rem;
                 padding: 0 1rem;
             }
-            header .menu-item {
-                background-color: rgba(244, 245, 246, 1);
-                border-top: 1px solid rgba(242, 242, 242, 1);
-                margin: 0 15px;
-                width: calc(100% - 30px);
+            
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
             }
-            header .menu-toggle {
+            
+            .menu {
+                padding: 0.6rem 1rem;
+            }
+            
+            .logo-container h1 {
+                font-size: 1.3rem;
+            }
+            
+            .features-grid,
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .stats-container {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1.2rem 1rem;
+            }
+
+            .stat-icon {
+                font-size: 2rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .stat-number {
+                font-size: 1.8rem;
+            }
+
+            .stat-label {
+                font-size: 0.9rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+
+            .section-title p {
+                font-size: 1rem;
+                padding: 0 1rem;
+            }
+
+            .features-section,
+            .news-section,
+            .stats-section {
+                padding: 2.5rem 1rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem;
+            }
+
+            .feature-icon {
+                width: 45px;
+                height: 45px;
+                font-size: 1.2rem;
+            }
+
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+
+            .feature-card p {
+                font-size: 0.9rem;
+            }
+
+            .news-image {
+                height: 140px;
+                font-size: 2rem;
+            }
+
+            .news-content {
+                padding: 1.2rem;
+            }
+
+            .news-title {
+                font-size: 1.1rem;
+            }
+
+            .news-excerpt {
+                font-size: 0.85rem;
+            }
+
+            /* Mobile Menu Styles */
+            .menu-toggle {
                 display: block;
+                order: 2;
             }
-            header .hidden {
-                display: none;
+
+            .nav-items {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                border-radius: 0 0 15px 15px;
+                padding: 1rem;
+                gap: 0;
+                transform: translateY(-10px);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 300ms ease;
             }
-            header li.menu-item a {
-                background-color: rgba(221, 72, 20, .1);
+
+            .nav-items.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
             }
-            header li.menu-item a:hover,
-            header li.menu-item a:focus {
-                background-color: rgba(221, 72, 20, .7);
-                color: rgba(255, 255, 255, .8);
+
+            .menu-item {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+
+            .menu-item a {
+                width: 100%;
+                padding: 0.8rem;
+                border-radius: 10px;
+                justify-content: flex-start;
+                background: rgba(247, 248, 249, 0.5);
+                border: 1px solid rgba(221, 72, 20, 0.1);
+                font-size: 0.9rem;
+            }
+
+            .menu-item a:hover {
+                background: linear-gradient(135deg, rgba(221, 72, 20, .15), rgba(255, 107, 53, .15));
+                transform: translateX(5px);
+                box-shadow: 0 2px 10px rgba(221, 72, 20, 0.2);
+            }
+
+            .user-icon a {
+                justify-content: center;
+                background: linear-gradient(135deg, rgba(221, 72, 20, .1), rgba(255, 107, 53, .1));
+            }
+
+            .modal-content {
+                width: 95%;
+                margin: 5% auto;
+            }
+
+            .modal-header {
+                height: 200px;
+            }
+
+            .modal-title h2 {
+                font-size: 1.5rem;
+            }
+
+            .modal-body {
+                padding: 1.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .logo-container h1 {
+                font-size: 1.1rem;
+            }
+            
+            .menu {
+                padding: 0.5rem 0.8rem;
+            }
+
+            .hero-content h1 {
+                font-size: 1.8rem;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.8rem;
+            }
+
+            .stat-card {
+                padding: 1rem 0.8rem;
+            }
+
+            .stat-number {
+                font-size: 1.6rem;
+            }
+
+            .features-grid,
+            .news-grid {
+                gap: 0.8rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.6rem;
             }
         }
     </style>
 </head>
 <body>
 
-<!-- HEADER: MENU + HEROE SECTION -->
 <header>
-
     <div class="menu">
-        <ul>
-            <li class="logo">
-                <a href="https://codeigniter.com" target="_blank">
-                    <svg role="img" aria-label="Visit CodeIgniter.com official website!" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2100 500" height="44"><path fill="#dd4814" d="M148.2 411c-20.53-9.07-34.48-28.61-36.31-50.99 1.2-23.02 13.36-44.06 32.67-56.61-3.17 7.73-2.4 16.53 2 23.6 5.01 7 13.63 10.36 22.07 8.61 12.02-3.38 19.06-15.86 15.68-27.89-1.2-4.21-3.6-8.03-6.88-10.91-13.6-11.06-20.43-28.44-18-45.81 2.33-9.2 7.42-17.52 14.61-23.8-5.4 14.4 9.83 28.61 20.05 35.6 18.14 10.88 35.6 22.84 52.32 35.81 18.27 14.4 28.23 36.94 26.67 60-4.11 24.54-21.47 44.8-45.13 52.4 47.33-10.53 96.13-48.13 97.06-101.46-.93-42.67-26.4-80.96-65.33-98.4h-1.73c.86 2.09 1.28 4.34 1.2 6.61.13-1.47.13-2.93 0-4.4.21 1.73.21 3.47 0 5.2-2.96 12.13-15.2 19.6-27.36 16.64-4.86-1.2-9.2-3.93-12.32-7.87-15.6-20 0-42.76 2.61-64.76 1.6-28.13-11.25-55.02-34.05-71.46 11.41 19.02-3.79 44-14.84 58.21-11.07 14.21-27.07 24.8-40.11 37.2-14.05 13.07-26.93 27.44-38.49 42.8-24.99 30.53-34.8 70.8-26.67 109.4 11.15 37.2 42.07 65.15 80.2 72.4h.21l-.13-.12Zm324.56-159.8q0-17.92 6.16-35.56 6.44-17.92 18.48-31.92t29.68-22.68q17.64-8.96 40.04-8.96 26.6 0 45.36 12.04 19.04 12.04 28 31.36l-15.4 9.52q-4.76-9.8-11.76-16.52-6.72-6.72-14.56-10.92-7.84-4.2-16.24-5.88-8.4-1.96-16.52-1.96-17.92 0-31.64 7.28-13.72 7.28-23.24 19.04-9.24 11.76-14 26.6-4.76 14.56-4.76 29.68 0 16.52 5.6 31.64 5.88 15.12 15.68 26.88 10.08 11.48 23.52 18.48 13.72 6.72 29.68 6.72 8.4 0 17.08-1.96 8.96-2.24 17.08-6.72 8.4-4.76 15.4-11.48 7-7 11.76-16.8l16.24 8.4q-4.76 11.2-13.44 19.88-8.68 8.4-19.32 14.28-10.64 5.88-22.68 8.96-11.76 3.08-23.24 3.08-20.44 0-37.52-8.96-17.08-8.96-29.4-23.24-12.32-14.56-19.32-32.76-6.72-18.48-6.72-37.52Zm263.48 103.6q-15.96 0-29.12-5.88-13.16-6.16-22.96-16.52-9.52-10.36-14.84-24.08Q664 294.6 664 279.48q0-15.4 5.32-29.12 5.6-13.72 15.12-24.08 9.8-10.36 22.96-16.52t28.84-6.16q15.68 0 28.84 6.16 13.44 6.16 22.96 16.52 9.8 10.36 15.12 24.08 5.6 13.72 5.6 29.12 0 15.12-5.32 28.84t-15.12 24.08q-9.52 10.36-22.96 16.52-13.16 5.88-29.12 5.88Zm-52.92-75.04q0 12.32 4.2 22.96 4.2 10.36 11.2 18.48 7.28 7.84 16.8 12.32 9.8 4.48 20.72 4.48 10.92 0 20.44-4.48 9.8-4.76 17.08-12.6 7.28-8.12 11.48-18.76 4.2-10.64 4.2-22.96 0-12.04-4.2-22.68-4.2-10.92-11.48-18.76-7.28-8.12-17.08-12.6-9.52-4.76-20.44-4.76-10.92 0-20.44 4.76-9.52 4.48-16.8 12.6-7.28 8.12-11.48 19.04-4.2 10.64-4.2 22.96ZM900.6 354.8q-15.12 0-28-6.16-12.88-6.44-22.12-16.8t-14.56-23.8q-5.04-13.72-5.04-28.56 0-15.4 5.04-29.12 5.04-14 13.72-24.36 8.96-10.36 21-16.24 12.32-6.16 26.88-6.16 18.48 0 32.76 9.8 14.28 9.52 22.4 23.24V147.6h19.04v179.76q0 7.84 6.72 7.84V352q-4.2.84-6.72.84-6.72 0-11.76-4.2-5.04-4.48-5.04-10.64v-14.28Q946.24 338 931.4 346.4t-30.8 8.4Zm4.2-16.8q7 0 14.84-2.8 8.12-2.8 15.12-7.56 7-5.04 11.76-11.48 5.04-6.72 6.16-14.28V256.8q-2.8-7.56-8.12-14-5.32-6.72-12.32-11.76-6.72-5.04-14.56-7.84-7.84-2.8-15.4-2.8-11.76 0-21.28 5.04-9.52 5.04-16.52 13.44-6.72 8.12-10.36 18.76-3.64 10.64-3.64 21.84 0 11.76 4.2 22.4 4.2 10.64 11.48 18.76 7.28 7.84 17.08 12.6Q893.32 338 904.8 338Zm173.04 16.8q-15.96 0-29.4-5.88-13.16-6.16-22.96-16.52-9.8-10.64-15.4-24.36-5.32-13.72-5.32-29.4 0-15.4 5.32-28.84 5.6-13.72 15.12-23.8 9.8-10.36 23.24-16.24 13.44-6.16 29.12-6.16 15.96 0 29.12 6.16 13.44 5.88 22.96 16.24 9.52 10.36 14.84 23.8 5.32 13.44 5.32 28.56v4.48q0 2.24-.28 3.08h-124.88q.84 11.76 5.32 21.84 4.76 9.8 12.04 17.08 7.28 7.28 16.52 11.48 9.52 3.92 20.16 3.92 7 0 14-1.96t12.88-5.32q5.88-3.36 10.64-8.12 4.76-5.04 7.28-10.92l16.52 4.48q-3.36 8.12-9.52 14.84-6.16 6.44-14.28 11.48-8.12 4.76-17.92 7.56-9.8 2.52-20.44 2.52Zm-53.48-83.44h107.24q-.84-11.76-5.6-21.28-4.48-9.8-11.76-16.8-7-7-16.52-10.92-9.24-3.92-19.88-3.92-10.64 0-20.16 3.92t-16.8 10.92q-7 7-11.48 16.8-4.2 9.8-5.04 21.28Zm193.2 80.64h-38.64V153.2h38.64V352Zm93.52.84q-14.84 0-26.88-5.88t-21-15.96q-8.68-10.36-13.44-23.8-4.76-13.44-4.76-28.56 0-15.96 5.04-29.68 5.04-13.72 14-24.08 8.96-10.36 21.56-16.24 12.6-5.88 27.72-5.88 17.08 0 29.96 7.84 12.88 7.56 21.28 20.44v-25.76h32.76V345q0 16.24-6.16 29.12-6.16 12.88-17.08 21.84-10.64 8.96-25.76 13.72-14.84 4.76-32.48 4.76-24.08 0-40.6-7.84-16.24-8.12-28-22.68l20.44-19.88q8.4 10.36 21 16.24 12.88 5.88 27.16 5.88 8.68 0 16.52-2.24 8.12-2.52 14.28-7.56 6.16-5.04 9.52-12.88 3.64-7.84 3.64-18.48v-18.48q-7.28 12.6-20.44 19.6-13.16 6.72-28.28 6.72Zm12.6-29.96q6.16 0 11.76-1.96t10.36-5.32q4.76-3.36 8.4-7.84 3.64-4.48 5.6-9.52v-35q-5.04-12.88-15.96-20.72-10.64-7.84-22.4-7.84-8.68 0-15.68 3.92-7 3.64-12.04 10.08-5.04 6.16-7.84 14.28-2.52 8.12-2.52 16.8 0 8.96 3.08 16.8t8.4 13.72q5.6 5.88 12.88 9.24 7.28 3.36 15.96 3.36Zm243.88-62.44V352h-37.52v-82.32q0-17.64-6.16-25.76-6.16-8.12-17.08-8.12-5.6 0-11.48 2.24-5.88 2.24-11.2 6.44-5.04 3.92-9.24 9.52t-6.16 12.32V352h-37.52V205.28h33.88v27.16q8.12-14 23.52-21.84t34.72-7.84q13.72 0 22.4 5.04 8.68 5.04 13.44 13.16 4.76 8.12 6.44 18.48 1.96 10.36 1.96 21Zm70.28 91.56h-37.52V205.28h37.52V352Zm0-167.16h-37.52V147.6h37.52v37.24Zm114.24 129.92 7.56 29.68q-7.56 3.36-18.48 6.72-10.92 3.36-22.96 3.36-7.84 0-14.84-1.96-6.72-1.96-12.04-6.16-5.04-4.48-8.12-11.2-3.08-7-3.08-16.8v-84.28h-19.32v-28.84h19.32v-47.6h37.52v47.6h30.8v28.84h-30.8v71.68q0 7.84 3.92 11.2 4.2 3.08 10.08 3.08t11.48-1.96q5.6-1.96 8.96-3.36Zm91.56 40.04q-17.64 0-31.92-5.88-14.28-6.16-24.36-16.52t-15.68-24.08q-5.32-13.72-5.32-28.84 0-15.68 5.32-29.4 5.32-14 15.4-24.36 10.08-10.64 24.36-16.8 14.56-6.16 32.48-6.16 17.92 0 31.92 6.16 14.28 6.16 24.08 16.52 10.08 10.36 15.12 24.08 5.32 13.72 5.32 28.56 0 3.64-.28 7 0 3.36-.56 5.6h-113.4q.84 8.68 4.2 15.4 3.36 6.72 8.68 11.48 5.32 4.76 12.04 7.28 6.72 2.52 14 2.52 11.2 0 21-5.32 10.08-5.6 13.72-14.56l32.2 8.96q-8.12 16.8-26.04 27.72-17.64 10.64-42.28 10.64Zm-38.08-88.48h76.16q-1.4-16.52-12.32-26.32-10.64-10.08-26.04-10.08-7.56 0-14.28 2.8-6.44 2.52-11.48 7.28t-8.4 11.48q-3.08 6.72-3.64 14.84Zm225.12-62.72v34.16q-17.08.28-30.52 6.72-13.44 6.16-19.32 18.76V352h-37.52V205.28h34.44v31.36q3.92-7.56 9.24-13.44 5.32-6.16 11.48-10.64t12.32-6.72q6.44-2.52 12.32-2.52h4.48q1.68 0 3.08.28Z"/></svg>
+        <div class="logo-container">
+            <a href="/">
+                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #2781f0ff, #397df4ff); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; margin-right: 10px; font-size: 0.9rem;">MK</div>
+                <h1>MAU-KUEP</h1>
+            </a>
+        </div>
+        
+        <button class="menu-toggle" id="menuToggle">☰</button>
+        
+        <ul class="nav-items" id="navItems">
+            <li class="menu-item user-icon">
+                <a href="/login" title="Login">
+                    <div class="user-avatar">👤</div>
                 </a>
-            </li>
-            <li class="menu-toggle">
-                <button id="menuToggle">&#9776;</button>
-            </li>
-            <li class="menu-item hidden"><a href="#">Home</a></li>
-            <li class="menu-item hidden"><a href="https://codeigniter.com/user_guide/" target="_blank">Docs</a>
-            </li>
-            <li class="menu-item hidden"><a href="https://forum.codeigniter.com/" target="_blank">Community</a></li>
-            <li class="menu-item hidden"><a
-                    href="https://codeigniter.com/contribute" target="_blank">Contribute</a>
             </li>
         </ul>
     </div>
-
-    <div class="heroe">
-
-        <h1>Welcome to CodeIgniter <?= CodeIgniter\CodeIgniter::CI_VERSION ?></h1>
-
-        <h2>The small framework with powerful features</h2>
-
-    </div>
-
 </header>
 
-<!-- CONTENT -->
-
-<section>
-
-    <h1>About this page</h1>
-
-    <p>The page you are looking at is being generated dynamically by CodeIgniter.</p>
-
-    <p>If you would like to edit this page you will find it located at:</p>
-
-    <pre><code>app/Views/welcome_message.php</code></pre>
-
-    <p>The corresponding controller for this page can be found at:</p>
-
-    <pre><code>app/Controllers/Home.php</code></pre>
-
+<section class="hero-section">
+    <!-- Enhanced Particle System -->
+    <div class="particle-container" id="particleContainer"></div>
+    
+    <div class="hero-content">
+        <h1>MAU-KUEP</h1>
+        <p>Platform Terpadu untuk Monitoring dan Pendataan Bantuan Sosial, Penyandang Disabilitas, dan UMKM di Kepulauan Riau</p>
+        <div class="cta-buttons">
+            <a href="#features" class="btn btn-primary">
+                🚀 Mulai Sekarang
+            </a>
+            <a href="#news" class="btn btn-secondary">
+                📰 Lihat Berita
+            </a>
+        </div>
+    </div>
 </section>
 
-<div class="further">
+<section class="stats-section">
+    <div class="stats-container">
+        <div class="stat-card">
+            <div class="stat-icon">📊</div>
+            <div class="stat-number">15,247</div>
+            <div class="stat-label">Data Penerima Bansos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">♿</div>
+            <div class="stat-number">3,892</div>
+            <div class="stat-label">Data Penyandang Disabilitas</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🏪</div>
+            <div class="stat-number">8,156</div>
+            <div class="stat-label">Data UMKM Terdaftar</div>
+        </div>
+    </div>
+</section>
 
-    <section>
+<section class="features-section" id="features">
+    <div class="features-container">
+        <div class="section-title">
+            <h2>Fitur Unggulan</h2>
+            <p>Sistem informasi terintegrasi untuk mendukung program sosial yang efektif dan tepat sasaran</p>
+        </div>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📋</div>
+                <h3>SIM-Bankel (Bantuan Sosial)</h3>
+                <p>Sistem pendataan dan monitoring bantuan sosial yang akurat untuk memastikan bantuan tepat sasaran kepada masyarakat yang membutuhkan.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">♿</div>
+                <h3>SIM-Difabel (Disabilitas)</h3>
+                <p>Platform khusus untuk pendataan penyandang disabilitas dengan fitur komprehensif untuk mendukung program inklusi sosial.</p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">📈</div>
+                <h3>SIM-Monevkuep (Monitoring UMKM)</h3>
+                <p>Sistem monitoring dan evaluasi untuk usaha mikro, kecil, dan menengah guna mendukung pertumbuhan ekonomi lokal.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-        <h1>Go further</h1>
+<section class="news-section" id="news">
+    <div class="news-container">
+        <div class="section-title">
+            <h2>Berita & Informasi</h2>
+            <p>Update terbaru mengenai program bantuan sosial dan pemberdayaan masyarakat di Kepulauan Riau</p>
+        </div>
+        
+        <div class="news-grid" id="newsGrid">
+            <!-- Berita akan diisi dari JavaScript -->
+        </div>
+    </div>
+</section>
 
-        <h2>
-            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect x='32' y='96' width='64' height='368' rx='16' ry='16' class="svg-stroke" /><line x1='112' y1='224' x2='240' y2='224' class="svg-stroke" /><line x1='112' y1='400' x2='240' y2='400' class="svg-stroke" /><rect x='112' y='160' width='128' height='304' rx='16' ry='16' class="svg-stroke" /><rect x='256' y='48' width='96' height='416' rx='16' ry='16' class="svg-stroke" /><path d='M422.46,96.11l-40.4,4.25c-11.12,1.17-19.18,11.57-17.93,23.1l34.92,321.59c1.26,11.53,11.37,20,22.49,18.84l40.4-4.25c11.12-1.17,19.18-11.57,17.93-23.1L445,115C443.69,103.42,433.58,94.94,422.46,96.11Z' class="svg-stroke"/></svg>
-            Learn
-        </h2>
-
-        <p>The User Guide contains an introduction, tutorial, a number of "how to"
-            guides, and then reference documentation for the components that make up
-            the framework. Check the <a href="https://codeigniter.com/user_guide/"
-            target="_blank">User Guide</a> !</p>
-
-        <h2>
-            <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><path d='M431,320.6c-1-3.6,1.2-8.6,3.3-12.2a33.68,33.68,0,0,1,2.1-3.1A162,162,0,0,0,464,215c.3-92.2-77.5-167-173.7-167C206.4,48,136.4,105.1,120,180.9a160.7,160.7,0,0,0-3.7,34.2c0,92.3,74.8,169.1,171,169.1,15.3,0,35.9-4.6,47.2-7.7s22.5-7.2,25.4-8.3a26.44,26.44,0,0,1,9.3-1.7,26,26,0,0,1,10.1,2L436,388.6a13.52,13.52,0,0,0,3.9,1,8,8,0,0,0,8-8,12.85,12.85,0,0,0-.5-2.7Z' class="svg-stroke" /><path d='M66.46,232a146.23,146.23,0,0,0,6.39,152.67c2.31,3.49,3.61,6.19,3.21,8s-11.93,61.87-11.93,61.87a8,8,0,0,0,2.71,7.68A8.17,8.17,0,0,0,72,464a7.26,7.26,0,0,0,2.91-.6l56.21-22a15.7,15.7,0,0,1,12,.2c18.94,7.38,39.88,12,60.83,12A159.21,159.21,0,0,0,284,432.11' class="svg-stroke" /></svg>
-            Discuss
-        </h2>
-
-        <p>CodeIgniter is a community-developed open source project, with several
-             venues for the community members to gather and exchange ideas. View all
-             the threads on <a href="https://forum.codeigniter.com/"
-             target="_blank">CodeIgniter's forum</a>, or <a href="https://join.slack.com/t/codeigniterchat/shared_invite/zt-rl30zw00-obL1Hr1q1ATvkzVkFp8S0Q"
-             target="_blank">chat on Slack</a> !</p>
-
-        <h2>
-        <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><line x1='176' y1='48' x2='336' y2='48' class="svg-stroke" /><line x1='118' y1='304' x2='394' y2='304' class="svg-stroke" /><path d='M208,48v93.48a64.09,64.09,0,0,1-9.88,34.18L73.21,373.49C48.4,412.78,76.63,464,123.08,464H388.92c46.45,0,74.68-51.22,49.87-90.51L313.87,175.66A64.09,64.09,0,0,1,304,141.48V48' class="svg-stroke" /></svg>
-             Contribute
-        </h2>
-
-        <p>CodeIgniter is a community driven project and accepts contributions
-             of code and documentation from the community. Why not
-             <a href="https://codeigniter.com/contribute" target="_blank">
-             join us</a> ?</p>
-
-    </section>
-
+<!-- Modal untuk Detail Berita -->
+<div id="newsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close">&times;</span>
+            <img id="modalImage" src="" alt="">
+            <div class="modal-title">
+                <h2 id="modalTitle"></h2>
+                <div class="modal-meta">
+                    <span id="modalCategory" class="news-category"></span>
+                    <span id="modalDate" class="news-date"></span>
+                    <div class="news-author">
+                        <div class="author-avatar" id="modalAuthorAvatar"></div>
+                        <span id="modalAuthor"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-body">
+            <div id="modalContent"></div>
+        </div>
+    </div>
 </div>
 
-<!-- FOOTER: DEBUG INFO + COPYRIGHTS -->
-
 <footer>
-    <div class="environment">
-
-        <p>Page rendered in {elapsed_time} seconds using {memory_usage} MB of memory.</p>
-
-        <p>Environment: <?= ENVIRONMENT ?></p>
-
+    <div class="footer-content">
+        <div class="footer-info">
+            <h3>MAU-KUEP</h3>
+            <p>Platform digital yang mengintegrasikan sistem informasi manajemen untuk bantuan sosial, penyandang disabilitas, dan UMKM di Kepulauan Riau. Mendukung transparansi dan akuntabilitas program sosial pemerintah.</p>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Dinas Sosial Kepulauan Riau. Semua hak dilindungi undang-undang.</p>
+        </div>
     </div>
-
-    <div class="copyrights">
-
-        <p>&copy; <?= date('Y') ?> CodeIgniter Foundation. CodeIgniter is open source project released under the MIT
-            open source licence.</p>
-
-    </div>
-
 </footer>
 
-<!-- SCRIPTS -->
+<script>
+    // ========================================
+    // DATA BERITA - EDIT DI SINI UNTUK MENAMBAH/MENGEDIT BERITA
+    // ========================================
+    const newsData = [
+        {
+            id: 1,
+            title: "Penyaluran Bantuan Sosial Tunai Mencapai 95% di Kepri",
+            category: "Bantuan Sosial",
+            excerpt: "Dinas Sosial Kepulauan Riau berhasil menyalurkan bantuan sosial tunai kepada 15.247 keluarga penerima manfaat dengan tingkat akurasi data mencapai 95%.",
+            content: `
+                <p>Dalam upaya memastikan tepat sasaran, Dinas Sosial Kepulauan Riau telah berhasil menyalurkan bantuan sosial tunai kepada 15.247 keluarga penerima manfaat di seluruh wilayah Kepri. Program ini merupakan bagian dari komitmen pemerintah daerah untuk mengentaskan kemiskinan dan meningkatkan kesejahteraan masyarakat.</p>
+                
+                <p>Kepala Dinas Sosial Kepri menyampaikan bahwa tingkat akurasi data mencapai 95% berkat dukungan sistem informasi MAU-KUEP yang terintegrasi. "Dengan sistem yang canggih ini, kami dapat memastikan bantuan tepat sasaran dan mengurangi potensi penyalahgunaan," ujarnya dalam keterangan pers.</p>
+                
+                <p>Program bantuan sosial ini mencakup bantuan langsung tunai, bantuan sembako, dan program pemberdayaan ekonomi untuk keluarga kurang mampu. Setiap penerima manfaat telah terverifikasi melalui sistem pendataan terpadu yang memadukan data dari berbagai instansi terkait.</p>
+                
+                <p>Dengan capaian ini, Kepulauan Riau menjadi salah satu provinsi dengan tingkat akurasi penyaluran bantuan sosial tertinggi di Indonesia. Program ini diharapkan dapat terus berkelanjutan untuk mendukung perekonomian masyarakat, terutama di masa pemulihan ekonomi pasca pandemi.</p>
+            `,
+            author: "Admin Dinsos Kepri",
+            date: "28 Juli 2025",
+            image: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?w=800&h=400&fit=crop"
+        },
+        {
+            id: 2,
+            title: "Program Rehabilitasi Sosial untuk Penyandang Disabilitas Dimulai",
+            category: "Disabilitas",
+            excerpt: "Launching program rehabilitasi sosial komprehensif untuk 3.892 penyandang disabilitas di Kepulauan Riau dengan dukungan teknologi SIM-Difabel.",
+            content: `
+                <p>Pemerintah Kepulauan Riau resmi meluncurkan program rehabilitasi sosial komprehensif yang akan menjangkau 3.892 penyandang disabilitas di seluruh wilayah Kepri. Program ini merupakan implementasi dari komitmen daerah untuk mewujudkan inklusi sosial yang berkelanjutan dan memastikan hak-hak penyandang disabilitas terpenuhi.</p>
+                
+                <p>Program rehabilitasi sosial ini mencakup berbagai layanan seperti terapi fisik, terapi okupasi, konseling psikologi, pelatihan keterampilan hidup, dan program pemberdayaan ekonomi. Setiap penyandang disabilitas akan mendapat layanan yang disesuaikan dengan jenis disabilitas dan kebutuhan spesifik mereka.</p>
+                
+                <p>Dengan dukungan sistem SIM-Difabel yang terintegrasi dalam platform MAU-KUEP, proses pendataan dan monitoring program menjadi lebih efektif dan real-time. Sistem ini memungkinkan tracking progress setiap individu dan memastikan kualitas layanan yang diberikan sesuai dengan standar yang ditetapkan.</p>
+                
+                <p>Gubernur Kepulauan Riau dalam sambutannya menekankan pentingnya program ini sebagai wujud komitmen daerah terhadap pembangunan inklusif. "Tidak ada yang tertinggal dalam pembangunan Kepri, termasuk saudara-saudara kita penyandang disabilitas," ungkapnya.</p>
+            `,
+            author: "Tim Inklusi Sosial",
+            date: "25 Juli 2025",
+            image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=800&h=400&fit=crop"
+        },
+        {
+            id: 3,
+            title: "8.156 UMKM Terdaftar dalam Program Pemberdayaan Ekonomi",
+            category: "UMKM",
+            excerpt: "Melalui platform SIM-Monevkuep, tercatat 8.156 UMKM telah terdaftar dan mendapat akses ke program pemberdayaan ekonomi dari pemerintah daerah.",
+            content: `
+                <p>Dalam rangka mendorong pertumbuhan ekonomi lokal dan meningkatkan daya saing UMKM, Pemerintah Kepulauan Riau berhasil mendata dan memberdayakan 8.156 unit usaha mikro, kecil, dan menengah (UMKM) melalui platform SIM-Monevkuep yang terintegrasi dalam sistem MAU-KUEP.</p>
+                
+                <p>Program pemberdayaan UMKM ini meliputi berbagai bentuk bantuan seperti modal usaha, pelatihan manajemen bisnis, pendampingan teknis, fasilitasi akses pasar, dan program digitalisasi usaha. Setiap UMKM mendapat pendampingan yang disesuaikan dengan jenis usaha dan tingkat kebutuhan pengembangan.</p>
+                
+                <p>Platform SIM-Monevkuep memungkinkan monitoring real-time terhadap progress setiap UMKM binaan, mulai dari peningkatan omzet, jumlah tenaga kerja, ekspansi pasar, hingga adopsi teknologi digital. Data ini menjadi dasar untuk evaluasi program dan pengembangan strategi pemberdayaan ke depan.</p>
+                
+                <p>Kepala Dinas Koperasi dan UKM Kepri menyatakan bahwa dengan sistem digital ini, pelayanan kepada UMKM menjadi lebih efisien dan tepat sasaran. "Kami optimis UMKM Kepri akan semakin berkembang dan mampu bersaing di pasar yang lebih luas," kata Kepala Dinas dalam keterangan resminya.</p>
+            `,
+            author: "Diskop UKM Kepri",
+            date: "22 Juli 2025",
+            image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop"
+        },
+        {
+            id: 4,
+            title: "Pelatihan Digital Marketing untuk UMKM Kepri Sukses Digelar",
+            category: "UMKM",
+            excerpt: "Sebanyak 200 pelaku UMKM mengikuti pelatihan digital marketing untuk meningkatkan penjualan online dan memperluas jangkauan pasar.",
+            content: `
+                <p>Dinas Koperasi dan UKM Kepulauan Riau berhasil menyelenggarakan pelatihan digital marketing yang diikuti oleh 200 pelaku UMKM dari berbagai sektor usaha. Pelatihan ini merupakan bagian dari program pemberdayaan UMKM yang bertujuan untuk meningkatkan kemampuan pemasaran digital para pelaku usaha.</p>
+                
+                <p>Materi pelatihan mencakup strategi pemasaran media sosial, pembuatan konten kreatif, teknik fotografi produk, manajemen toko online, dan analisis performa digital marketing. Para peserta juga mendapat pendampingan langsung dalam membuat akun bisnis dan mengoptimalkan strategi pemasaran mereka.</p>
+                
+                <p>Hasil dari pelatihan ini sangat menggembirakan, dimana 85% peserta berhasil meningkatkan penjualan online mereka dalam kurun waktu 2 minggu setelah pelatihan. Beberapa UMKM bahkan melaporkan peningkatan omzet hingga 150% setelah menerapkan strategi digital marketing yang dipelajari.</p>
+                
+                <p>Program ini akan dilanjutkan dengan pelatihan lanjutan mengenai e-commerce dan ekspor digital untuk membantu UMKM Kepri merambah pasar internasional, khususnya negara-negara ASEAN yang merupakan pasar potensial bagi produk-produk unggulan Kepulauan Riau.</p>
+            `,
+            author: "Tim Pelatihan UMKM",
+            date: "20 Juli 2025",
+            image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=400&fit=crop"
+        },
+        {
+            id: 5,
+            title: "Bantuan Alat Bantu untuk Penyandang Disabilitas Tersalurkan",
+            category: "Disabilitas",
+            excerpt: "Distribusi 500 unit alat bantu seperti kursi roda, tongkat putih, dan alat bantu dengar untuk penyandang disabilitas di Kepri.",
+            content: `
+                <p>Dinas Sosial Kepulauan Riau berhasil mendistribusikan 500 unit alat bantu kepada penyandang disabilitas di seluruh wilayah Kepri. Bantuan ini meliputi kursi roda, tongkat putih untuk tunanetra, alat bantu dengar, kruk, dan berbagai alat bantu mobilitas lainnya.</p>
+                
+                <p>Pendistribusian alat bantu ini merupakan hasil dari pendataan komprehensif melalui sistem SIM-Difabel yang berhasil mengidentifikasi kebutuhan spesifik setiap penyandang disabilitas. Data akurat ini memungkinkan penyaluran bantuan yang tepat sasaran dan sesuai dengan jenis disabilitas yang dialami.</p>
+                
+                <p>Para penerima bantuan juga mendapat pelatihan penggunaan alat bantu dan konseling untuk memaksimalkan manfaat dari alat bantu yang diterima. Tim medis dan terapis khusus memberikan pendampingan untuk memastikan alat bantu dapat digunakan dengan optimal.</p>
+                
+                <p>Kepala Dinas Sosial menyampaikan apresiasi kepada semua pihak yang terlibat dalam program ini. "Dengan alat bantu yang tepat, penyandang disabilitas dapat menjalani aktivitas sehari-hari dengan lebih mandiri dan bermartabat," ungkapnya dalam acara serah terima bantuan.</p>
+            `,
+            author: "Divisi Rehabilitasi Sosial",
+            date: "18 Juli 2025",
+            image: "https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&h=400&fit=crop"
+        },
+        {
+            id: 6,
+            title: "Penyaluran Bantuan Sembako Ramadan Capai Target 100%",
+            category: "Bantuan Sosial",
+            excerpt: "Program bantuan sembako Ramadan berhasil menjangkau 20.000 keluarga kurang mampu di seluruh Kepulauan Riau tepat waktu.",
+            content: `
+                <p>Alhamdulillah, program penyaluran bantuan sembako Ramadan 1446 H berhasil mencapai target 100% dengan menjangkau 20.000 keluarga kurang mampu di seluruh Kepulauan Riau. Distribusi dilakukan secara serentak di 7 kabupaten/kota dengan memanfaatkan sistem pendataan MAU-KUEP untuk memastikan akurasi penerima.</p>
+                
+                <p>Setiap paket sembako berisi bahan pokok berkualitas seperti beras 10kg, minyak goreng 2 liter, gula pasir 1kg, tepung terigu 1kg, susu kental manis, mie instan, dan berbagai kebutuhan dapur lainnya yang cukup untuk kebutuhan keluarga selama bulan Ramadan.</p>
+                
+                <p>Gubernur Kepulauan Riau secara langsung memantau proses distribusi di beberapa titik penyaluran. "Ini adalah bentuk kepedulian pemerintah daerah terhadap masyarakat kurang mampu, khususnya di bulan suci Ramadan. Semoga bantuan ini dapat meringankan beban keluarga dan menambah berkah di bulan yang penuh rahmat ini," ungkap Gubernur.</p>
+                
+                <p>Proses distribusi berjalan lancar berkat koordinasi yang baik antara Dinas Sosial, TNI, Polri, dan relawan di tingkat kelurahan. Sistem MAU-KUEP juga membantu dalam monitoring real-time untuk memastikan tidak ada keluarga yang terlewat dari program bantuan ini.</p>
+            `,
+            author: "Panitia Bantuan Ramadan",
+            date: "15 Juli 2025",
+            image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=800&h=400&fit=crop"
+        }
+    ];
 
-<script {csp-script-nonce}>
-    document.getElementById("menuToggle").addEventListener('click', toggleMenu);
-    function toggleMenu() {
-        var menuItems = document.getElementsByClassName('menu-item');
-        for (var i = 0; i < menuItems.length; i++) {
-            var menuItem = menuItems[i];
-            menuItem.classList.toggle("hidden");
+    // ========================================
+    // FUNGSI UNTUK MENAMPILKAN BERITA
+    // ========================================
+    function displayNews() {
+        const newsGrid = document.getElementById('newsGrid');
+        newsGrid.innerHTML = '';
+
+        // Tampilkan maksimal 6 berita terbaru
+        const displayedNews = newsData.slice(0, 6);
+
+        displayedNews.forEach(news => {
+            const newsCard = document.createElement('div');
+            newsCard.className = 'news-card';
+            newsCard.onclick = () => openModal(news);
+
+            newsCard.innerHTML = `
+                <div class="news-image">
+                    <img src="${news.image}" alt="${news.title}" 
+                         onerror="this.parentElement.innerHTML='<div style=\\'display: flex; align-items: center; justify-content: center; height: 100%; font-size: 2.5rem;\\'>📰</div>'">
+                </div>
+                <div class="news-content">
+                    <span class="news-category">${news.category}</span>
+                    <div class="news-date">📅 ${news.date}</div>
+                    <h3 class="news-title">${news.title}</h3>
+                    <p class="news-excerpt">${news.excerpt}</p>
+                    <div class="news-author">
+                        <div class="author-avatar">${news.author.charAt(0)}</div>
+                        <span>${news.author}</span>
+                    </div>
+                </div>
+            `;
+
+            newsGrid.appendChild(newsCard);
+        });
+    }
+
+    // ========================================
+    // FUNGSI MODAL DETAIL BERITA
+    // ========================================
+    function openModal(news) {
+        const modal = document.getElementById('newsModal');
+        document.getElementById('modalImage').src = news.image;
+        document.getElementById('modalTitle').textContent = news.title;
+        document.getElementById('modalCategory').textContent = news.category;
+        document.getElementById('modalDate').textContent = '📅 ' + news.date;
+        document.getElementById('modalAuthor').textContent = news.author;
+        document.getElementById('modalAuthorAvatar').textContent = news.author.charAt(0);
+        document.getElementById('modalContent').innerHTML = news.content;
+        
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        const modal = document.getElementById('newsModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+
+    // Event listeners untuk modal
+    document.querySelector('.close').onclick = closeModal;
+    window.onclick = function(event) {
+        const modal = document.getElementById('newsModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    };
+
+    // ========================================
+    // ANIMASI PARTIKEL
+    // ========================================
+    function createParticles() {
+        const container = document.getElementById('particleContainer');
+        const particleCount = 50;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            const size = Math.random() < 0.3 ? 'particle-small' : 
+                         Math.random() < 0.6 ? 'particle-medium' : 'particle-large';
+            
+            particle.className = `particle ${size}`;
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 15 + 's';
+            particle.style.animationDuration = (12 + Math.random() * 8) + 's';
+            
+            container.appendChild(particle);
         }
     }
-</script>
 
-<!-- -->
+    // ========================================
+    // MOBILE MENU
+    // ========================================
+    const menuToggle = document.getElementById("menuToggle");
+    const navItems = document.getElementById("navItems");
+    
+    if (menuToggle) {
+        menuToggle.addEventListener('click', function() {
+            navItems.classList.toggle('active');
+            
+            if (navItems.classList.contains('active')) {
+                menuToggle.innerHTML = '✕';
+                menuToggle.style.transform = 'rotate(180deg)';
+            } else {
+                menuToggle.innerHTML = '☰';
+                menuToggle.style.transform = 'rotate(0deg)';
+            }
+        });
+    }
+
+    // Close mobile menu when clicking outside
+    document.addEventListener('click', function(event) {
+        if (menuToggle && !menuToggle.contains(event.target) && !navItems.contains(event.target)) {
+            navItems.classList.remove('active');
+            menuToggle.innerHTML = '☰';
+            menuToggle.style.transform = 'rotate(0deg)';
+        }
+    });
+
+    // ========================================
+    // SMOOTH SCROLLING
+    // ========================================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // ========================================
+    // COUNTER ANIMATION UNTUK STATISTIK
+    // ========================================
+    function animateCounter(element, target) {
+        let current = 0;
+        const increment = target / 100;
+        const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+                current = target;
+                clearInterval(timer);
+            }
+            element.textContent = Math.floor(current).toLocaleString();
+        }, 20);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const numbers = entry.target.querySelectorAll('.stat-number');
+                numbers.forEach(number => {
+                    const target = parseInt(number.textContent.replace(/,/g, ''));
+                    animateCounter(number, target);
+                });
+                statsObserver.unobserve(entry.target);
+            }
+        });
+    });
+
+    // ========================================
+    // INISIALISASI HALAMAN
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tampilkan berita
+        displayNews();
+        
+        // Buat partikel animasi
+        createParticles();
+        
+        // Observer untuk animasi counter
+        const statsSection = document.querySelector('.stats-section');
+        if (statsSection) {
+            statsObserver.observe(statsSection);
+        }
+        
+        // Animation observer untuk cards
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe semua cards untuk animasi
+        document.querySelectorAll('.stat-card, .feature-card, .news-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+    });
+
+    // ========================================
+    // PARALLAX EFFECT
+    // ========================================
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const heroSection = document.querySelector('.hero-section');
+        const rate = scrolled * -0.5;
+        
+        if (heroSection) {
+            heroSection.style.transform = `translateY(${rate}px)`;
+        }
+    });
+</script>
 
 </body>
 </html>
