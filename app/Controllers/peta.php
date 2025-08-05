@@ -70,6 +70,61 @@ class Peta extends BaseController
                               ->setJSON($geojson);
     }
 
+    public function geojson_difabel($wilayah, $tingkat)
+    {
+          $db = \Config\Database::connect();
+        $builder = $db->table('data_difabel b');
+        $mapJumlah = [];
+
+        // Logika dinamis berdasarkan parameter $tingkat
+        if ($tingkat === 'kecamatan') {
+            $builder->select('UPPER(kec.nama_kecamatan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
+            $builder->join('kecamatan kec', 'b.id_kecamatan = kec.id');
+            $builder->groupBy('kec.nama_kecamatan');
+        } elseif ($tingkat === 'kelurahan') {
+            // Asumsikan Anda punya tabel 'kelurahan' dan kolom 'id_kelurahan' di 'data_bankel'
+            $builder->select('UPPER(kel.nama_kelurahan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
+            $builder->join('kelurahan kel', 'b.id_kelurahan = kel.id');
+            $builder->groupBy('kel.nama_kelurahan');
+        } else {
+             return $this->response->setStatusCode(400)->setJSON(['error' => 'Tingkat wilayah tidak valid.']);
+        }
+        
+        $result = $builder->get()->getResult();
+
+        // Buat peta wilayah => total penerima
+        foreach ($result as $row) {
+            $mapJumlah[$row->nama_wilayah] = $row->total_difabel;
+        }
+
+        // Nama file GeoJSON kini juga dinamis
+        $namaFile = strtolower($wilayah) . '-' . strtolower($tingkat) . '.geojson';
+        $path = FCPATH . 'assets/geojson/' . $namaFile;
+
+        if (!is_file($path)) {
+            return $this->response->setStatusCode(404)->setJSON([
+                'error' => "GeoJSON tidak ditemukan untuk: $namaFile"
+            ]);
+        }
+
+        $geojson = json_decode(file_get_contents($path), true);
+
+        if (!isset($geojson['features']) || !is_array($geojson['features'])) {
+            return $this->response->setStatusCode(500)->setJSON([
+                'error' => 'Format GeoJSON tidak valid.'
+            ]);
+        }
+
+        // Tambahkan total penerima ke properti
+        foreach ($geojson['features'] as &$feature) {
+            $nama = strtoupper($feature['properties']['NAMOBJ'] ?? '');
+            $feature['properties']['total_difabel'] = $mapJumlah[$nama] ?? 0;
+        }
+
+        return $this->response->setHeader('Content-Type', 'application/json')
+                              ->setJSON($geojson);
+    }
+
     public function geojson_kuep($wilayah, $tingkat)
     {
           $db = \Config\Database::connect();
