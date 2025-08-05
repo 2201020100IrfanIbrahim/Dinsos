@@ -44,9 +44,7 @@ Manajemen SIM-MONEVKUEP
         justify-content: center;
         gap: 20px;
     }
-    .tombol-aksi{
-
-    }
+    
     .export-button { background-color: #17a2b8;}
     .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
     .action-links { text-align: center; white-space: nowrap; }
@@ -250,16 +248,12 @@ Manajemen SIM-MONEVKUEP
     <div class="card">
         <div class="card-header">
             <span>Data MONEVKUEP</span>
-            <div>
-                <a href="<?= base_url('admin/monevkuep/printAll') ?>" target="_blank" class="btn btn-secondary no-print" style="background-color: #28a745;">
-                    <i class="bi bi-printer"></i> Print Semua Data
-                </a>
-                <div class="tombol">
+            <div class="tombol">
                 <div class="tombol-aksi">
-                    <a href="<?= site_url('admin/monevkuep/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
-                    <a href="<?= site_url('admin/monevkuep/export') ?>" class="export-button">Export Excel</a>
+                    <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
+                    <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
                 </div>
-                <a href="<?= site_url('admin/monevkuep/input') ?>" class="add-button">Tambah Data</a>
+                <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">Tambah Data</a>
             </div>
         </div>
         <div class="card-body">
@@ -566,9 +560,12 @@ Manajemen SIM-MONEVKUEP
                 });
             });
 
-        // --- MAP ---
-        if (document.getElementById('map')) {
-            const map = L.map('map').setView([1.1, 104], 8);
+         if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
+            const map = L.map('map').setView([1.1, 104], 8); // Zoom awal sedikit diubah
+            // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            // attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            // }).addTo(map);
+
             let geoLayer;
             const loading = document.getElementById('loading');
             const wilayahSelect = document.getElementById('wilayah');
@@ -576,15 +573,20 @@ Manajemen SIM-MONEVKUEP
 
             function getColor(val) {
                 return val > 100 ? '#e31a1c' :
-                       val > 50  ? '#fd8d3c' :
-                       val > 9   ? '#ffff76ff' :
-                       val > 0   ? '#ffffb2' :
-                                   '#ccc';
+                    val > 50  ? '#fd8d3c' :
+                    val > 9   ? '#ffff76ff' :
+                    val > 0   ? '#ffffb2' :
+                                '#ccc';
             }
 
             function styleFeature(feature) {
-                const val = feature.properties.total_penerima || 0;
-                return { fillColor: getColor(val), color: "#333", weight: 1, fillOpacity: 0.8 };
+                const val = feature.properties.total_kuep || 0;
+                return {
+                    fillColor: getColor(val),
+                    color: "#333",
+                    weight: 1,
+                    fillOpacity: 0.8
+                };
             }
 
             function loadGeoJSON() {
@@ -592,7 +594,8 @@ Manajemen SIM-MONEVKUEP
                 const tingkat = tingkatSelect.value;
                 loading.style.display = 'inline';
 
-                const url = `<?= site_url('peta/geojson_kuep/') ?>${wilayah}/${tingkat}`; // tetap sama seperti Bankel
+                console.log('Nilai yang akan dikirim:', { wilayah_value: wilayah, tingkat_value: tingkat });
+                const url = `<?= site_url('peta/geojson_kuep/') ?>${wilayah}/${tingkat}`;
 
                 fetch(url)
                     .then(res => {
@@ -613,14 +616,19 @@ Manajemen SIM-MONEVKUEP
                         if (geoLayer.getBounds().isValid()) {
                             map.fitBounds(geoLayer.getBounds());
                         }
-                        setTimeout(function() { map.invalidateSize(); }, 100);
+
+                            setTimeout(function() {
+                            map.invalidateSize();
+                        }, 100);
                     })
                     .catch(err => {
                         console.error(err);
                         alert('Gagal memuat peta: ' + err.message);
                         if (geoLayer) map.removeLayer(geoLayer);
                     })
-                    .finally(() => { loading.style.display = 'none'; });
+                    .finally(() => {
+                        loading.style.display = 'none';
+                    });
             }
 
             const legend = L.control({ position: 'bottomright' });
@@ -644,6 +652,8 @@ Manajemen SIM-MONEVKUEP
 
             wilayahSelect.addEventListener('change', loadGeoJSON);
             tingkatSelect.addEventListener('change', loadGeoJSON);
+
+            // Langsung muat peta saat halaman pertama kali dibuka
             loadGeoJSON(); 
         }
     });
