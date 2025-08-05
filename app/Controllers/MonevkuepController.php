@@ -147,10 +147,21 @@ class MonevkuepController extends BaseController
     public function update($id = null)
     {
         $monevModel = new \App\Models\MonevkuepModel();
+        $agamaModel = new \App\Models\AgamaModel();
+        $pendidikanModel = new \App\Models\PendidikanModel();
+        $pekerjaanModel = new \App\Models\PekerjaanModel();
+        $usahaModel = new \App\Models\UsahaModel();
+
         $dataLama = $monevModel->find($id);
         if (!$dataLama) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Data MONEVKUEP tidak ditemukan.');
         }
+
+        // Ambil data terpisah dari form
+        $id_agama = $this->request->getPost('id_agama');
+        $id_jenis_pekerjaan = $this->request->getPost('id_jenis_pekerjaan');
+        $id_jenis_usaha = $this->request->getPost('id_jenis_usaha');
+        $id_pendidikan = $this->request->getPost('id_pendidikan');
 
         // Data teks dari form
         $data = [
@@ -166,11 +177,21 @@ class MonevkuepController extends BaseController
             'dtks'             => $this->request->getPost('dtks'),
             'sktm'             => $this->request->getPost('sktm'),
             'rab_nominal'      => $this->request->getPost('rab_nominal'),
-            'id_agama'         => $this->request->getPost('id_agama'),
-            'id_pendidikan'    => $this->request->getPost('id_pendidikan'),
-            'id_jenis_usaha'   => $this->request->getPost('id_jenis_usaha'),
-            'id_jenis_pekerjaan' => $this->request->getPost('id_jenis_pekerjaan'),
         ];
+
+        // ✔️ Tambahkan hanya jika id_agama valid
+        if (!empty($id_agama) && $agamaModel->find($id_agama)) {
+            $data['id_agama'] = $id_agama;
+        }
+        if (!empty($id_pendidikan) && $pendidikanModel->find($id_pendidikan)) {
+            $data['id_pendidikan'] = $id_pendidikan;
+        }
+        if (!empty($id_agama) && $pekerjaanModel->find($id_jenis_pekerjaan)) {
+            $data['id_jenis_pekerjaan'] = $id_jenis_pekerjaan;
+        }
+        if (!empty($id_agama) && $usahaModel->find($id_jenis_usaha)) {
+            $data['id_jenis_usaha'] = $id_jenis_usaha;
+        }
 
         // Tambahkan ID untuk UPDATE
         $data['id'] = $id;

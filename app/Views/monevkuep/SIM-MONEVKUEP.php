@@ -250,10 +250,10 @@ Manajemen SIM-MONEVKUEP
             <span>Data MONEVKUEP</span>
             <div class="tombol">
                 <div class="tombol-aksi">
-                    <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
-                    <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
+                    <a href="<?= site_url('admin/monevkuep/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
+                    <a href="<?= site_url('admin/monevkuep/export') ?>" class="export-button">Export Excel</a>
                 </div>
-                <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">Tambah Data</a>
+                <a href="<?= site_url('admin/monevkuep/input') ?>" class="add-button">Tambah Data</a>
             </div>
         </div>
         <div class="card-body">
