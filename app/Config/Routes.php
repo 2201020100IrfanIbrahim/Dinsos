@@ -26,6 +26,12 @@ $routes->get('peta/geojson/(:any)/(:any)', 'Peta::geojson/$1/$2');
 $routes->get('admin/bankel/chart-data', 'BankelController::getChartData');
 $routes->get('peta/geojson_difabel/(:any)/(:any)', 'Peta::geojson_difabel/$1/$2');
 
+$routes->get('peta/geojson_kuep/(:any)/(:any)', 'Peta::geojson_kuep/$1/$2');
+
+// Print semua data input
+$routes->get('admin/bankel/printAll', 'BankelController::printAll'); // Memproses file
+$routes->get('admin/monevkuep/printAll', 'MonevkuepController::printAll'); // Memproses file
+
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
     // Rute untuk menampilkan daftar data (halaman utama)
@@ -62,7 +68,24 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('monevkuep/input', 'MonevkuepController::new');
     // Rute untuk MENYIMPAN data dari form (metode POST)
     $routes->post('monevkuep/create', 'MonevkuepController::create');
+     // rute edit 
+    $routes->get('monevkuep/edit/(:num)', 'MonevkuepController::edit/$1');
+    $routes->post('monevkuep/update/(:num)', 'MonevkuepController::update/$1');
+    // rute hapus
+    $routes->get('monevkuep/delete/(:num)', 'MonevkuepController::delete/$1');
     
+    // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
+    $routes->get('monevkuep/get-kelurahan/(:num)', 'MonevkuepController::getKelurahanByKecamatan/$1');
+
+    // Rute untuk koordinat map
+    $routes->get('monevkuep/leaflet_map/(:num)', 'MonevkuepController::leaflet_map/$1');
+
+    $routes->get('monevkuep/export', 'MonevkuepController::export');
+    //chart
+    $routes->get('monevkuep/chart-data', 'MonevkuepController::getChartData');
+    // Di dalam group('admin', ...)
+    $routes->get('monevkuep/import', 'MonevkuepController::import'); // Menampilkan form
+    $routes->post('monevkuep/process-import', 'MonevkuepController::processImport'); // Memproses file
     
     //============================DIFABELKEPRI=============================//
     $routes->get('difabelkepri', 'DifabelkepriController::index');

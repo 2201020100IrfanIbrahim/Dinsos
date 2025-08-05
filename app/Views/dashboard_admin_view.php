@@ -67,5 +67,4 @@ Dashboard Admin
             <p class="value"><?= $total_monevkuep ?></p>
         </div>
     </div>
-
-    <?= $this->endSection() ?>
+<?= $this->endSection() ?>

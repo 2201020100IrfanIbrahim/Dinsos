@@ -70,31 +70,30 @@ class Peta extends BaseController
                               ->setJSON($geojson);
     }
 
-    public function geojson_difabel($wilayah, $tingkat)
+    public function geojson_kuep($wilayah, $tingkat)
     {
           $db = \Config\Database::connect();
-        $builder = $db->table('data_difabel b');
+        $builder = $db->table('monevkuep_penerima b');
         $mapJumlah = [];
 
         // Logika dinamis berdasarkan parameter $tingkat
         if ($tingkat === 'kecamatan') {
-            $builder->select('UPPER(kec.nama_kecamatan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
+            $builder->select('UPPER(kec.nama_kecamatan) AS nama_wilayah, COUNT(b.id) AS total_kuep');
             $builder->join('kecamatan kec', 'b.id_kecamatan = kec.id');
             $builder->groupBy('kec.nama_kecamatan');
         } elseif ($tingkat === 'kelurahan') {
             // Asumsikan Anda punya tabel 'kelurahan' dan kolom 'id_kelurahan' di 'data_bankel'
-            $builder->select('UPPER(kel.nama_kelurahan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
+            $builder->select('UPPER(kel.nama_kelurahan) AS nama_wilayah, COUNT(b.id) AS total_kuep');
             $builder->join('kelurahan kel', 'b.id_kelurahan = kel.id');
             $builder->groupBy('kel.nama_kelurahan');
         } else {
              return $this->response->setStatusCode(400)->setJSON(['error' => 'Tingkat wilayah tidak valid.']);
         }
-        
         $result = $builder->get()->getResult();
 
         // Buat peta wilayah => total penerima
         foreach ($result as $row) {
-            $mapJumlah[$row->nama_wilayah] = $row->total_difabel;
+            $mapJumlah[$row->nama_wilayah] = $row->total_kuep;
         }
 
         // Nama file GeoJSON kini juga dinamis
@@ -118,7 +117,7 @@ class Peta extends BaseController
         // Tambahkan total penerima ke properti
         foreach ($geojson['features'] as &$feature) {
             $nama = strtoupper($feature['properties']['NAMOBJ'] ?? '');
-            $feature['properties']['total_difabel'] = $mapJumlah[$nama] ?? 0;
+            $feature['properties']['total_kuep'] = $mapJumlah[$nama] ?? 0;
         }
 
         return $this->response->setHeader('Content-Type', 'application/json')

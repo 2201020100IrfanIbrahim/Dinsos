@@ -121,7 +121,6 @@ class BankelModel extends Model
 
         return $builder->get()->getResultArray();
     }
-    
     public function getChartDataByYear($id_kabupaten = false)
     {
         $builder = $this->db->table($this->table);
