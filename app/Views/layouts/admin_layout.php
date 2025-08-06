@@ -162,6 +162,23 @@
             color: inherit; /* Mengambil warna dari parent */
         }
 
+        .back-button {
+            padding: 12px 20px;
+            background-color: #ffffffff;
+            color: #5a6268;
+            border: solid 1px #5a6268;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            margin-right: 10px;
+        }
+        .back-button:hover {
+            background-color: #5a6268;
+            color: #fff;
+        }
+
         /* Aturan untuk layar kecil */
         @media (max-width: 992px) {
             .sidebar {

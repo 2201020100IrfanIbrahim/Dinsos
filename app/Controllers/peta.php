@@ -73,18 +73,18 @@ class Peta extends BaseController
     public function geojson_difabel($wilayah, $tingkat)
     {
           $db = \Config\Database::connect();
-        $builder = $db->table('data_difabel b');
+        $builder = $db->table('data_difabel d');
         $mapJumlah = [];
 
         // Logika dinamis berdasarkan parameter $tingkat
         if ($tingkat === 'kecamatan') {
-            $builder->select('UPPER(kec.nama_kecamatan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
-            $builder->join('kecamatan kec', 'b.id_kecamatan = kec.id');
+            $builder->select('UPPER(kec.nama_kecamatan) AS nama_wilayah, COUNT(d.id) AS total_difabel');
+            $builder->join('kecamatan kec', 'd.id_kecamatan = kec.id');
             $builder->groupBy('kec.nama_kecamatan');
         } elseif ($tingkat === 'kelurahan') {
             // Asumsikan Anda punya tabel 'kelurahan' dan kolom 'id_kelurahan' di 'data_bankel'
-            $builder->select('UPPER(kel.nama_kelurahan) AS nama_wilayah, COUNT(b.id) AS total_difabel');
-            $builder->join('kelurahan kel', 'b.id_kelurahan = kel.id');
+            $builder->select('UPPER(kel.nama_kelurahan) AS nama_wilayah, COUNT(d.id) AS total_difabel');
+            $builder->join('kelurahan kel', 'd.id_kelurahan = kel.id');
             $builder->groupBy('kel.nama_kelurahan');
         } else {
              return $this->response->setStatusCode(400)->setJSON(['error' => 'Tingkat wilayah tidak valid.']);

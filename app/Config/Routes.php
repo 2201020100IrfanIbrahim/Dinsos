@@ -74,7 +74,21 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->get('difabelkepri/edit/(:num)', 'DifabelkepriController::edit/$1');
     $routes->post('difabelkepri/update/(:num)', 'DifabelkepriController::update/$1');
     $routes->get('difabelkepri/delete/(:num)', 'DifabelkepriController::delete/$1');
-    $routes->get('difabelkepri/export', 'DifabelkepriController::export'); // <-- Tambahkan ini
+    $routes->get('difabelkepri/export', 'DifabelkepriController::export');
+
+    // Rute manual untuk Manajemen Jenis Disabilitas
+    $routes->get('jenis-disabilitas', 'JenisDisabilitasController::index');
+    $routes->get('jenis-disabilitas/new', 'JenisDisabilitasController::new');
+    $routes->post('jenis-disabilitas/create', 'JenisDisabilitasController::create');
+    $routes->get('jenis-disabilitas/edit/(:num)', 'JenisDisabilitasController::edit/$1');
+    $routes->post('jenis-disabilitas/update/(:num)', 'JenisDisabilitasController::update/$1');
+    $routes->get('jenis-disabilitas/delete/(:num)', 'JenisDisabilitasController::delete/$1');
     // ...
+
+    $routes->get('difabelkepri/chart-golongan', 'DifabelkepriController::getChartDataGolongan');
+    $routes->get('difabelkepri/chart-kecamatan', 'DifabelkepriController::getChartDataKecamatan');
+
+    $routes->get('difabelkepri/import', 'DifabelkepriController::import');
+    $routes->post('difabelkepri/process-import', 'DifabelkepriController::processImport');
     // Rute-rute CRUD lainnya akan ditambahkan di sini nanti
 });

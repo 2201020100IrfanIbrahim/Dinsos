@@ -17,6 +17,7 @@ class JenisDisabilitasModel extends Model
 
     // Aturan validasi
     protected $validationRules = [
+        'id'         => 'permit_empty|is_natural_no_zero',
         'nama_jenis' => 'required|is_unique[ref_jenis_disabilitas.nama_jenis,id,{id}]',
         'golongan'   => 'required'
     ];
@@ -28,4 +29,6 @@ class JenisDisabilitasModel extends Model
             'is_unique' => 'Nama jenis ini sudah ada di dalam sistem.'
         ]
     ];
+
+    
 }

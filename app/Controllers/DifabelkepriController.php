@@ -313,35 +313,213 @@ class DifabelkepriController extends BaseController
         exit();
     }
 
-        public function geojson_difabel($wilayah, $tingkat)
-{
-    // 1. Ambil data polygon GeoJSON dari file (seperti yang sudah Anda lakukan)
-    $geojson_data = json_decode(file_get_contents(WRITEPATH . "geojson/{$wilayah}_{$tingkat}.geojson"), true);
+    public function geojson_difabel($wilayah, $tingkat)
+    {
+        // 1. Ambil data polygon GeoJSON dari file (seperti yang sudah Anda lakukan)
+        $geojson_data = json_decode(file_get_contents(WRITEPATH . "geojson/{$wilayah}_{$tingkat}.geojson"), true);
 
-    // 2. Query ke tabel difabel untuk menghitung jumlah per wilayah
-    $db = \Config\Database::connect();
-    $builder = $db->table('data_difabel');
+        // 2. Query ke tabel difabel untuk menghitung jumlah per wilayah
+        $db = \Config\Database::connect();
+        $builder = $db->table('data_difabel');
+        
+        // Bergantung pada 'tingkat', kita group berdasarkan nama kecamatan atau kelurahan
+        $group_by_field = ($tingkat == 'kecamatan') ? 'nama_kecamatan' : 'nama_kelurahan';
+
+        $builder->select("$group_by_field, COUNT(id) as total_difabel");
+        $builder->groupBy($group_by_field);
+        $query = $builder->get();
+        $difabel_counts = $query->getResultArray();
+
+        // 3. Ubah hasil query menjadi format yang mudah diakses [nama_wilayah => jumlah]
+        $counts_map = array_column($difabel_counts, 'total_difabel', $group_by_field);
+
+        // 4. Gabungkan data jumlah difabel ke dalam properti GeoJSON
+        foreach ($geojson_data['features'] as &$feature) {
+            $nama_wilayah = $feature['properties']['NAMOBJ'];
+            // Tetapkan total_difabel jika ada, jika tidak, 0
+            $feature['properties']['total_difabel'] = $counts_map[$nama_wilayah] ?? 0;
+        }
+
+        // 5. Kembalikan sebagai response JSON
+        return $this->response->setJSON($geojson_data);
+    }
     
-    // Bergantung pada 'tingkat', kita group berdasarkan nama kecamatan atau kelurahan
-    $group_by_field = ($tingkat == 'kecamatan') ? 'nama_kecamatan' : 'nama_kelurahan';
-
-    $builder->select("$group_by_field, COUNT(id) as total_difabel");
-    $builder->groupBy($group_by_field);
-    $query = $builder->get();
-    $difabel_counts = $query->getResultArray();
-
-    // 3. Ubah hasil query menjadi format yang mudah diakses [nama_wilayah => jumlah]
-    $counts_map = array_column($difabel_counts, 'total_difabel', $group_by_field);
-
-    // 4. Gabungkan data jumlah difabel ke dalam properti GeoJSON
-    foreach ($geojson_data['features'] as &$feature) {
-        $nama_wilayah = $feature['properties']['NAMOBJ'];
-        // Tetapkan total_difabel jika ada, jika tidak, 0
-        $feature['properties']['total_difabel'] = $counts_map[$nama_wilayah] ?? 0;
+    public function getChartDataGolongan()
+    {
+        $difabelModel = new \App\Models\DifabelModel();
+        $role = session()->get('role');
+        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $chartData = $difabelModel->getChartDataByGolongan($id_kabupaten);
+        return $this->response->setJSON($chartData);
     }
 
-    // 5. Kembalikan sebagai response JSON
-    return $this->response->setJSON($geojson_data);
+    public function getChartDataKecamatan()
+    {
+        $difabelModel = new \App\Models\DifabelModel();
+        $role = session()->get('role');
+        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $chartData = $difabelModel->getChartDataByKecamatan($id_kabupaten);
+        return $this->response->setJSON($chartData);
     }
     // (Method index, edit, update, delete akan kita tambahkan nanti)
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //------------------------------------ IMPORT EXCEL -------------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    public function import()
+    {
+        $data = [
+            'title' => 'Import Data Difabel dari Excel',
+            'breadcrumbs' => [
+                ['title' => 'SIM-DIFABELKEPRI', 'url' => '/admin/difabelkepri'],
+                ['title' => 'Import Data', 'url' => '']
+            ]
+        ];
+        return view('difabelkepri/import_view', $data);
+    }
+
+    public function processImport()
+    {
+        $file = $this->request->getFile('excel_file');
+
+        // Validasi Awal: Pastikan file benar-benar ada dan valid
+        if (!$file || !$file->isValid() || $file->hasMoved()) {
+            return redirect()->to('/admin/difabelkepri/import')->with('error', 'Gagal mengupload file atau file tidak valid.');
+        }
+
+        // Pindahkan file ke folder writable/uploads
+        $newName = $file->getRandomName();
+        $file->move(WRITEPATH . 'uploads', $newName);
+        $filePath = WRITEPATH . 'uploads/' . $newName;
+
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+        $rows = $spreadsheet->getActiveSheet()->toArray();
+        
+        $difabelModel = new \App\Models\DifabelModel();
+        $kecamatanModel = new \App\Models\KecamatanModel();
+        $kelurahanModel = new \App\Models\KelurahanModel();
+        $jenisDisabilitasModel = new \App\Models\JenisDisabilitasModel();
+        $linkModel = new \App\Models\LinkDifabelJenisModel();
+
+        $dataToInsert = []; 
+        $errors = [];
+        $rowCount = 0;
+        $successCount = 0;
+        $session = session();
+        $id_kabupaten_admin = $session->get('id_kabupaten');
+        $id_admin_input = $session->get('user_id');
+        
+        $db = \Config\Database::connect();
+        
+        // Cache
+        $kecamatanCache = [];
+        $kelurahanCache = [];
+        $jenisCache = [];
+
+        foreach ($rows as $index => $row) {
+            if ($index == 0) continue; // Lewati header
+            $rowCount++;
+            $excelRowNumber = $index + 1;
+            
+            // Memulai transaksi untuk setiap baris
+            $db->transStart();
+
+            // 1. Ambil dan validasi ID Wilayah berdasarkan NAMA dari kolom yang benar
+            $nama_kecamatan = trim($row[4]); // Kolom E
+            $nama_kelurahan = trim($row[5]); // Kolom F
+            
+            if (!isset($kecamatanCache[$nama_kecamatan])) {
+                $kec = $kecamatanModel->where(['nama_kecamatan' => $nama_kecamatan, 'id_kabupaten' => $id_kabupaten_admin])->first();
+                $kecamatanCache[$nama_kecamatan] = $kec['id'] ?? null;
+            }
+            $id_kecamatan = $kecamatanCache[$nama_kecamatan];
+
+            if (!$id_kecamatan) { $errors["Kecamatan '$nama_kecamatan' tidak ditemukan"][] = $excelRowNumber; $db->transRollback(); continue; }
+            
+            if (!isset($kelurahanCache[$nama_kelurahan])) {
+                $kel = $kelurahanModel->where(['nama_kelurahan' => $nama_kelurahan, 'id_kecamatan' => $id_kecamatan])->first();
+                $kelurahanCache[$nama_kelurahan] = $kel['id'] ?? null;
+            }
+            $id_kelurahan = $kelurahanCache[$nama_kelurahan];
+
+            if (!$id_kelurahan) { $errors["Kelurahan '$nama_kelurahan' tidak ditemukan di kec. '$nama_kecamatan'"][] = $excelRowNumber; $db->transRollback(); continue; }
+
+            // 2. Proses dan validasi Jenis Disabilitas
+            $jenisDisabilitasNames = array_map('trim', explode(',', $row[8])); // Kolom I
+            $jenisDisabilitasIds = [];
+            $errorInJenis = false;
+            foreach($jenisDisabilitasNames as $name) {
+                if (empty($name)) continue;
+                if (!isset($jenisCache[$name])) {
+                    $jenis = $jenisDisabilitasModel->where('nama_jenis', $name)->first();
+                    $jenisCache[$name] = $jenis ?? null;
+                }
+                if ($jenisCache[$name]) {
+                    $jenisDisabilitasIds[] = $jenisCache[$name]['id'];
+                } else {
+                    $errors["Jenis Disabilitas '$name' tidak valid"][] = $excelRowNumber;
+                    $errorInJenis = true;
+                }
+            }
+            if ($errorInJenis) { $db->transRollback(); continue; }
+
+            // Tentukan golongan otomatis
+            $golonganOtomatis = ''; // Inisialisasi sebagai string kosong
+            if (count($jenisDisabilitasIds) > 1) {
+                $golonganOtomatis = 'Disabilitas Ganda';
+            } elseif (count($jenisDisabilitasIds) == 1) {
+                $jenisTunggal = $jenisCache[$jenisDisabilitasNames[0]];
+                $golonganOtomatis = $jenisTunggal['golongan'];
+            }
+
+            // nama 1, NIK 2, alamagt lengkap 3, kecamatan 4, kelurahan 5, usia 6, jk 7, jenis difabel 8, sebab 9
+            // 3. Siapkan data utama dan validasi
+            $rowData = [
+                'nama_lengkap'          => $row[1], // Kolom B
+                'nik'                   => preg_replace('/[^0-9]/', '', $row[2]), // Kolom A
+                'alamat_lengkap'        => $row[3], // Kolom G
+                'id_kecamatan'          => $id_kecamatan, // Kolom E
+                'id_kelurahan'          => $id_kelurahan, // Kolom F
+                'usia'                  => $row[6], // Kolom D
+                'jenis_kelamin'         => $row[7], // Kolom C
+                'Jenis Disabilitas'     => $row[8],
+                'sebab_disabilitas'     => $row[9], // Kolom J
+                'golongan_disabilitas'  => $golonganOtomatis, // Kolom H
+                'id_kabupaten'          => $id_kabupaten_admin,
+                'id_admin_input'        => $id_admin_input,
+            ];
+
+            if ($difabelModel->validate($rowData) === false) {
+                foreach ($difabelModel->errors() as $message) { $errors[$message][] = $excelRowNumber; }
+                $db->transRollback();
+                continue;
+            }
+
+            // 4. Jika semua valid, simpan ke database
+            $difabelModel->save($rowData);
+            $newDifabelId = $difabelModel->getInsertID();
+            if (!empty($jenisDisabilitasIds)) {
+                foreach ($jenisDisabilitasIds as $jenisId) {
+                    $linkModel->save(['id_difabel' => $newDifabelId, 'id_jenis_disabilitas' => $jenisId]);
+                }
+            }
+
+            if($db->transComplete()) {
+                $successCount++;
+            } else {
+                $errors["Gagal menyimpan ke database"][] = $excelRowNumber;
+            }
+        }
+
+        // Siapkan pesan feedback (sama seperti di Bankel)
+        $failCount = $rowCount - $successCount;
+        $message = "Proses import selesai. <strong>Berhasil: $successCount data.</strong>";
+        if ($failCount > 0) {
+            $session->setFlashdata('fail_count', $failCount);
+            $session->setFlashdata('errors_list', $errors);
+        }
+
+        unlink($filePath);
+        return redirect()->to('/admin/difabelkepri/import')->with('message', $message);
+    }
 }

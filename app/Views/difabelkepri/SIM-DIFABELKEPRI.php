@@ -28,8 +28,9 @@ Manajemen Data Difabel
     th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; }
     thead th { background-color: #e9ecef; }
     tbody tr:hover { background-color: #f1f1f1; }
-    .add-button, .export-button { display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; }
-    .export-button { background-color: #17a2b8; margin-left: 10px; }
+    .add-button, .export-button, .disabilitas-button{ display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; font-size: 14px; }
+    .export-button { background-color: #17a2b8; margin-right: 10px; }
+    .disabilitas-button { background-color: #64a64aff; margin-right: 10px; }
     .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
     .action-links { text-align: center; white-space: nowrap; }
     .btn { display: inline-block; padding: 6px 10px; border-radius: 5px; text-decoration: none; color: white; font-size: 14px; margin: 0 2px; transition: transform 0.2s; }
@@ -52,6 +53,72 @@ Manajemen Data Difabel
     .table-responsive-wrapper {
         overflow-x: auto; /* Membuat hanya div ini yang bisa di-scroll ke samping */
         width: 100%;
+    }
+    .chart-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 30px;
+        justify-content: center;
+    }
+    .chart-wrapper {
+        flex: 1;
+        min-width: 300px;
+        max-width: 500px; /* Lebar maksimal setiap chart wrapper */
+        text-align: center;
+    }
+    .chart-wrapper h4 {
+        margin-bottom: 15px;
+    }
+    .doughnut-container {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+    .chart-canvas-container {
+        position: relative;
+        margin: auto;
+    }
+    .doughnut-container .chart-canvas-container {
+        width: 250px;
+        height: 250px;
+    }
+    .bar-chart-container {
+        width: 100%;
+        height: 250px;
+    }
+
+    .chart-legend-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px; /* Jarak dari chart */
+    
+    /* Menggunakan Flexbox untuk tata letak dinamis */
+    display: flex;
+    flex-wrap: wrap; /* Izinkan item turun ke baris baru */
+    justify-content: center; /* Pusatkan item */
+    gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
+    }
+
+    .chart-legend-container li {
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        font-size: 13px; /* Ukuran font lebih kecil */
+        transition: opacity 0.2s;
+    }
+
+    .chart-legend-container li:hover {
+        opacity: 0.8;
+    }
+
+    .legend-color-box {
+        width: 12px;
+        height: 12px;
+        display: inline-block;
+        margin-right: 8px;
+        border-radius: 3px;
     }
 
     #map {
@@ -76,6 +143,19 @@ Manajemen Data Difabel
         h2 { font-size: 18px; }
         table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
             font-size: 14px; /* Sedikit mengecilkan font di tabel dan tombol */
+        }
+
+         .chart-container {
+            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
+            height: auto; /* Biarkan tinggi menyesuaikan konten */
+        }
+        .chart-canvas-container {
+            width: 100%; /* Lebar penuh */
+            height: 250px; /* Atur tinggi tetap untuk canvas */
+        }
+        .chart-legend-container {
+            margin-top: 20px; /* Beri jarak dari chart di atasnya */
+            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
         }
         
         /* 3. Membuat form filter menjadi responsif */
@@ -167,8 +247,23 @@ Manajemen Data Difabel
             </div>
         </div>
         <div class="card">
-            <div class="card-header">Grafik Analisis</div>
-            <div class="card-body">Grafik akan ditampilkan di sini.</div>
+            <div class="card-body chart-section">
+                <div class="chart-wrapper">
+                    <h4>Analisis per Kecamatan</h4>
+                    <div class="doughnut-container">
+                        <div class="chart-canvas-container">
+                            <canvas id="kecamatanChart"></canvas>
+                        </div>
+                        <div id="chart-legend" class="chart-legend-container"></div>
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <h4>Grafik per Golongan Disabilitas</h4>
+                    <div class="card-body chart-container" style="height: 300px;">
+                        <canvas id="golonganChart"></canvas>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -176,6 +271,8 @@ Manajemen Data Difabel
         <div class="card-header">
             <span>Data Penyandang Disabilitas</span>
             <div>
+                <a href="<?= site_url('admin/jenis-disabilitas') ?>" class="disabilitas-button">Kelola Jenis Disabilitas</a>
+                <a href="<?= site_url('admin/difabelkepri/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
                 <a href="<?= site_url('admin/difabelkepri/export') ?>" class="export-button">Export Excel</a>
                 <a href="<?= site_url('admin/difabelkepri/input') ?>" class="add-button">+ Tambah Data</a>
             </div>
@@ -251,6 +348,199 @@ Manajemen Data Difabel
     </div>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        
+        // Fungsi untuk menghasilkan warna dinamis
+        function generateDynamicColors(count) {
+            let colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * (360 / count) * 0.8) % 360;
+                colors.push(`hsla(${hue}, 70%, 60%, 0.8)`);
+            }
+            return colors;
+        }
+
+    const htmlLegendPlugin = {
+        id: 'htmlLegend',
+        afterUpdate(chart, args, options) {
+            const legendContainer = document.getElementById(options.containerID);
+            if (!legendContainer) return;
+            
+            // Buat atau dapatkan list <ul>
+            let listContainer = legendContainer.querySelector('ul');
+            if (!listContainer) {
+                listContainer = document.createElement('ul');
+                legendContainer.appendChild(listContainer);
+            }
+            listContainer.innerHTML = '';
+
+            // Ambil data langsung dari chart
+            const items = chart.data.labels.map((label, i) => {
+                const meta = chart.getDatasetMeta(0);
+                const style = meta.controller.getStyle(i);
+                return {
+                    text: label,
+                    fillStyle: style.backgroundColor,
+                    hidden: meta.data[i].hidden,
+                    index: i
+                };
+            });
+
+            items.forEach(item => {
+                const li = document.createElement('li');
+                li.onclick = () => {
+                    const { type } = chart.config;
+                    if (type === 'pie' || type === 'doughnut') {
+                        chart.toggleDataVisibility(item.index);
+                    }
+                    chart.update();
+                };
+
+                const boxSpan = document.createElement('span');
+                boxSpan.className = 'legend-color-box';
+                boxSpan.style.background = item.fillStyle;
+
+                const textContainer = document.createElement('p');
+                textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+                textContainer.innerText = item.text;
+
+                li.appendChild(boxSpan);
+                li.appendChild(textContainer);
+                listContainer.appendChild(li);
+            });
+        }
+    };
+
+    // Plugin kustom untuk teks di tengah
+    const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw: (chart) => {
+            if (chart.config.type !== 'doughnut' || chart.data.datasets[0].data.length === 0) return;
+            let ctx = chart.ctx;
+            let width = chart.width;
+            let height = chart.height;
+            ctx.restore();
+            let fontSize = (height / 200).toFixed(2);
+            ctx.font = fontSize + "em Segoe UI";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "#6c757d";
+            let text = "Total";
+            let textX = Math.round((width - ctx.measureText(text).width) / 2);
+            let textY = height / 2 - (fontSize * 15);
+            ctx.fillText(text, textX, textY);
+            let totalValue = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            fontSize = (height / 100).toFixed(2);
+            ctx.font = "bold " + fontSize + "em Segoe UI";
+            ctx.fillStyle = "#343a40";
+            let totalText = totalValue.toString();
+            let totalTextX = Math.round((width - ctx.measureText(totalText).width) / 2);
+            let totalTextY = height / 2 + (fontSize * 7);
+            ctx.fillText(totalText, totalTextX, totalTextY);
+            ctx.save();
+        }
+    };
+
+
+    const ctxGolongan = document.getElementById('golonganChart');
+        if (ctxGolongan) {
+            fetch('<?= site_url('admin/difabelkepri/chart-golongan') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) return;
+                    const labels = data.map(item => item.golongan_disabilitas);
+                    const values = data.map(item => Number(item.jumlah));
+                    const dynamicColors = generateDynamicColors(values.length);
+                    
+                    new Chart(ctxGolongan, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Jumlah',
+                                data: values,
+                                backgroundColor: dynamicColors
+                            }]
+                        },
+                        options: {
+                            scales: { y: { beginAtZero: true } },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                });
+        }
+
+        // --- GRAFIK KECAMATAN (DOUGHNUT CHART) ---
+        const ctxKecamatan = document.getElementById('kecamatanChart');
+        if (ctxKecamatan) {
+            fetch('<?= site_url('admin/difabelkepri/chart-kecamatan') ?>')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length === 0) return;
+                    const labels = data.map(item => item.nama_kecamatan);
+                    const values = data.map(item => Number(item.jumlah));
+                    const dynamicColors = generateDynamicColors(values.length);
+
+                    new Chart(ctxKecamatan, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                data: values,
+                                backgroundColor: dynamicColors,
+                                borderColor: '#fff',
+                                borderWidth: 2,
+                                cutout: '60%'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                htmlLegend: { containerID: 'chart-legend' },
+                                legend: { display: false },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                            const value = context.parsed;
+                                            let percentage = '0.00%';
+                                            if (total > 0) {
+                                                percentage = ((value / total) * 100).toFixed(1) + '%';
+                                            }
+                                            return `${context.label}: ${value} (${percentage})`;
+                                        }
+                                    }
+                                },
+                                // 1. AKTIFKAN KEMBALI KONFIGURASI DATALABELS
+                                datalabels: {
+                                    formatter: (value, ctx) => {
+                                        const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        let percentage = '0%';
+                                        if (total > 0) {
+                                        percentage = ((value / total) * 100).toFixed(1) + '%';
+                                        }
+                                        return percentage;
+                                    },
+                                    color: '#fff',
+                                    font: {
+                                        weight: 'bold',
+                                        size: 12
+                                    }
+                                }
+                            }
+                        },
+                        plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels], // Hanya daftarkan plugin legenda di sini
+                    });
+                });
+        }
+    });
+</script>
+
+<!-- script peta -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Ambil semua tombol dengan class 'tombol-hapus'
@@ -374,6 +664,8 @@ Manajemen Data Difabel
             // Langsung muat peta saat halaman pertama kali dibuka
             loadGeoJSON(); 
         }
+
+        
         // (skrip lainnya seperti tombol back)
     });
 </script>

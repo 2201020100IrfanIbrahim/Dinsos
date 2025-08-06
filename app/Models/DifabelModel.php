@@ -17,12 +17,10 @@ class DifabelModel extends Model
         'golongan_disabilitas', 'sebab_disabilitas', 'id_admin_input'
     ];
 
-    // Timestamps
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
-    // Aturan validasi yang sudah diperbaiki
     protected $validationRules = [
         'id'                    => 'permit_empty|is_natural_no_zero',
         'nik'                   => 'required|numeric|exact_length[16]|is_unique[data_difabel.nik,id,{id}]',
@@ -34,7 +32,6 @@ class DifabelModel extends Model
         'golongan_disabilitas'  => 'required'
     ];
     
-    // Tambahkan pesan error kustom
     protected $validationMessages   = [
         'nik' => [
             'required'      => 'NIK wajib diisi.',
@@ -42,20 +39,17 @@ class DifabelModel extends Model
             'is_unique'     => 'NIK ini sudah terdaftar di sistem difabel.'
         ]
     ];
-    // Tambahkan method ini di dalam class DifabelModel
 
     public function getDifabelData($id_kabupaten = false)
     {
         $builder = $this->db->table($this->table);
         
-        // Pilih kolom yang ingin ditampilkan, termasuk nama dari tabel lain
+
         $builder->select('data_difabel.*, kecamatan.nama_kecamatan, kelurahan.nama_kelurahan');
         
-        // Gabungkan dengan tabel wilayah
         $builder->join('kecamatan', 'kecamatan.id = data_difabel.id_kecamatan');
         $builder->join('kelurahan', 'kelurahan.id = data_difabel.id_kelurahan');
 
-        // Filter berdasarkan kabupaten jika ini akun admin
         if ($id_kabupaten !== false) {
             $builder->where('data_difabel.id_kabupaten', $id_kabupaten);
         }
@@ -105,6 +99,33 @@ class DifabelModel extends Model
         $builder->groupBy('data_difabel.id');
         $builder->orderBy('data_difabel.nama_lengkap', 'ASC');
 
+        return $builder->get()->getResultArray();
+    }
+
+    // Method untuk chart berdasarkan Golongan
+    public function getChartDataByGolongan($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('golongan_disabilitas, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('golongan_disabilitas');
+        $builder->orderBy('jumlah', 'DESC');
+        return $builder->get()->getResultArray();
+    }
+
+    // Method untuk chart berdasarkan Kecamatan
+    public function getChartDataByKecamatan($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('kecamatan.nama_kecamatan, COUNT(data_difabel.id) as jumlah');
+        $builder->join('kecamatan', 'kecamatan.id = data_difabel.id_kecamatan');
+        if ($id_kabupaten !== false) {
+            $builder->where('data_difabel.id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('kecamatan.nama_kecamatan');
+        $builder->orderBy('jumlah', 'DESC');
         return $builder->get()->getResultArray();
     }
 }
