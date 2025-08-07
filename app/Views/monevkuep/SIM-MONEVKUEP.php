@@ -84,7 +84,7 @@ Manajemen SIM-MONEVKUEP
     .chart-wrapper h4 {
         margin-bottom: 15px;
     }
-    .doughnut-container { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 20px; }
+    .doughnut-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
     .chart-canvas-container { position: relative; margin: auto; }
     .doughnut-container .chart-canvas-container {width: 250px; height: 250px;}
     .bar-chart-container {
