@@ -203,6 +203,7 @@ Manajemen Data Difabel
         gap: 15px;
         margin-bottom: 15px;
         align-items: center;
+        padding-top: 15px;
     }
     .map-controls select {
         padding: 8px;

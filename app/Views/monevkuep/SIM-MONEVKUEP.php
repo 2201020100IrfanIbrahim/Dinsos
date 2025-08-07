@@ -1,7 +1,7 @@
 <?= $this->extend('layouts/admin_layout') ?>
 
 <?= $this->section('title') ?>
-Manajemen SIM-BANKEL
+Manajemen SIM-MONEVKUEP
 <?= $this->endSection() ?>
 
 <?= $this->section('page_styles') ?>
@@ -12,7 +12,7 @@ Manajemen SIM-BANKEL
         /* align-items: center;  */
     }
     .card-body { padding: 20px; }
-    .visualization-section {display: grid; grid-template-columns: 1fr; /* Hanya 1 kolom */gap: 30px;}
+    .visualization-section {display: grid; grid-template-columns: 1fr; gap: 30px;}
     .visualization-section .chart-container {
         min-height: 200px;
         display: flex;
@@ -20,12 +20,7 @@ Manajemen SIM-BANKEL
         align-items: center;
         color: #999;
     }
-
-    /* Aturan baru untuk card body peta (tanpa flexbox) */
-    .visualization-section .map-card-body {
-        padding: 0; /* Memberi ruang di sekitar kontrol dan peta */
-        min-height: 450px; /* Biarkan tingginya otomatis */
-    }
+    .visualization-section .map-card-body { padding: 0; min-height: 450px; }
     table { width: 100%; border-collapse: collapse; }
     th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
     thead th { background-color: #e9ecef; }
@@ -49,9 +44,7 @@ Manajemen SIM-BANKEL
         justify-content: center;
         gap: 20px;
     }
-    .tombol-aksi{
-
-    }
+    
     .export-button { background-color: #17a2b8;}
     .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
     .action-links { text-align: center; white-space: nowrap; }
@@ -61,8 +54,8 @@ Manajemen SIM-BANKEL
     .btn-delete { background-color: #dc3545; }
 
     .filter-form { margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 20px; }
-    .filter-form form { display: flex; gap: 10px; align-items: center; }
-    .filter-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+    .filter-form form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+    .filter-form input, .filter-form select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
     .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
     .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
     .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center; }
@@ -74,10 +67,8 @@ Manajemen SIM-BANKEL
     .page-item:last-child .page-link { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
     .page-item.active .page-link { z-index: 1; color: #fff; background-color: #007bff; border-color: #007bff; }
     .page-item .page-link:hover { background-color: #e9ecef; }
-    
 
-    /* Tambahkan di dalam <style> */
-/* Ganti semua style chart yang lama dengan ini */
+    /* Ganti semua style chart yang lama dengan ini */
     .chart-section {
         display: flex;
         flex-wrap: wrap;
@@ -93,83 +84,49 @@ Manajemen SIM-BANKEL
     .chart-wrapper h4 {
         margin-bottom: 15px;
     }
-    .doughnut-container {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: center;
-        gap: 20px;
-    }
-    .chart-canvas-container {
-        position: relative;
-        margin: auto;
-    }
-    .doughnut-container .chart-canvas-container {
-        width: 250px;
-        height: 250px;
-    }
+    .doughnut-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
+    .chart-canvas-container { position: relative; margin: auto; }
+    .doughnut-container .chart-canvas-container {width: 250px; height: 250px;}
     .bar-chart-container {
         width: 100%;
         height: 250px;
     }
-
     .chart-legend-container ul {
     list-style-type: none;
     padding: 0;
     margin-top: 15px; /* Jarak dari chart */
-    
+
     /* Menggunakan Flexbox untuk tata letak dinamis */
     display: flex;
     flex-wrap: wrap; /* Izinkan item turun ke baris baru */
     justify-content: center; /* Pusatkan item */
     gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
     }
+    .chart-legend-container ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 15px; /* Jarak dari chart */
 
-    .chart-legend-container li {
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        font-size: 13px; /* Ukuran font lebih kecil */
-        transition: opacity 0.2s;
+    /* Menggunakan Flexbox untuk tata letak dinamis */
+    display: flex;
+    flex-wrap: wrap; /* Izinkan item turun ke baris baru */
+    justify-content: center; /* Pusatkan item */
+    gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
     }
-
-    .chart-legend-container li:hover {
-        opacity: 0.8;
-    }
-
-    .legend-color-box {
-        width: 12px;
+    .chart-legend-container li { cursor: pointer; display: flex; align-items: center; margin-bottom: 5px; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s; font-size: 13px; /* Ukuran font lebih kecil */
+        transition: opacity 0.2s;}
+    .chart-legend-container li:hover { background-color: #f1f1f1; opacity: 0.8;}
+    .legend-color-box { width: 12px;
         height: 12px;
         display: inline-block;
         margin-right: 8px;
-        border-radius: 3px;
-    }
+        border-radius: 3px; }
 
-    /* ============================================= */
-    /* STYLE UNTUK TAMPILAN HP            */
-    /* ============================================= */
-
-    #map {
-            height: 500px; /* default untuk desktop */
-            width: 100%;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            z-index: 1;
-        }
-
+    #map { height: 500px; width: 100%; background-color: #f9f9f9; border: 1px solid #ccc; z-index: 1;}
     @media (max-width: 768px) {
-        /* 1. Mengubah layout visualisasi menjadi atas-bawah */
-        .visualization-section {
-            grid-template-columns: 1fr; /* Mengubah dari 2 kolom menjadi 1 kolom */
-        }
-
-        /* 2. Menyesuaikan ukuran font */
-        h1 { font-size: 22px; }
-        h2 { font-size: 18px; }
-        table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
-            font-size: 14px; /* Sedikit mengecilkan font di tabel dan tombol */
-        }
-        
+        .visualization-section { grid-template-columns: 1fr; }
+        h1 { font-size: 22px; } h2 { font-size: 18px; }
+        table, .add-button, .export-button, .filter-form input, .filter-form select, .filter-form button, .filter-form a { font-size: 14px; }
         /* === TAMBAHKAN ATURAN BARU DI SINI === */
         .chart-container {
             flex-direction: column; /* Mengubah arah item menjadi ke bawah */
@@ -183,12 +140,7 @@ Manajemen SIM-BANKEL
             margin-top: 20px; /* Beri jarak dari chart di atasnya */
             max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
         }
-        /* 3. Membuat form filter menjadi responsif */
-        .filter-form form {
-            flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
-            align-items: stretch;   /* Membuat semua item selebar kontainer */
-            gap: 15px;
-        }
+        .filter-form form { flex-direction: column; align-items: stretch; gap: 15px; }
 
         .card-header{
             flex-direction: column;
@@ -233,27 +185,26 @@ Manajemen SIM-BANKEL
         padding: 8px;
         font-size: 14px;
     }
-    
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
     
-<h1><?= esc($title) ?></h1>
+    <h1><?= esc($title) ?></h1>
 
-<div class="visualization-section">
-    <div class="card">
-        <div class="card-header">Peta Persebaran</div>
-        <div class="card-body map-card-body">
-        <div class="map-controls">
-            <div>
-                <label for="tingkat">Tingkat:</label>
-                <select id="tingkat">
-                    <option value="kecamatan">Kecamatan</option>
-                    <option value="kelurahan">Kelurahan</option>
-                </select>
-            </div>
-                <?php if ($role === 'superadmin'): ?>
+    <div class="visualization-section">
+        <div class="card">
+            <div class="card-header">Peta Persebaran</div>
+            <div class="card-body map-card-body">
+            <div class="map-controls">
+                <div>
+                    <label for="tingkat">Tingkat:</label>
+                    <select id="tingkat">
+                        <option value="kecamatan">Kecamatan</option>
+                        <option value="kelurahan">Kelurahan</option>
+                    </select>
+                </div>
+                    <?php if ($role === 'superadmin'): ?>
                     <div>
                         <label for="wilayah">Wilayah:</label>
                         <select id="wilayah">
@@ -264,16 +215,17 @@ Manajemen SIM-BANKEL
                 <?php else: ?>
                     <input type="hidden" id="wilayah" value="<?= esc($nama_kabupaten_slug) ?>">
                 <?php endif; ?>
-            </div>
+                </div>
 
-        <div id="loading">Memuat data geojson...</div>
-        
-        <div id="map"></div>
+            <div id="loading">Memuat data geojson...</div>
+            
+            <div id="map"></div>
+            </div>
         </div>
-    </div>
+
         <div class="card">
             <div class="card-body chart-section">
-                
+
                 <div class="chart-wrapper">
                     <h4>Analisis per Kecamatan</h4>
                     <div class="doughnut-container">
@@ -283,27 +235,25 @@ Manajemen SIM-BANKEL
                         <div id="chart-legend" class="chart-legend-container"></div>
                     </div>
                 </div>
-                
                 <div class="chart-wrapper">
                     <h4>Analisis per Tahun</h4>
                     <div class="chart-canvas-container bar-chart-container">
                         <canvas id="tahunChart"></canvas>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
 
     <div class="card">
         <div class="card-header">
-            <span>Data Bantuan Sembako</span>
+            <span>Data MONEVKUEP</span>
             <div class="tombol">
                 <div class="tombol-aksi">
-                    <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
-                    <a href="<?= site_url('admin/bankel/export') ?>" class="export-button">Export Excel</a>
+                    <a href="<?= site_url('admin/monevkuep/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
+                    <a href="<?= site_url('admin/monevkuep/export') ?>" class="export-button">Export Excel</a>
                 </div>
-                <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">Tambah Data</a>
+                <a href="<?= site_url('admin/monevkuep/input') ?>" class="add-button">Tambah Data</a>
             </div>
         </div>
         <div class="card-body">
@@ -313,11 +263,29 @@ Manajemen SIM-BANKEL
             <?php endif; ?>
             
             <div class="filter-form">
-                <form action="<?= site_url('admin/bankel') ?>" method="get">
+                <form action="<?= site_url('admin/monevkuep') ?>" method="get">
                     <input type="text" name="keyword" placeholder="Cari NIK, Nama, Wilayah..." value="<?= esc($filters['keyword'] ?? '') ?>">
-                    <input type="number" name="tahun" placeholder="Tahun" value="<?= esc($filters['tahun'] ?? '') ?>" style="width: 100px;">
+                    
+                    <select name="dtks">
+                        <option value="">-- DTKS --</option>
+                        <option value="Ya"     <?= (isset($filters['dtks']) && $filters['dtks']==='Ya') ? 'selected' : '' ?>>Ya</option>
+                        <option value="Tidak"  <?= (isset($filters['dtks']) && $filters['dtks']==='Tidak') ? 'selected' : '' ?>>Tidak</option>
+                    </select>
+
+                    <select name="sktm">
+                        <option value="">-- SKTM --</option>
+                        <option value="Ada"        <?= (isset($filters['sktm']) && $filters['sktm']==='Ada') ? 'selected' : '' ?>>Ada</option>
+                        <option value="Tidak Ada"  <?= (isset($filters['sktm']) && $filters['sktm']==='Tidak Ada') ? 'selected' : '' ?>>Tidak Ada</option>
+                    </select>
+
+                    <select name="jk">
+                        <option value="">-- Jenis Kelamin --</option>
+                        <option value="Laki-laki" <?= (isset($filters['jk']) && $filters['jk']==='Laki-laki') ? 'selected' : '' ?>>Laki-laki</option>
+                        <option value="Perempuan" <?= (isset($filters['jk']) && $filters['jk']==='Perempuan') ? 'selected' : '' ?>>Perempuan</option>
+                    </select>
+
                     <button type="submit">Cari</button>
-                    <a href="<?= site_url('admin/bankel') ?>">Reset</a>
+                    <a href="<?= site_url('admin/monevkuep') ?>">Reset</a>
                 </form>
             </div>
             
@@ -329,15 +297,20 @@ Manajemen SIM-BANKEL
                             <th>No</th>
                             <th>NIK</th>
                             <th>Nama</th>
+                            <th>JK</th>
+                            <th>Tempat/Tgl Lahir</th>
+                            <th>Usia</th>
                             <th>Kecamatan</th>
-                            <th>Kelurahan</th>            
-                            <th>RT</th>
-                            <th>RW</th>
-                            <th>Jenis Bantuan</th>
-                            <th>Tahun</th>
+                            <th>Kelurahan</th>
+                            <th>Alamat</th>
+                            <th>DTKS</th>
+                            <th>SKTM</th>
+                            <th>Agama</th>
+                            <th>Pendidikan</th>
+                            <th>Jenis Usaha</th>
+                            <th>Jenis Pekerjaan</th>
+                            <th>RAB</th>
                             <th>Diinput Pada</th>
-                            <th>Gambar</th>
-                            <th>Koordinat</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -345,38 +318,31 @@ Manajemen SIM-BANKEL
                             <?php foreach ($bantuan as $index => $item): ?>
                                 <tr>
                                     <td class="action-links">
-                                        <a href="<?= site_url('admin/bankel/edit/' . $item['id']) ?>" class="btn btn-edit" title="Edit">📝</a>
-                                        <a href="<?= site_url('admin/bankel/delete/' . $item['id']) ?>" class="btn btn-delete tombol-hapus" title="Hapus">🗑️</a>
+                                        <a href="<?= site_url('admin/monevkuep/edit/' . $item['id']) ?>" class="btn btn-edit" title="Edit">📝</a>
+                                        <a href="<?= site_url('admin/monevkuep/delete/' . $item['id']) ?>" class="btn btn-delete tombol-hapus" title="Hapus">🗑️</a>
                                     </td>
                                     <td><?= $pager->getDetails('bantuan')['currentPage'] > 1 ? ($pager->getDetails('bantuan')['perPage'] * ($pager->getDetails('bantuan')['currentPage'] - 1)) + $index + 1 : $index + 1 ?></td>
                                     <td><?= esc($item['nik']) ?></td>
                                     <td><?= esc($item['nama_lengkap']) ?></td>
+                                    <td><?= esc($item['jenis_kelamin'] ?? '-') ?></td>
+                                    <td><?= esc(($item['tempat_lahir'] ?? '-')) ?> / <?= esc(($item['tanggal_lahir'] ?? '-')) ?></td>
+                                    <td><?= esc($item['usia'] ?? '-') ?></td>
                                     <td><?= esc($item['nama_kecamatan']) ?></td>
                                     <td><?= esc($item['nama_kelurahan']) ?></td>
-                                    <td><?= esc($item['rt']) ?></td>
-                                    <td><?= esc($item['rw']) ?></td>
-                                    <td><?= esc($item['kategori_bantuan']) ?></td>
-                                    <td><?= esc($item['tahun_penerimaan']) ?></td>
+                                    <td><?= esc($item['alamat_lengkap'] ?? '-') ?></td>
+                                    <td><?= esc($item['dtks'] ?? '-') ?></td>
+                                    <td><?= esc($item['sktm'] ?? '-') ?></td>
+                                    <td><?= esc($item['agama'] ?? '-') ?></td>
+                                    <td><?= esc($item['pendidikan'] ?? '-') ?></td>
+                                    <td><?= esc($item['jenis_usaha'] ?? '-') ?></td>
+                                    <td><?= esc($item['jenis_pekerjaan'] ?? '-') ?></td>
+                                    <td><?= !is_null($item['rab_nominal']) ? number_format((float)$item['rab_nominal'], 0, ',', '.') : '-' ?></td>
                                     <td><?= date('d M Y', strtotime($item['created_at'])) ?></td>
-                                    <td>
-                                        <?php if (!empty($item['gambar'])): ?>
-                                            <a href="<?= base_url('uploads/' . $item['gambar']) ?>" target="_blank">Lihat</a>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
-                                    <td>
-                                        <?php if (!empty($item['koordinat'])): ?>
-                                            <a href="https://www.google.com/maps/search/?api=1&query=<?= esc($item['koordinat']) ?>" target="_blank">Lokasi</a>
-                                        <?php else: ?>
-                                            -
-                                        <?php endif; ?>
-                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="12" style="text-align: center;">data nya ga ada lek 🤙🏻</td>
+                                <td colspan="18" style="text-align: center;">Tidak ada data yang cocok dengan kriteria pencarian Anda.</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -388,129 +354,10 @@ Manajemen SIM-BANKEL
             </div>
         </div>
     </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-        const tombolHapus = document.querySelectorAll('.tombol-hapus');
-
-        tombolHapus.forEach(tombol => {
-            tombol.addEventListener('click', function(event) {
-                event.preventDefault(); 
-                const href = this.getAttribute('href');
-
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data yang dihapus tidak dapat dikembalikan!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Ya, hapus!',
-                    cancelButtonText: 'Batal'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = href;
-                    }
-                });
-            });
-        });
-
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('kecamatanChart');
-    if (!ctx) return;
-
-    // Fungsi untuk menghasilkan warna dinamis
-    function generateDynamicColors(count) {
-        let colors = [];
-        for (let i = 0; i < count; i++) {
-            const hue = (i * (360 / count) * 0.8) % 360; // 0.8 untuk warna lebih lembut
-            colors.push(`hsla(${hue}, 70%, 60%, 0.8)`);
-        }
-        return colors;
-    }
-
-    // Plugin legenda HTML kustom yang sudah diperbaiki
-    const htmlLegendPlugin = {
-        id: 'htmlLegend',
-        afterUpdate(chart, args, options) {
-            const legendContainer = document.getElementById(options.containerID);
-            if (!legendContainer) return;
-            
-            // Buat atau dapatkan list <ul>
-            let listContainer = legendContainer.querySelector('ul');
-            if (!listContainer) {
-                listContainer = document.createElement('ul');
-                legendContainer.appendChild(listContainer);
-            }
-            listContainer.innerHTML = '';
-
-            // Ambil data langsung dari chart
-            const items = chart.data.labels.map((label, i) => {
-                const meta = chart.getDatasetMeta(0);
-                const style = meta.controller.getStyle(i);
-                return {
-                    text: label,
-                    fillStyle: style.backgroundColor,
-                    hidden: meta.data[i].hidden,
-                    index: i
-                };
-            });
-
-            items.forEach(item => {
-                const li = document.createElement('li');
-                li.onclick = () => {
-                    const { type } = chart.config;
-                    if (type === 'pie' || type === 'doughnut') {
-                        chart.toggleDataVisibility(item.index);
-                    }
-                    chart.update();
-                };
-
-                const boxSpan = document.createElement('span');
-                boxSpan.className = 'legend-color-box';
-                boxSpan.style.background = item.fillStyle;
-
-                const textContainer = document.createElement('p');
-                textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
-                textContainer.innerText = item.text;
-
-                li.appendChild(boxSpan);
-                li.appendChild(textContainer);
-                listContainer.appendChild(li);
-            });
-        }
-    };
-
-    // Plugin kustom untuk teks di tengah
-    const centerTextPlugin = {
-        id: 'centerText',
-        afterDraw: (chart) => {
-            if (chart.config.type !== 'doughnut' || chart.data.datasets[0].data.length === 0) return;
-            let ctx = chart.ctx;
-            let width = chart.width;
-            let height = chart.height;
-            ctx.restore();
-            let fontSize = (height / 200).toFixed(2);
-            ctx.font = fontSize + "em Segoe UI";
-            ctx.textBaseline = "middle";
-            ctx.fillStyle = "#6c757d";
-            let text = "Total";
-            let textX = Math.round((width - ctx.measureText(text).width) / 2);
-            let textY = height / 2 - (fontSize * 15);
-            ctx.fillText(text, textX, textY);
-            let totalValue = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-            fontSize = (height / 100).toFixed(2);
-            ctx.font = "bold " + fontSize + "em Segoe UI";
-            ctx.fillStyle = "#343a40";
-            let totalText = totalValue.toString();
-            let totalTextX = Math.round((width - ctx.measureText(totalText).width) / 2);
-            let totalTextY = height / 2 + (fontSize * 7);
-            ctx.fillText(totalText, totalTextX, totalTextY);
-            ctx.save();
-        }
-    };
-
-
-        // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
+    // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
     const ctxTahun = document.getElementById('tahunChart');
     if (ctxTahun) {
         fetch('<?= site_url('admin/bankel/chart-data-by-year') ?>')
@@ -520,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 const labels = data.map(item => item.tahun_penerimaan);
                 const values = data.map(item => Number(item.jumlah));
-                
+
                 // Gunakan fungsi yang sama untuk menghasilkan warna yang konsisten
                 const dynamicColors = generateDynamicColors(values.length);
 
@@ -553,70 +400,167 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
     }
+    const tombolHapus = document.querySelectorAll('.tombol-hapus');
+    tombolHapus.forEach(tombol => {
+        tombol.addEventListener('click', function(event) {
+            event.preventDefault(); 
+            const href = this.getAttribute('href');
 
-    fetch('<?= site_url('admin/bankel/chart-data') ?>')
-        .then(response => response.json())
-        .then(data => {
-            console.log('Data yang diterima untuk grafik:', data); 
-            if (data.length === 0) return;
-            const labels = data.map(item => item.nama_kecamatan);
-            const values = data.map(item => Number(item.jumlah));
-            const dynamicColors = generateDynamicColors(values.length);
-
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: values,
-                        backgroundColor: dynamicColors,
-                        borderColor: '#fff',
-                        borderWidth: 2,
-                        cutout: '60%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        htmlLegend: { containerID: 'chart-legend' },
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    const value = context.parsed;
-                                    let percentage = '0.00%';
-                                    if (total > 0) {
-                                        percentage = ((value / total) * 100).toFixed(1) + '%';
-                                    }
-                                    return `${context.label}: ${value} (${percentage})`;
-                                }
-                            }
-                        },
-                        // 1. AKTIFKAN KEMBALI KONFIGURASI DATALABELS
-                        datalabels: {
-                            formatter: (value, ctx) => {
-                                const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                let percentage = '0%';
-                                if (total > 0) {
-                                   percentage = ((value / total) * 100).toFixed(1) + '%';
-                                }
-                                return percentage;
-                            },
-                            color: '#fff',
-                            font: {
-                                weight: 'bold',
-                                size: 12
-                            }
-                        }
-                    }
-                },
-                // 2. DAFTARKAN KEMBALI PLUGIN ChartDataLabels
-                plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels],
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = href;
+                }
             });
         });
-        if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('kecamatanChart');
+        if (!ctx) return;
+
+        function generateDynamicColors(count) {
+            let colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * (360 / count)) % 360;
+                colors.push(`hsla(${hue}, 70%, 60%, 0.8)`);
+            }
+            return colors;
+        }
+
+        const htmlLegendPlugin = {
+            id: 'htmlLegend',
+            afterUpdate(chart, args, options) {
+                const legendContainer = document.getElementById(options.containerID);
+                if (!legendContainer) return;
+                let listContainer = legendContainer.querySelector('ul');
+                if (!listContainer) {
+                    listContainer = document.createElement('ul');
+                    legendContainer.appendChild(listContainer);
+                }
+                listContainer.innerHTML = '';
+                const items = chart.data.labels.map((label, i) => {
+                    const meta = chart.getDatasetMeta(0);
+                    const style = meta.controller.getStyle(i);
+                    return { text: label, fillStyle: style.backgroundColor, hidden: meta.data[i].hidden, index: i };
+                });
+                items.forEach(item => {
+                    const li = document.createElement('li');
+                    li.onclick = () => {
+                        const { type } = chart.config;
+                        if (type === 'pie' || type === 'doughnut') {
+                            chart.toggleDataVisibility(item.index);
+                        }
+                        chart.update();
+                    };
+                    const boxSpan = document.createElement('span');
+                    boxSpan.className = 'legend-color-box';
+                    boxSpan.style.background = item.fillStyle;
+                    const textContainer = document.createElement('p');
+                    textContainer.style.textDecoration = item.hidden ? 'line-through' : '';
+                    textContainer.innerText = item.text;
+                    li.appendChild(boxSpan);
+                    li.appendChild(textContainer);
+                    listContainer.appendChild(li);
+                });
+            }
+        };
+
+        const centerTextPlugin = {
+            id: 'centerText',
+            afterDraw: (chart) => {
+                if (chart.config.type !== 'doughnut' || chart.data.datasets[0].data.length === 0) return;
+                let ctx = chart.ctx;
+                let width = chart.width;
+                let height = chart.height;
+                ctx.restore();
+                let fontSize = (height / 200).toFixed(2);
+                ctx.font = fontSize + "em Segoe UI";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#6c757d";
+                let text = "Total";
+                let textX = Math.round((width - ctx.measureText(text).width) / 2);
+                let textY = height / 2 - (fontSize * 15);
+                ctx.fillText(text, textX, textY);
+                let totalValue = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                fontSize = (height / 100).toFixed(2);
+                ctx.font = "bold " + fontSize + "em Segoe UI";
+                ctx.fillStyle = "#343a40";
+                let totalText = totalValue.toString();
+                let totalTextX = Math.round((width - ctx.measureText(totalText).width) / 2);
+                let totalTextY = height / 2 + (fontSize * 7);
+                ctx.fillText(totalText, totalTextX, totalTextY);
+                ctx.save();
+            }
+        };
+
+        // 🔁 Ambil data chart dari endpoint MONEVKUEP
+        fetch('<?= site_url('admin/monevkuep/chart-data') ?>')
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) return;
+                const labels = data.map(item => item.nama_kecamatan);
+                const values = data.map(item => Number(item.jumlah));
+                const dynamicColors = generateDynamicColors(values.length);
+
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: values,
+                            backgroundColor: dynamicColors,
+                            borderColor: '#fff',
+                            borderWidth: 2,
+                            cutout: '60%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            htmlLegend: { containerID: 'chart-legend' },
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                        const value = context.parsed;
+                                        let percentage = '0.00%';
+                                        if (total > 0) {
+                                            percentage = ((value / total) * 100).toFixed(1) + '%';
+                                        }
+                                        return `${context.label}: ${value} (${percentage})`;
+                                    }
+                                }
+                            },
+                            datalabels: {
+                                formatter: (value, ctx) => {
+                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                                    let percentage = '0%';
+                                    if (total > 0) {
+                                       percentage = ((value / total) * 100).toFixed(1) + '%';
+                                    }
+                                    return percentage;
+                                },
+                                color: '#fff',
+                                font: { weight: 'bold', size: 12 }
+                            }
+                        }
+                    },
+                    plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels],
+                });
+            });
+
+         if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
             const map = L.map('map').setView([1.1, 104], 8); // Zoom awal sedikit diubah
             // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             // attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -636,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             function styleFeature(feature) {
-                const val = feature.properties.total_penerima || 0;
+                const val = feature.properties.total_kuep || 0;
                 return {
                     fillColor: getColor(val),
                     color: "#333",
@@ -651,7 +595,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 loading.style.display = 'inline';
 
                 console.log('Nilai yang akan dikirim:', { wilayah_value: wilayah, tingkat_value: tingkat });
-                const url = `<?= site_url('peta/geojson/') ?>${wilayah}/${tingkat}`;
+                const url = `<?= site_url('peta/geojson_kuep/') ?>${wilayah}/${tingkat}`;
 
                 fetch(url)
                     .then(res => {
@@ -665,8 +609,8 @@ document.addEventListener('DOMContentLoaded', function() {
                             style: styleFeature,
                             onEachFeature: function (feature, layer) {
                                 const nama = feature.properties.NAMOBJ ?? 'Tidak diketahui';
-                                const total = feature.properties.total_penerima ?? 0;
-                                layer.bindPopup(`<strong>${nama}</strong><br>Total Penerima: ${total}`);
+                                const total = feature.properties.total_kuep ?? 0;
+                                layer.bindPopup(`<strong>${nama}</strong><br>Total KUEP: ${total}`);
                             }
                         }).addTo(map);
                         if (geoLayer.getBounds().isValid()) {
@@ -692,7 +636,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const div = L.DomUtil.create('div', 'legend');
                 const grades = [0, 1, 10, 51, 101]; 
                 const labels = [];
-                div.innerHTML = '<strong>Total Penerima</strong><br>';
+                div.innerHTML = '<strong>Total KUEP</strong><br>';
                 for (let i = 0; i < grades.length; i++) {
                     const from = grades[i];
                     const to = grades[i + 1];
@@ -712,9 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Langsung muat peta saat halaman pertama kali dibuka
             loadGeoJSON(); 
         }
-    
     });
-
 </script>
 
 <?= $this->endSection() ?>

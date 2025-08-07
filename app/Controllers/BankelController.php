@@ -110,6 +110,7 @@ class BankelController extends BaseController
             'nama_kabupaten_slug' => $nama_kabupaten_slug // Kirim slug
         ];
         
+
         return view('bankel/SIM-BANKEL', $data);
 
     }
@@ -495,6 +496,11 @@ class BankelController extends BaseController
     //--------------------------------------- GRAFIK ----------------------------------------//
     ///////////////////////////////////////////////////////////////////////////////////////////
 
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //--------------------------------------- GRAFIK ----------------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    
     public function getChartData()
     {
         $bankelModel = new \App\Models\BankelModel();
@@ -511,11 +517,13 @@ class BankelController extends BaseController
     {
         $bankelModel = new \App\Models\BankelModel();
         
+
         $role = session()->get('role');
         $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
 
         $chartData = $bankelModel->getChartDataByYear($id_kabupaten);
         
+
         return $this->response->setJSON($chartData);
     }
 
@@ -643,6 +651,18 @@ class BankelController extends BaseController
         unlink($filePath);
 
         return redirect()->to('/admin/bankel/import')->with('message', $message);
+    }
+
+    public function printAll()
+    {
+        $bankelModel = new \App\Models\BankelModel();
+        $role = session()->get('role');
+        $id_kabupaten_admin = session()->get('id_kabupaten');
+        $data['all_data'] = $role === 'superadmin' 
+            ? $bankelModel->getBankelData()
+            : $bankelModel->getBankelData($id_kabupaten_admin);
+
+        return view('admin/print_bankel', $data); // Buat view khusus cetak
     }
 
 
