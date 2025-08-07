@@ -101,51 +101,23 @@
 
             <!-- Referensi karakteristik -->
             <div class="form-group">
-                <label for="id_agama">Agama</label>
-                <select name="id_agama" id="id_agama">
-                    <option value="">-- Pilih Agama --</option>
-                    <?php if (!empty($agama_list)): ?>
-                        <?php foreach ($agama_list as $a): ?>
-                            <option value="<?= esc($a['id']) ?>"><?= esc($a['nama_agama']) ?></option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
+                <label for="agama">Agama</label>
+                <input type="text" name="agama" id="agama">
             </div>
 
             <div class="form-group">
-                <label for="id_pendidikan">Pendidikan</label>
-                <select name="id_pendidikan" id="id_pendidikan">
-                    <option value="">-- Pilih Pendidikan --</option>
-                    <?php if (!empty($pendidikan_list)): ?>
-                        <?php foreach ($pendidikan_list as $p): ?>
-                            <option value="<?= esc($p['id']) ?>"><?= esc($p['nama_pendidikan']) ?></option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
+                <label for="pendidikan">Pendidikan</label>
+                <input type="text" name="pendidikan" id="pendidikan">
             </div>
 
             <div class="form-group">
-                <label for="id_jenis_usaha">Jenis Usaha</label>
-                <select name="id_jenis_usaha" id="id_jenis_usaha">
-                    <option value="">-- Pilih Jenis Usaha --</option>
-                    <?php if (!empty($jenis_usaha_list)): ?>
-                        <?php foreach ($jenis_usaha_list as $u): ?>
-                            <option value="<?= esc($u['id']) ?>"><?= esc($u['nama_jenis_usaha']) ?></option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
+                <label for="jenis_usaha">Jenis Usaha</label>
+                <input type="text" name="jenis_usaha" id="jenis_usaha">
             </div>
 
             <div class="form-group">
-                <label for="id_jenis_pekerjaan">Jenis Pekerjaan</label>
-                <select name="id_jenis_pekerjaan" id="id_jenis_pekerjaan">
-                    <option value="">-- Pilih Jenis Pekerjaan --</option>
-                    <?php if (!empty($jenis_pekerjaan_list)): ?>
-                        <?php foreach ($jenis_pekerjaan_list as $j): ?>
-                            <option value="<?= esc($j['id']) ?>"><?= esc($j['nama_jenis_pekerjaan']) ?></option>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                </select>
+                <label for="jenis_pekerjaan">Jenis Pekerjaan</label>
+                <input type="text" name="jenis_pekerjaan" id="jenis_pekerjaan">
             </div>
 
             <!-- Ekonomi -->

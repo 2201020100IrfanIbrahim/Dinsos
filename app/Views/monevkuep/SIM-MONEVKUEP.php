@@ -332,10 +332,10 @@ Manajemen SIM-MONEVKUEP
                                     <td><?= esc($item['alamat_lengkap'] ?? '-') ?></td>
                                     <td><?= esc($item['dtks'] ?? '-') ?></td>
                                     <td><?= esc($item['sktm'] ?? '-') ?></td>
-                                    <td><?= esc($item['nama_agama'] ?? '-') ?></td>
-                                    <td><?= esc($item['nama_pendidikan'] ?? '-') ?></td>
-                                    <td><?= esc($item['nama_jenis_usaha'] ?? '-') ?></td>
-                                    <td><?= esc($item['nama_jenis_pekerjaan'] ?? '-') ?></td>
+                                    <td><?= esc($item['agama'] ?? '-') ?></td>
+                                    <td><?= esc($item['pendidikan'] ?? '-') ?></td>
+                                    <td><?= esc($item['jenis_usaha'] ?? '-') ?></td>
+                                    <td><?= esc($item['jenis_pekerjaan'] ?? '-') ?></td>
                                     <td><?= !is_null($item['rab_nominal']) ? number_format((float)$item['rab_nominal'], 0, ',', '.') : '-' ?></td>
                                     <td><?= date('d M Y', strtotime($item['created_at'])) ?></td>
                                 </tr>

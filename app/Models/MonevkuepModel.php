@@ -29,10 +29,10 @@ class MonevkuepModel extends Model
         'dtks',
         'sktm',
         'rab_nominal',
-        'id_agama',
-        'id_pendidikan',
-        'id_jenis_usaha',
-        'id_jenis_pekerjaan',
+        'agama',
+        'pendidikan',
+        'jenis_usaha',
+        'jenis_pekerjaan',
         'id_admin_input',
     ];
 
@@ -56,10 +56,10 @@ class MonevkuepModel extends Model
         'sktm'           => 'permit_empty|in_list[Ada,Tidak Ada]',
         'rab_nominal'    => 'permit_empty|decimal',
         'id_admin_input' => 'permit_empty|integer',
-        'id_agama'           => 'permit_empty|integer',
-        'id_pendidikan'      => 'permit_empty|integer',
-        'id_jenis_usaha'     => 'permit_empty|integer',
-        'id_jenis_pekerjaan' => 'permit_empty|integer',
+        'agama'           => 'permit_empty|string|max_length[50]',
+        'pendidikan'      => 'permit_empty|string|max_length[50]',
+        'jenis_usaha'     => 'permit_empty|string|max_length[50]',
+        'jenis_pekerjaan' => 'permit_empty|string|max_length[50]',
     ];
 
     protected $validationMessages = [
@@ -94,10 +94,7 @@ class MonevkuepModel extends Model
             kabupaten.nama_kabupaten,
             kecamatan.nama_kecamatan,
             kelurahan.nama_kelurahan,
-            ref_agama.nama_agama,
-            ref_pendidikan.nama_pendidikan,
-            ref_jenis_usaha.nama_jenis_usaha,
-            ref_jenis_pekerjaan.nama_jenis_pekerjaan
+            
         ");
 
         // Join referensi utama (wilayah & admin)
@@ -105,12 +102,6 @@ class MonevkuepModel extends Model
         $builder->join('kabupaten', 'kabupaten.id = ' . $this->table . '.id_kabupaten');
         $builder->join('kecamatan', 'kecamatan.id = ' . $this->table . '.id_kecamatan');
         $builder->join('kelurahan', 'kelurahan.id = ' . $this->table . '.id_kelurahan');
-
-        // Join master (left join karena opsional)
-        $builder->join('ref_agama', 'ref_agama.id = ' . $this->table . '.id_agama', 'left');
-        $builder->join('ref_pendidikan', 'ref_pendidikan.id = ' . $this->table . '.id_pendidikan', 'left');
-        $builder->join('ref_jenis_usaha', 'ref_jenis_usaha.id = ' . $this->table . '.id_jenis_usaha', 'left');
-        $builder->join('ref_jenis_pekerjaan', 'ref_jenis_pekerjaan.id = ' . $this->table . '.id_jenis_pekerjaan', 'left');
 
         if ($id_kabupaten !== false) {
             $builder->where($this->table . '.id_kabupaten', $id_kabupaten);
@@ -124,8 +115,6 @@ class MonevkuepModel extends Model
                 ->orLike($this->table . '.nama_lengkap', $kw)
                 ->orLike('kecamatan.nama_kecamatan', $kw)
                 ->orLike('kelurahan.nama_kelurahan', $kw)
-                ->orLike('ref_jenis_usaha.nama_jenis_usaha', $kw)
-                ->orLike('ref_jenis_pekerjaan.nama_jenis_pekerjaan', $kw)
             ->groupEnd();
         }
 

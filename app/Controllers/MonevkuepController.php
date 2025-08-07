@@ -34,19 +34,11 @@ class MonevkuepController extends BaseController
                 kabupaten.nama_kabupaten,
                 kecamatan.nama_kecamatan,
                 kelurahan.nama_kelurahan,
-                ref_agama.nama_agama,
-                ref_pendidikan.nama_pendidikan,
-                ref_jenis_usaha.nama_jenis_usaha,
-                ref_jenis_pekerjaan.nama_jenis_pekerjaan
             ")
             ->join('users', 'users.id = monevkuep_penerima.id_admin_input')
             ->join('kabupaten', 'kabupaten.id = monevkuep_penerima.id_kabupaten')
             ->join('kecamatan', 'kecamatan.id = monevkuep_penerima.id_kecamatan')
-            ->join('kelurahan', 'kelurahan.id = monevkuep_penerima.id_kelurahan')
-            ->join('ref_agama', 'ref_agama.id = monevkuep_penerima.id_agama', 'left')
-            ->join('ref_pendidikan', 'ref_pendidikan.id = monevkuep_penerima.id_pendidikan', 'left')
-            ->join('ref_jenis_usaha', 'ref_jenis_usaha.id = monevkuep_penerima.id_jenis_usaha', 'left')
-            ->join('ref_jenis_pekerjaan', 'ref_jenis_pekerjaan.id = monevkuep_penerima.id_jenis_pekerjaan', 'left');
+            ->join('kelurahan', 'kelurahan.id = monevkuep_penerima.id_kelurahan');
 
         // Filter keyword (nik/nama/kecamatan/kelurahan/jenis usaha/jenis pekerjaan)
         if (!empty($filters['keyword'])) {
@@ -55,8 +47,6 @@ class MonevkuepController extends BaseController
                 ->orLike('monevkuep_penerima.nama_lengkap', $filters['keyword'])
                 ->orLike('kecamatan.nama_kecamatan', $filters['keyword'])
                 ->orLike('kelurahan.nama_kelurahan', $filters['keyword'])
-                ->orLike('ref_jenis_usaha.nama_jenis_usaha', $filters['keyword'])
-                ->orLike('ref_jenis_pekerjaan.nama_jenis_pekerjaan', $filters['keyword'])
                 ->groupEnd();
         }
         // Filter opsional
@@ -89,7 +79,7 @@ class MonevkuepController extends BaseController
         }
 
         // Paginate 10/baris
-        $data_bantuan = $query->orderBy('monevkuep_penerima.created_at', 'DESC')
+        $data_bantuan = $query->orderBy('monevkuep_penerima.created_at', 'ASC')
             ->paginate(10, 'bantuan');
         $pager = $monevModel->pager;
 
@@ -147,21 +137,11 @@ class MonevkuepController extends BaseController
     public function update($id = null)
     {
         $monevModel = new \App\Models\MonevkuepModel();
-        $agamaModel = new \App\Models\AgamaModel();
-        $pendidikanModel = new \App\Models\PendidikanModel();
-        $pekerjaanModel = new \App\Models\PekerjaanModel();
-        $usahaModel = new \App\Models\UsahaModel();
 
         $dataLama = $monevModel->find($id);
         if (!$dataLama) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Data MONEVKUEP tidak ditemukan.');
         }
-
-        // Ambil data terpisah dari form
-        $id_agama = $this->request->getPost('id_agama');
-        $id_jenis_pekerjaan = $this->request->getPost('id_jenis_pekerjaan');
-        $id_jenis_usaha = $this->request->getPost('id_jenis_usaha');
-        $id_pendidikan = $this->request->getPost('id_pendidikan');
 
         // Data teks dari form
         $data = [
@@ -177,21 +157,11 @@ class MonevkuepController extends BaseController
             'dtks'             => $this->request->getPost('dtks'),
             'sktm'             => $this->request->getPost('sktm'),
             'rab_nominal'      => $this->request->getPost('rab_nominal'),
+            'agama'            => $this->request->getPost('agama'),
+            'pendidikan'       => $this->request->getPost('pendidikan'),
+            'jenis_usaha'      => $this->request->getPost('jenis_usaha'),
+            'jenis_pendidikan' => $this->request->getPost('jenis_pendidikan'),
         ];
-
-        // ✔️ Tambahkan hanya jika id_agama valid
-        if (!empty($id_agama) && $agamaModel->find($id_agama)) {
-            $data['id_agama'] = $id_agama;
-        }
-        if (!empty($id_pendidikan) && $pendidikanModel->find($id_pendidikan)) {
-            $data['id_pendidikan'] = $id_pendidikan;
-        }
-        if (!empty($id_agama) && $pekerjaanModel->find($id_jenis_pekerjaan)) {
-            $data['id_jenis_pekerjaan'] = $id_jenis_pekerjaan;
-        }
-        if (!empty($id_agama) && $usahaModel->find($id_jenis_usaha)) {
-            $data['id_jenis_usaha'] = $id_jenis_usaha;
-        }
 
         // Tambahkan ID untuk UPDATE
         $data['id'] = $id;
@@ -255,10 +225,10 @@ class MonevkuepController extends BaseController
             'dtks'             => $this->request->getPost('dtks') ?: null,
             'sktm'             => $this->request->getPost('sktm') ?: null,
             'rab_nominal'      => $this->request->getPost('rab_nominal'),
-            'id_agama'         => $this->request->getPost('id_agama') ?: null,
-            'id_pendidikan'    => $this->request->getPost('id_pendidikan') ?: null,
-            'id_jenis_usaha'   => $this->request->getPost('id_jenis_usaha') ?: null,
-            'id_jenis_pekerjaan' => $this->request->getPost('id_jenis_pekerjaan') ?: null,
+            'agama'            => $this->request->getPost('agama') ?: null,
+            'pendidikan'       => $this->request->getPost('pendidikan') ?: null,
+            'jenis_usaha'      => $this->request->getPost('jenis_usaha') ?: null,
+            'jenis_pekerjaan'  => $this->request->getPost('jenis_pekerjaan') ?: null,
             'id_kabupaten'     => $session->get('id_kabupaten'),
             'id_admin_input'   => $session->get('user_id'),
         ];
@@ -319,10 +289,10 @@ class MonevkuepController extends BaseController
             $sheet->setCellValue('K' . $rowNumber, $item['alamat_lengkap'] ?? '');
             $sheet->setCellValue('L' . $rowNumber, $item['dtks'] ?? '');
             $sheet->setCellValue('M' . $rowNumber, $item['sktm'] ?? '');
-            $sheet->setCellValue('N' . $rowNumber, $item['nama_agama'] ?? '');
-            $sheet->setCellValue('O' . $rowNumber, $item['nama_pendidikan'] ?? '');
-            $sheet->setCellValue('P' . $rowNumber, $item['nama_jenis_usaha'] ?? '');
-            $sheet->setCellValue('Q' . $rowNumber, $item['nama_jenis_pekerjaan'] ?? '');
+            $sheet->setCellValue('N' . $rowNumber, $item['agama'] ?? '');
+            $sheet->setCellValue('O' . $rowNumber, $item['pendidikan'] ?? '');
+            $sheet->setCellValue('P' . $rowNumber, $item['jenis_usaha'] ?? '');
+            $sheet->setCellValue('Q' . $rowNumber, $item['jenis_pekerjaan'] ?? '');
             $sheet->setCellValue('R' . $rowNumber, $item['rab_nominal'] ?? '');
             $rowNumber++;
         }
@@ -509,10 +479,10 @@ class MonevkuepController extends BaseController
                 'alamat_lengkap'    => $row[5] ?? '',
                 'dtks'              => $row[6] ?? 'Tidak',
                 'sktm'              => $row[7] ?? 'Tidak Ada',
-                'id_jenis_usaha'    => null, // mapping via master dapat ditambahkan jika diperlukan
-                'id_jenis_pekerjaan' => null, // mapping via master dapat ditambahkan jika diperlukan
-                'id_agama'          => null,
-                'id_pendidikan'     => null,
+                'jenis_usaha'       => $row[8] ?? 'Tidak Ada',
+                'jenis_pekerjaan'   => $row[9] ?? 'Tidak Ada',
+                'agama'             => $row[10] ?? 'Tidak Ada',
+                'pendidikan'        => $row[11] ?? 'Tidak Ada',
                 'rab_nominal'       => $row[14] ?? null,
                 'id_kecamatan'      => $id_kecamatan,
                 'id_kelurahan'      => $id_kelurahan,

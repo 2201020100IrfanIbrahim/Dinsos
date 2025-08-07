@@ -137,71 +137,23 @@ Edit Data MONEVKUEP
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="id_agama">Agama</label>
-                    <?php $selAgama = old('id_agama', $bantuan['id_agama'] ?? ''); ?>
-                    <select name="id_agama" id="id_agama">
-                        <option value="">-- Pilih Agama --</option>
-                        <?php if (!empty($agama_list)): ?>
-                            <?php foreach ($agama_list as $a): ?>
-                                <option value="<?= $a['id'] ?>" <?= ($selAgama == $a['id']) ? 'selected' : '' ?>>
-                                    <?= $a['nama_agama'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php elseif ($selAgama): ?>
-                            <option value="<?= esc($selAgama) ?>" selected>Terpilih: ID <?= esc($selAgama) ?></option>
-                        <?php endif; ?>
-                    </select>
+                    <label for="agama">Agama</label>
+                    <input type="text" name="agama" id="agama" class="form-input" value="<?= old('agama', $bantuan['agama'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
-                    <label for="id_pendidikan">Pendidikan</label>
-                    <?php $selPend = old('id_pendidikan', $bantuan['id_pendidikan'] ?? ''); ?>
-                    <select name="id_pendidikan" id="id_pendidikan">
-                        <option value="">-- Pilih Pendidikan --</option>
-                        <?php if (!empty($pendidikan_list)): ?>
-                            <?php foreach ($pendidikan_list as $p): ?>
-                                <option value="<?= $p['id'] ?>" <?= ($selPend == $p['id']) ? 'selected' : '' ?>>
-                                    <?= $p['nama_pendidikan'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php elseif ($selPend): ?>
-                            <option value="<?= esc($selPend) ?>" selected>Terpilih: ID <?= esc($selPend) ?></option>
-                        <?php endif; ?>
-                    </select>
+                    <label for="pendidikan">Pendidikan</label>
+                    <input type="text" name="pendidikan" id="pendidikan" class="form-input" value="<?= old('pendidikan', $bantuan['pendidikan'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
-                    <label for="id_jenis_usaha">Jenis Usaha</label>
-                    <?php $selUsaha = old('id_jenis_usaha', $bantuan['id_jenis_usaha'] ?? ''); ?>
-                    <select name="id_jenis_usaha" id="id_jenis_usaha">
-                        <option value="">-- Pilih Jenis Usaha --</option>
-                        <?php if (!empty($jenis_usaha_list)): ?>
-                            <?php foreach ($jenis_usaha_list as $u): ?>
-                                <option value="<?= $u['id'] ?>" <?= ($selUsaha == $u['id']) ? 'selected' : '' ?>>
-                                    <?= $u['nama_jenis_usaha'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php elseif ($selUsaha): ?>
-                            <option value="<?= esc($selUsaha) ?>" selected>Terpilih: ID <?= esc($selUsaha) ?></option>
-                        <?php endif; ?>
-                    </select>
+                    <label for="jenis_usaha">Jenis Usaha</label>
+                    <input type="text" name="jenis_usaha" id="jenis_usaha" class="form-input" value="<?= old('jenis_usaha', $bantuan['jenis_usaha'] ?? '') ?>">
                 </div>
 
                 <div class="form-group">
-                    <label for="id_jenis_pekerjaan">Jenis Pekerjaan</label>
-                    <?php $selKerja = old('id_jenis_pekerjaan', $bantuan['id_jenis_pekerjaan'] ?? ''); ?>
-                    <select name="id_jenis_pekerjaan" id="id_jenis_pekerjaan">
-                        <option value="">-- Pilih Jenis Pekerjaan --</option>
-                        <?php if (!empty($jenis_pekerjaan_list)): ?>
-                            <?php foreach ($jenis_pekerjaan_list as $j): ?>
-                                <option value="<?= $j['id'] ?>" <?= ($selKerja == $j['id']) ? 'selected' : '' ?>>
-                                    <?= $j['nama_jenis_pekerjaan'] ?>
-                                </option>
-                            <?php endforeach; ?>
-                        <?php elseif ($selKerja): ?>
-                            <option value="<?= esc($selKerja) ?>" selected>Terpilih: ID <?= esc($selKerja) ?></option>
-                        <?php endif; ?>
-                    </select>
+                    <label for="jenis_pekerjaan">Jenis Pekerjaan</label>
+                    <input type="text" name="jenis_pekerjaan" id="jenis_pekerjaan" class="form-input" value="<?= old('jenis_pekerjaan', $bantuan['jenis_pekerjaan'] ?? '') ?>">
                 </div>
             </div>
         </div>
