@@ -7,12 +7,30 @@ Manajemen SIM-MONEVKUEP
 <?= $this->section('page_styles') ?>
 <style>
     /* CSS yang spesifik untuk halaman ini saja */
-    .card { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 30px; overflow: hidden; }
-    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; 
+    .card { 
+        background-color: #fff; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+        margin-bottom: 30px; 
+        overflow: hidden; 
+    }
+    .card-header { 
+        padding: 15px 0px; 
+        background-color: #f8f9fa; 
+        border-bottom: 1px solid #dee2e6; 
+        font-weight: 600; 
+        display: flex; 
+        justify-content: space-between; 
         /* align-items: center;  */
     }
-    .card-body { padding: 20px; }
-    .visualization-section {display: grid; grid-template-columns: 1fr; gap: 30px;}
+    .card-body { 
+        padding: 20px 0px; 
+    }
+    .visualization-section {
+        display: grid; 
+        grid-template-columns: 1fr; 
+        gap: 30px;
+    }
     .visualization-section .chart-container {
         min-height: 200px;
         display: flex;
@@ -20,11 +38,27 @@ Manajemen SIM-MONEVKUEP
         align-items: center;
         color: #999;
     }
-    .visualization-section .map-card-body { padding: 0; min-height: 450px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
-    thead th { background-color: #e9ecef; }
-    tbody tr:hover { background-color: #f1f1f1; }
+    .visualization-section .map-card-body { 
+        padding: 0; 
+        min-height: 450px; 
+    }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+    }
+    th, td { 
+        border-bottom: 1px solid #dee2e6; 
+        padding: 12px; 
+        text-align: left; 
+        vertical-align: middle; 
+        padding-right: 30px
+    }
+    thead th { 
+        background-color: #e9ecef; 
+    }
+    tbody tr:hover { 
+        background-color: #f1f1f1; 
+    }
     .add-button, .export-button { 
         display: inline-block; 
         padding: 8px 12px; 
@@ -36,37 +70,121 @@ Manajemen SIM-MONEVKUEP
         font-size: 14px; 
         text-align: center;
         justify-content: center;
-    }
-
+    }    
     .tombol{
         display: flex;
         text-align: center;
-        justify-content: center;
-        gap: 20px;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    .cari, .button-cari{
+        display: flex;
+        gap: 5px;
+    }
+    .export-button { 
+        background-color: #17a2b8;
+    }
+    .flash-message { 
+        padding: 15px; 
+        background-color: #d4edda; 
+        color: #155724; 
+        border: 1px solid #c3e6cb; 
+        border-radius: 4px; 
+        margin-bottom: 20px;
+    }
+    .action-links { 
+        text-align: center; 
+        white-space: nowrap; 
+    }
+    .btn { 
+        display: inline-block; 
+        padding: 6px 10px; 
+        border-radius: 5px; 
+        text-decoration: none; 
+        color: white; 
+        font-size: 14px; 
+        margin: 0 2px; 
+        transition: transform 0.2s; }
+    .btn:hover { 
+        transform: scale(1.1); 
+    }
+    .btn-edit { 
+        background-color: #007bff; 
+    }
+    .btn-delete { 
+        background-color: #dc3545; 
+    }
+    .filter-form form { 
+        display: flex; 
+        gap: 10px; 
+        align-items: center; 
+        flex-wrap: wrap; 
+    }
+    .filter-form input, .filter-form select { 
+        padding: 8px; 
+        border: 1px solid #ccc; 
+        border-radius: 4px; 
+    }
+    .filter-form button, .filter-form a { 
+        padding: 8px 15px; 
+        border-radius: 4px; 
+        text-decoration: none; 
+        cursor: pointer; 
+        white-space: nowrap; 
+    }
+    .filter-form button { 
+        background-color: #007bff; 
+        color: white;
+         border: 1px solid #007bff; 
+    }
+    .filter-form a { 
+        background-color: #6c757d; 
+        color: white; 
+        border: 1px solid #6c757d; 
+        font-size: 14px; 
+        display:inline-flex; 
+        align-items:center; 
+        justify-content: center; 
     }
     
-    .export-button { background-color: #17a2b8;}
-    .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
-    .action-links { text-align: center; white-space: nowrap; }
-    .btn { display: inline-block; padding: 6px 10px; border-radius: 5px; text-decoration: none; color: white; font-size: 14px; margin: 0 2px; transition: transform 0.2s; }
-    .btn:hover { transform: scale(1.1); }
-    .btn-edit { background-color: #007bff; }
-    .btn-delete { background-color: #dc3545; }
-
-    .filter-form { margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 20px; }
-    .filter-form form { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-    .filter-form input, .filter-form select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
-    .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
-    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center; }
-    
-    .pagination-container { margin-top: 20px; display: flex; justify-content: center; }
-    .pagination { display: inline-flex; list-style-type: none; padding: 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .page-item .page-link { color: #007bff; padding: 10px 15px; text-decoration: none; transition: background-color .3s; border: 1px solid #ddd; margin: 0 -1px 0 0; display: block; }
-    .page-item:first-child .page-link { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-    .page-item:last-child .page-link { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-    .page-item.active .page-link { z-index: 1; color: #fff; background-color: #007bff; border-color: #007bff; }
-    .page-item .page-link:hover { background-color: #e9ecef; }
+    .pagination-container { 
+        margin-top: 20px; 
+        display: flex; 
+        justify-content: center; 
+    }
+    .pagination { 
+        display: inline-flex; 
+        list-style-type: none; 
+        padding: 0; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    .page-item .page-link { 
+        color: #007bff; 
+        padding: 10px 15px; 
+        text-decoration: none; 
+        transition: background-color .3s; 
+        border: 1px solid #ddd; 
+        margin: 0 -1px 0 0; 
+        display: block; 
+    }
+    .page-item:first-child .page-link { 
+        border-top-left-radius: 8px; 
+        border-bottom-left-radius: 8px; 
+    }
+    .page-item:last-child .page-link { 
+        border-top-right-radius: 8px; 
+        border-bottom-right-radius: 8px; 
+    }
+    .page-item.active .page-link { 
+        z-index: 1; 
+        color: #fff; 
+        background-color: #007bff; 
+        border-color: #007bff; 
+    }
+    .page-item .page-link:hover { 
+        background-color: #e9ecef; 
+    }
 
     /* Ganti semua style chart yang lama dengan ini */
     .chart-section {
@@ -84,9 +202,21 @@ Manajemen SIM-MONEVKUEP
     .chart-wrapper h4 {
         margin-bottom: 15px;
     }
-    .doughnut-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
-    .chart-canvas-container { position: relative; margin: auto; }
-    .doughnut-container .chart-canvas-container {width: 250px; height: 250px;}
+    .doughnut-container { 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        gap: 20px; 
+    }
+    .chart-canvas-container { 
+        position: relative; 
+        margin: auto; 
+    }
+    .doughnut-container .chart-canvas-container {
+        width: 250px; 
+        height: 250px;
+    }
     .bar-chart-container {
         width: 100%;
         height: 250px;
@@ -103,62 +233,41 @@ Manajemen SIM-MONEVKUEP
     gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
     }
     .chart-legend-container ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 15px; /* Jarak dari chart */
-
-    /* Menggunakan Flexbox untuk tata letak dinamis */
-    display: flex;
-    flex-wrap: wrap; /* Izinkan item turun ke baris baru */
-    justify-content: center; /* Pusatkan item */
-    gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
+        list-style-type: none;
+        padding: 0;
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap; /* Izinkan item turun ke baris baru */
+        justify-content: center; /* Pusatkan item */
+        gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
     }
-    .chart-legend-container li { cursor: pointer; display: flex; align-items: center; margin-bottom: 5px; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s; font-size: 13px; /* Ukuran font lebih kecil */
+    .chart-legend-container li { 
+        cursor: pointer; 
+        display: flex; 
+        align-items: center; 
+        margin-bottom: 5px; 
+        padding: 4px 8px; 
+        border-radius: 4px; 
+        transition: background-color 0.2s; 
+        font-size: 13px; /* Ukuran font lebih kecil */
         transition: opacity 0.2s;}
-    .chart-legend-container li:hover { background-color: #f1f1f1; opacity: 0.8;}
-    .legend-color-box { width: 12px;
+    .chart-legend-container li:hover { 
+        background-color: #f1f1f1; 
+        opacity: 0.8;
+    }
+    .legend-color-box { 
+        width: 12px;
         height: 12px;
         display: inline-block;
         margin-right: 8px;
         border-radius: 3px; }
 
-    #map { height: 500px; width: 100%; background-color: #f9f9f9; border: 1px solid #ccc; z-index: 1;}
-    @media (max-width: 768px) {
-        .visualization-section { grid-template-columns: 1fr; }
-        h1 { font-size: 22px; } h2 { font-size: 18px; }
-        table, .add-button, .export-button, .filter-form input, .filter-form select, .filter-form button, .filter-form a { font-size: 14px; }
-        /* === TAMBAHKAN ATURAN BARU DI SINI === */
-        .chart-container {
-            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
-            height: auto; /* Biarkan tinggi menyesuaikan konten */
-        }
-        .chart-canvas-container {
-            width: 100%; /* Lebar penuh */
-            height: 250px; /* Atur tinggi tetap untuk canvas */
-        }
-        .chart-legend-container {
-            margin-top: 20px; /* Beri jarak dari chart di atasnya */
-            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
-        }
-        .filter-form form { flex-direction: column; align-items: stretch; gap: 15px; }
-
-        .card-header{
-            flex-direction: column;
-            text-align: left;
-        }
-        .card-header .tombol {
-            flex-direction: column; /* Ubah arah item menjadi ke bawah */
-            align-items: stretch; /* Buat item meregang selebar card */
-            gap: 15px;
-        }
-        .card-header .tombol-aksi {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
-            gap: 10px;
-        }
-        .card-header .add-button {
-            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
-        }
+    #map { 
+        height: 500px; 
+        width: 100%; 
+        background-color: #f9f9f9; 
+        border: 1px solid #ccc; 
+        z-index: 1;
     }
     .legend {
         background: white;
@@ -185,6 +294,87 @@ Manajemen SIM-MONEVKUEP
         padding: 8px;
         font-size: 14px;
     }
+
+    @media (max-width: 768px) {
+        #map{
+            height: 300px
+        }
+        .visualization-section .map-card-body {
+            min-height: 300px;
+        }
+        .card-body{
+            padding: 0px;
+        }
+        .legend.leaflet-control{
+            display: none;
+        }
+
+        .visualization-section { 
+            grid-template-columns: 1fr; 
+            margin-bottom: 50px;
+        }
+        h1 { 
+            font-size: 22px; 
+        } 
+        h2 { 
+            font-size: 18px; 
+        }
+        .cari{
+            justify-content: space-between;
+        }
+        .button-cari{
+            justify-content: right;
+        }
+        .tombol{
+            margin: 10px 0px;
+        }  
+        .tombol, .tombol-aksi{
+            display: flex;
+            gap: 20px;
+        }   
+        table, .add-button, .export-button, .filter-form input, .filter-form select, .filter-form button, .filter-form a { 
+            font-size: 14px; 
+        }
+        /* === TAMBAHKAN ATURAN BARU DI SINI === */
+        .chart-container {
+            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
+            height: auto; /* Biarkan tinggi menyesuaikan konten */
+        }
+        .chart-canvas-container {
+            width: 100%; /* Lebar penuh */
+            height: 250px; /* Atur tinggi tetap untuk canvas */
+        }
+        .chart-legend-container {
+            margin-top: 20px; /* Beri jarak dari chart di atasnya */
+            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
+        }
+        .filter-form form { 
+            flex-direction: column; 
+            align-items: stretch; 
+            gap: 15px; 
+        }
+
+        .card-header{
+            gap: 15px;
+            flex-direction: column;
+            text-align: left;
+            padding: 20px 0px;
+        }
+        .card-header .tombol {
+            flex-direction: column; /* Ubah arah item menjadi ke bawah */
+            align-items: stretch; /* Buat item meregang selebar card */
+            gap: 15px;
+        }
+        .card-header .tombol-aksi {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
+            gap: 10px;
+        }
+        .card-header .add-button {
+            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
+        }
+    }
+
 </style>
 <?= $this->endSection() ?>
 
@@ -248,16 +438,6 @@ Manajemen SIM-MONEVKUEP
     <div class="card">
         <div class="card-header">
             <span>Data MONEVKUEP</span>
-            <div class="tombol">
-                <div class="tombol-aksi">
-                    <a href="<?= site_url('admin/monevkuep/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
-                    <a href="<?= site_url('admin/monevkuep/export') ?>" class="export-button">Export Excel</a>
-                </div>
-                <a href="<?= site_url('admin/monevkuep/input') ?>" class="add-button">Tambah Data</a>
-            </div>
-        </div>
-        <div class="card-body">
-            
             <?php if ($message): ?>
                 <div class="flash-message"><?= esc($message) ?></div>
             <?php endif; ?>
@@ -265,29 +445,42 @@ Manajemen SIM-MONEVKUEP
             <div class="filter-form">
                 <form action="<?= site_url('admin/monevkuep') ?>" method="get">
                     <input type="text" name="keyword" placeholder="Cari NIK, Nama, Wilayah..." value="<?= esc($filters['keyword'] ?? '') ?>">
-                    
-                    <select name="dtks">
-                        <option value="">-- DTKS --</option>
-                        <option value="Ya"     <?= (isset($filters['dtks']) && $filters['dtks']==='Ya') ? 'selected' : '' ?>>Ya</option>
-                        <option value="Tidak"  <?= (isset($filters['dtks']) && $filters['dtks']==='Tidak') ? 'selected' : '' ?>>Tidak</option>
-                    </select>
-
-                    <select name="sktm">
-                        <option value="">-- SKTM --</option>
-                        <option value="Ada"        <?= (isset($filters['sktm']) && $filters['sktm']==='Ada') ? 'selected' : '' ?>>Ada</option>
-                        <option value="Tidak Ada"  <?= (isset($filters['sktm']) && $filters['sktm']==='Tidak Ada') ? 'selected' : '' ?>>Tidak Ada</option>
-                    </select>
-
-                    <select name="jk">
-                        <option value="">-- Jenis Kelamin --</option>
-                        <option value="Laki-laki" <?= (isset($filters['jk']) && $filters['jk']==='Laki-laki') ? 'selected' : '' ?>>Laki-laki</option>
-                        <option value="Perempuan" <?= (isset($filters['jk']) && $filters['jk']==='Perempuan') ? 'selected' : '' ?>>Perempuan</option>
-                    </select>
-
-                    <button type="submit">Cari</button>
-                    <a href="<?= site_url('admin/monevkuep') ?>">Reset</a>
+                    <div class="cari">
+                        <select name="dtks">
+                            <option value="">DTKS</option>
+                            <option value="Ya"     <?= (isset($filters['dtks']) && $filters['dtks']==='Ya') ? 'selected' : '' ?>>Ya</option>
+                            <option value="Tidak"  <?= (isset($filters['dtks']) && $filters['dtks']==='Tidak') ? 'selected' : '' ?>>Tidak</option>
+                        </select>
+    
+                        <select name="sktm">
+                            <option value="">SKTM</option>
+                            <option value="Ada"        <?= (isset($filters['sktm']) && $filters['sktm']==='Ada') ? 'selected' : '' ?>>Ada</option>
+                            <option value="Tidak Ada"  <?= (isset($filters['sktm']) && $filters['sktm']==='Tidak Ada') ? 'selected' : '' ?>>Tidak Ada</option>
+                        </select>
+    
+                        <select name="jk">
+                            <option value="">Jenis Kelamin</option>
+                            <option value="Laki-laki" <?= (isset($filters['jk']) && $filters['jk']==='Laki-laki') ? 'selected' : '' ?>>Laki-laki</option>
+                            <option value="Perempuan" <?= (isset($filters['jk']) && $filters['jk']==='Perempuan') ? 'selected' : '' ?>>Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="button-cari">
+                        <a href="<?= site_url('admin/monevkuep') ?>">Reset</a>
+                        <button type="submit">Cari</button>
+                    </div>
                 </form>
             </div>
+        </div>
+        <div class="card-body">
+            <div class="tombol">
+                <div class="tombol-aksi">
+                    <a href="<?= site_url('admin/monevkuep/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
+                    <a href="<?= site_url('admin/monevkuep/export') ?>" class="export-button">Export Excel</a>
+                </div>
+                <a href="<?= site_url('admin/monevkuep/input') ?>" class="add-button">Tambah Data</a>
+            </div>
+            
+            
             
             <div style="overflow-x:auto;">
                 <table>

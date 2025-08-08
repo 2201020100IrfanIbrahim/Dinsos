@@ -7,12 +7,29 @@ Manajemen SIM-BANKEL
 <?= $this->section('page_styles') ?>
 <style>
     /* CSS yang spesifik untuk halaman ini saja */
-    .card { background-color: #fff; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.05); margin-bottom: 30px; overflow: hidden; }
-    .card-header { padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #dee2e6; font-weight: 600; display: flex; justify-content: space-between; 
-        /* align-items: center;  */
+    .card { 
+        background-color: #fff; 
+        border-radius: 8px; 
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+        margin-bottom: 30px; 
+        overflow: hidden; 
     }
-    .card-body { padding: 20px; }
-    .visualization-section {display: grid; grid-template-columns: 1fr; /* Hanya 1 kolom */gap: 30px;}
+    .card-header { 
+        padding: 15px 0px; 
+        background-color: #f8f9fa; 
+        border-bottom: 1px solid #dee2e6; 
+        font-weight: 600; 
+        display: flex; 
+        justify-content: space-between;
+    }
+    .card-body { 
+        padding: 20px 0px; 
+    }
+    .visualization-section {
+        display: grid; 
+        grid-template-columns: 1fr; /* Hanya 1 kolom */
+        gap: 30px;
+    }
     .visualization-section .chart-container {
         min-height: 200px;
         display: flex;
@@ -20,16 +37,28 @@ Manajemen SIM-BANKEL
         align-items: center;
         color: #999;
     }
-
     /* Aturan baru untuk card body peta (tanpa flexbox) */
     .visualization-section .map-card-body {
         padding: 0; /* Memberi ruang di sekitar kontrol dan peta */
         min-height: 450px; /* Biarkan tingginya otomatis */
     }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #dee2e6; padding: 12px; text-align: left; vertical-align: middle; padding-right: 30px}
-    thead th { background-color: #e9ecef; }
-    tbody tr:hover { background-color: #f1f1f1; }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+    }
+    th, td { 
+        border-bottom: 1px solid #dee2e6; 
+        padding: 12px; 
+        text-align: left; 
+        vertical-align: middle; 
+        padding-right: 30px
+    }
+    thead th { 
+        background-color: #e9ecef; 
+    }
+    tbody tr:hover { 
+        background-color: #f1f1f1; 
+    }
     .add-button, .export-button { 
         display: inline-block; 
         padding: 8px 12px; 
@@ -42,42 +71,123 @@ Manajemen SIM-BANKEL
         text-align: center;
         justify-content: center;
     }
-
+    .tahun, .button-cari{
+        display: flex;
+        gap: 10px;
+    }
     .tombol{
         display: flex;
         text-align: center;
-        justify-content: center;
-        gap: 20px;
+        justify-content: space-between;
+        margin-bottom: 20px;
     }
-    .tombol-aksi{
-
+    .export-button { 
+        background-color: #17a2b8;
     }
-    .export-button { background-color: #17a2b8;}
-    .flash-message { padding: 15px; background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; border-radius: 4px; margin-bottom: 20px;}
-    .action-links { text-align: center; white-space: nowrap; }
-    .btn { display: inline-block; padding: 6px 10px; border-radius: 5px; text-decoration: none; color: white; font-size: 14px; margin: 0 2px; transition: transform 0.2s; }
-    .btn:hover { transform: scale(1.1); }
-    .btn-edit { background-color: #007bff; }
-    .btn-delete { background-color: #dc3545; }
+    .flash-message { 
+        padding: 15px; 
+        background-color: #d4edda; 
+        color: #155724; 
+        border: 1px solid #c3e6cb; 
+        border-radius: 4px; 
+        margin-bottom: 20px;
+    }
+    .action-links { 
+        text-align: center; 
+        white-space: nowrap; 
+    }
+    .btn { 
+        display: inline-block; 
+        padding: 6px 10px; 
+        border-radius: 5px; 
+        text-decoration: none; 
+        color: white; 
+        font-size: 14px; 
+        margin: 0 2px; 
+        transition: transform 0.2s; 
+    }
+    .btn:hover { 
+        transform: scale(1.1); 
+    }
+    .btn-edit { 
+        background-color: #007bff; 
+    }
+    .btn-delete { 
+        background-color: #dc3545; 
+    }
 
-    .filter-form { margin-bottom: 20px; border-bottom: 1px solid #e9ecef; padding-bottom: 20px; }
-    .filter-form form { display: flex; gap: 10px; align-items: center; }
-    .filter-form input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-    .filter-form button, .filter-form a { padding: 8px 15px; border-radius: 4px; text-decoration: none; cursor: pointer; white-space: nowrap; }
-    .filter-form button { background-color: #007bff; color: white; border: 1px solid #007bff; }
-    .filter-form a { background-color: #6c757d; color: white; border: 1px solid #6c757d; font-size: 14px; display:inline-flex; align-items:center; justify-content: center; }
+    .filter-form { 
+        border-bottom: 1px solid #e9ecef; 
+    }
+    .filter-form form { 
+        display: flex; 
+        gap: 10px; 
+        align-items: center; 
+    }
+    .filter-form input { 
+        padding: 8px; 
+        border: 1px solid #ccc; 
+        border-radius: 4px; 
+    }
+    .filter-form button, .filter-form a { 
+        padding: 8px 15px; 
+        border-radius: 4px; 
+        text-decoration: none; 
+        cursor: pointer; white-space: nowrap; 
+    }
+    .filter-form button { 
+        background-color: #007bff; 
+        color: white; 
+        border: 1px solid #007bff; 
+    }
+    .filter-form a { 
+        background-color: #6c757d; 
+        color: white; 
+        border: 1px solid #6c757d; 
+        font-size: 14px; 
+        display:inline-flex; 
+        align-items:center; 
+        justify-content: center; 
+    }    
+    .pagination-container { 
+        margin-top: 20px; 
+        display: flex; 
+        justify-content: center; 
+    }
+    .pagination { 
+        display: inline-flex; 
+        list-style-type: none; 
+        padding: 0; 
+        border-radius: 8px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    .page-item .page-link { 
+        color: #007bff; 
+        padding: 10px 15px; 
+        text-decoration: none; 
+        transition: background-color .3s; 
+        border: 1px solid #ddd; 
+        margin: 0 -1px 0 0; 
+        display: block; 
+    }
+    .page-item:first-child .page-link { 
+        border-top-left-radius: 8px; 
+        border-bottom-left-radius: 8px; 
+    }
+    .page-item:last-child .page-link { 
+        border-top-right-radius: 8px; 
+        border-bottom-right-radius: 8px; 
+    }
+    .page-item.active .page-link { 
+        z-index: 1; color: #fff; 
+        background-color: #007bff; 
+        border-color: #007bff; 
+    }
+    .page-item .page-link:hover { 
+        background-color: #e9ecef; 
+    }
     
-    .pagination-container { margin-top: 20px; display: flex; justify-content: center; }
-    .pagination { display: inline-flex; list-style-type: none; padding: 0; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .page-item .page-link { color: #007bff; padding: 10px 15px; text-decoration: none; transition: background-color .3s; border: 1px solid #ddd; margin: 0 -1px 0 0; display: block; }
-    .page-item:first-child .page-link { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
-    .page-item:last-child .page-link { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
-    .page-item.active .page-link { z-index: 1; color: #fff; background-color: #007bff; border-color: #007bff; }
-    .page-item .page-link:hover { background-color: #e9ecef; }
-    
-
-    /* Tambahkan di dalam <style> */
-/* Ganti semua style chart yang lama dengan ini */
+    /* Ganti semua style chart yang lama dengan ini */
     .chart-section {
         display: flex;
         flex-wrap: wrap;
@@ -113,16 +223,22 @@ Manajemen SIM-BANKEL
         height: 250px;
     }
 
+    #map {
+        height: 500px; /* default untuk desktop */
+        width: 100%;
+        background-color: #f9f9f9;
+        border: 1px solid #ccc;
+        z-index: 1;
+    }
+
     .chart-legend-container ul {
-    list-style-type: none;
-    padding: 0;
-    margin-top: 15px; /* Jarak dari chart */
-    
-    /* Menggunakan Flexbox untuk tata letak dinamis */
-    display: flex;
-    flex-wrap: wrap; /* Izinkan item turun ke baris baru */
-    justify-content: center; /* Pusatkan item */
-    gap: 10px 20px; /* Jarak vertikal dan horizontal antar item */
+        list-style-type: none;
+        padding: 0;
+        margin-top: 15px;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px 20px;
     }
 
     .chart-legend-container li {
@@ -143,70 +259,6 @@ Manajemen SIM-BANKEL
         display: inline-block;
         margin-right: 8px;
         border-radius: 3px;
-    }
-
-    /* ============================================= */
-    /* STYLE UNTUK TAMPILAN HP            */
-    /* ============================================= */
-
-    #map {
-            height: 500px; /* default untuk desktop */
-            width: 100%;
-            background-color: #f9f9f9;
-            border: 1px solid #ccc;
-            z-index: 1;
-        }
-
-    @media (max-width: 768px) {
-        /* 1. Mengubah layout visualisasi menjadi atas-bawah */
-        .visualization-section {
-            grid-template-columns: 1fr; /* Mengubah dari 2 kolom menjadi 1 kolom */
-        }
-
-        /* 2. Menyesuaikan ukuran font */
-        h1 { font-size: 22px; }
-        h2 { font-size: 18px; }
-        table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
-            font-size: 14px; /* Sedikit mengecilkan font di tabel dan tombol */
-        }
-        
-        /* === TAMBAHKAN ATURAN BARU DI SINI === */
-        .chart-container {
-            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
-            height: auto; /* Biarkan tinggi menyesuaikan konten */
-        }
-        .chart-canvas-container {
-            width: 100%; /* Lebar penuh */
-            height: 250px; /* Atur tinggi tetap untuk canvas */
-        }
-        .chart-legend-container {
-            margin-top: 20px; /* Beri jarak dari chart di atasnya */
-            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
-        }
-        /* 3. Membuat form filter menjadi responsif */
-        .filter-form form {
-            flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
-            align-items: stretch;   /* Membuat semua item selebar kontainer */
-            gap: 15px;
-        }
-
-        .card-header{
-            flex-direction: column;
-            text-align: left;
-        }
-        .card-header .tombol {
-            flex-direction: column; /* Ubah arah item menjadi ke bawah */
-            align-items: stretch; /* Buat item meregang selebar card */
-            gap: 15px;
-        }
-        .card-header .tombol-aksi {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
-            gap: 10px;
-        }
-        .card-header .add-button {
-            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
-        }
     }
     .legend {
         background: white;
@@ -233,8 +285,91 @@ Manajemen SIM-BANKEL
         padding: 8px;
         font-size: 14px;
     }
-    
+
+    /* ============================================= */
+    /* STYLE UNTUK TAMPILAN HP                       */
+    /* ============================================= */
+    @media (max-width: 768px) {
+        /* 1. Mengubah layout visualisasi menjadi atas-bawah */
+        #map{
+            height: 300px
+        }
+        .visualization-section .map-card-body {
+            min-height: 300px;
+        }
+        .card-body{
+            padding: 0px;
+        }
+        .legend.leaflet-control{
+            display: none;
+        }
+        .visualization-section {
+            grid-template-columns: 1fr;
+            margin-bottom: 50px;
+        }   
+        .tombol{
+            margin: 10px 0px;
+        }  
+        .tombol, .tombol-aksi{
+            display: flex;
+            gap: 20px;
+        }   
+        .tahun{
+            justify-content: space-between;
+        }
+        /* 2. Menyesuaikan ukuran font */
+        h1 { font-size: 22px; }
+        h2 { font-size: 18px; }
+        table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
+            font-size: 14px;
+        }
+        /* === TAMBAHKAN ATURAN BARU DI SINI === */
+        .chart-container {
+            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
+            height: auto; /* Biarkan tinggi menyesuaikan konten */
+        }
+        .chart-canvas-container {
+            width: 100%; /* Lebar penuh */
+            height: 250px; /* Atur tinggi tetap untuk canvas */
+        }
+        .chart-legend-container {
+            margin-top: 20px; /* Beri jarak dari chart di atasnya */
+            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
+        }
+
+        .chart-section, .doughnut-container {
+            flex-direction: column; /* Mengubah susunan dari horizontal ke vertikal */
+            align-items: center;    /* (Opsional) Menengahkan chart dan legenda */
+        }
+        /* 3. Membuat form filter menjadi responsif */
+        .filter-form form {
+            flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
+            align-items: stretch;   /* Membuat semua item selebar kontainer */
+            gap: 15px;
+        }
+
+        .card-header{
+            gap: 15px;
+            flex-direction: column;
+            text-align: left;
+            padding: 20px 0px;
+        }
+        .card-header .tombol {
+            flex-direction: column; /* Ubah arah item menjadi ke bawah */
+            align-items: stretch; /* Buat item meregang selebar card */
+            gap: 15px;
+        }
+        .card-header .tombol-aksi {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
+            gap: 10px;
+        }
+        .card-header .add-button {
+            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
+        }
+    } 
 </style>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -259,6 +394,11 @@ Manajemen SIM-BANKEL
                         <select id="wilayah">
                             <option value="tanjungpinang">Tanjung Pinang</option>
                             <option value="batam">Batam</option>
+                            <option value="karimun">karimun</option>
+                            <option value="lingga">lingga</option>
+                            <option value="anambas">anambas</option>
+                            <option value="natuna">natuna</option>
+                            <option value="bintan">bintan</option>
                             </select>
                     </div>
                 <?php else: ?>
@@ -298,6 +438,25 @@ Manajemen SIM-BANKEL
     <div class="card">
         <div class="card-header">
             <span>Data Bantuan Sembako</span>
+
+            <?php if ($message): ?>
+            <div class="flash-message"><?= esc($message) ?></div>
+            <?php endif; ?>
+            
+            <div class="filter-form">
+                <form action="<?= site_url('admin/bankel') ?>" method="get">
+                    <input type="text" name="keyword" placeholder="Cari NIK, Nama, Wilayah..." value="<?= esc($filters['keyword'] ?? '') ?>">
+                    <div class="tahun">
+                        <input type="number" name="tahun" placeholder="Tahun" value="<?= esc($filters['tahun'] ?? '') ?>" style="width: 100px;">
+                        <div class="button-cari">
+                            <button type="submit">Cari</button>
+                            <a href="<?= site_url('admin/bankel') ?>">Reset</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="card-body">
             <div class="tombol">
                 <div class="tombol-aksi">
                     <a href="<?= site_url('admin/bankel/import') ?>" class="export-button" style="background-color: #28a745;">Import Data</a>
@@ -305,21 +464,8 @@ Manajemen SIM-BANKEL
                 </div>
                 <a href="<?= site_url('admin/bankel/input') ?>" class="add-button">Tambah Data</a>
             </div>
-        </div>
-        <div class="card-body">
             
-            <?php if ($message): ?>
-                <div class="flash-message"><?= esc($message) ?></div>
-            <?php endif; ?>
-            
-            <div class="filter-form">
-                <form action="<?= site_url('admin/bankel') ?>" method="get">
-                    <input type="text" name="keyword" placeholder="Cari NIK, Nama, Wilayah..." value="<?= esc($filters['keyword'] ?? '') ?>">
-                    <input type="number" name="tahun" placeholder="Tahun" value="<?= esc($filters['tahun'] ?? '') ?>" style="width: 100px;">
-                    <button type="submit">Cari</button>
-                    <a href="<?= site_url('admin/bankel') ?>">Reset</a>
-                </form>
-            </div>
+
             
             <div style="overflow-x:auto;">
                 <table>

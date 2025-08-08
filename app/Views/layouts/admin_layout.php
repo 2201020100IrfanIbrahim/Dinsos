@@ -189,6 +189,11 @@
             .sidebar.open {
                 transform: translateX(0);
             }
+
+            .main-header {
+                display: flex;
+                justify-content: space-between;
+            }
             .main-area {
                 width: 100%;
             }
@@ -210,6 +215,16 @@
             }
             .user-info .wilayah {
                 display: none; /* Sembunyikan tulisan wilayah di header */
+            }
+
+            /* .header-user{
+                display: flex;
+                flex-direction: column-reverse;
+                gap: 0px;
+            } */
+            
+            img[alt="Avatar"]{
+                display: none;
             }
             /* === BATAS ATURAN BARU === */
         }
@@ -245,11 +260,11 @@
 
         <main class="main-content">
             <header class="main-header">
+                <button class="hamburger-menu" id="hamburgerMenu">&#9776;</button>
                 <a href="<?= site_url('dashboard') ?>" class="header-logo-link">
                     <div class="header-logo">
-                        <button class="hamburger-menu" id="hamburgerMenu">&#9776;</button>
                         <img src="<?= base_url('assets/images/logo-pemprov.png') ?>" alt="Logo Pemprov">
-                        <img src="<?= base_url('assets/images/logo-dinsos.png') ?>" alt="Logo Dinsos">
+                        <img src="<?= base_url('assets/images/logo-kemensos.png') ?>" alt="Logo Dinsos">
                         <div class="header-title">
                             <h1>SPBS-D Kepri</h1>
                             <p>Sistem Pengelolaan Bantuan Sosial & Difabel</p>

@@ -57,6 +57,9 @@ Import Data dari Excel
 
 <?= $this->section('content') ?>
 <div class="card">
+    <div class="back">
+            <a href="<?= site_url('admin/difabelkepri') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali ke Dashboard</a>
+        </div>
     <div class="card-header">
         <h3>Import Data Difabel dari Excel</h3>
     </div>

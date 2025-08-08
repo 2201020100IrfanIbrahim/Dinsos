@@ -39,9 +39,18 @@ Manajemen Jenis Disabilitas
         border-bottom: none;
     }
     .action-links { white-space: nowrap; }
-    .btn { display: inline-block; padding: 4px 8px; border-radius: 5px; text-decoration: none; color: white; font-size: 12px; margin: 0 2px; }
+    .btn { display: inline-block; padding: 8px; border-radius: 5px; text-decoration: none; color: white; font-size: 12px; margin: 0 2px; }
     .btn-edit { background-color: #007bff; }
     .btn-delete { background-color: #dc3545; }
+
+    @media (max-width: 992px) {
+        .card-header{
+            gap:5px;
+        }
+        .back-button{
+            
+        }
+    }
 </style>
 <?= $this->endSection() ?>
 
