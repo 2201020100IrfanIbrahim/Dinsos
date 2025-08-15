@@ -294,6 +294,10 @@ Manajemen SIM-MONEVKUEP
         padding: 8px;
         font-size: 14px;
     }
+    #dynamicChart{
+        width: 100% !important;
+        height: 400px !important;
+    }
 
     @media (max-width: 768px) {
         #map{
@@ -426,10 +430,16 @@ Manajemen SIM-MONEVKUEP
                     </div>
                 </div>
                 <div class="chart-wrapper">
-                    <h4>Analisis per Tahun</h4>
-                    <div class="chart-canvas-container bar-chart-container">
-                        <canvas id="tahunChart"></canvas>
-                    </div>
+                    <h4>Analisis per Kategori</h4>
+                    <select id="chartSelector" class="form-select mb-3">
+                        <option value="tahun">Analisis per Tahun</option>
+                        <option value="jk">Analisis Jenis Kelamin</option>
+                        <option value="dtks">Analisis DTKS</option>
+                        <option value="agama">Analisis Agama</option>
+                        <option value="pendidikan">Analisis Pendidikan</option>
+                        <option value="usaha">Analisis Jenis Usaha</option>
+                    </select>
+                    <canvas id="dynamicChart"></canvas>
                 </div>
             </div>
         </div>
@@ -549,6 +559,8 @@ Manajemen SIM-MONEVKUEP
     </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 <script>
     // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
     const ctxTahun = document.getElementById('tahunChart');
@@ -593,6 +605,90 @@ Manajemen SIM-MONEVKUEP
                 });
             });
     }
+
+    // --- SCRIPT UNTUK GRAFIK MIX ---
+        document.addEventListener("DOMContentLoaded", function () {
+        const chartCanvas = document.getElementById("dynamicChart");
+        let chartInstance = null;
+
+        function renderChart(url, type, label) {
+            fetch(url)
+                .then(res => res.json())
+                .then(data => {
+                    if (!data || data.length === 0) return;
+
+                    const labels = data.map(item => Object.values(item)[0]); // kolom pertama
+                    const values = data.map(item => Number(Object.values(item)[1])); // kolom kedua
+
+                    const dynamicColors = labels.map(() => `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 0.8)`);
+
+                    if (chartInstance) {
+                        chartInstance.destroy();
+                    }
+
+                    chartInstance = new Chart(chartCanvas, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: label,
+                                data: values,
+                                backgroundColor: dynamicColors,
+                                borderColor: dynamicColors.map(c => c.replace('0.8', '1')),
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        stepSize: 1 // supaya angka naik per 1
+                                    }
+                                }
+                            },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+
+        // Event dropdown
+        document.getElementById("chartSelector").addEventListener("change", function () {
+            const val = this.value;
+            switch (val) {
+                case "tahun":
+                    renderChart("/monevkuep/chart-data-by-year", "bar", "Jumlah per Tahun");
+                    break;
+                case "jk":
+                    renderChart("/monevkuep/chart-data-by-gender", "pie", "Distribusi Jenis Kelamin");
+                    break;
+                case "dtks":
+                    renderChart("/monevkuep/chart-data-by-dtks", "doughnut", "Distribusi DTKS");
+                    break;
+                case "agama":
+                    renderChart("/monevkuep/chart-data-by-agama", "pie", "Distribusi Agama");
+                    break;
+                case "pendidikan":
+                    renderChart("/monevkuep/chart-data-by-pendidikan", "bar", "Distribusi Pendidikan");
+                    break;
+                case "usaha":
+                    renderChart("/monevkuep/chart-data-by-jenis-usaha", "bar", "Distribusi Jenis Usaha");
+                    break;
+            }
+        });
+
+        // Load default chart saat pertama kali
+        renderChart("/monevkuep/chart-data-by-year", "bar", "Jumlah per Tahun");
+    });
+
+
     const tombolHapus = document.querySelectorAll('.tombol-hapus');
     tombolHapus.forEach(tombol => {
         tombol.addEventListener('click', function(event) {

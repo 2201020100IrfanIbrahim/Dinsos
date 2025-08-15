@@ -152,4 +152,82 @@ class MonevkuepModel extends Model
 
         return $builder->get()->getResultArray();
     }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    //-------------------------------- VISUALIASI DATA NEW ----------------------------------//
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    // 1. Analisis per Tahun
+    public function getChartDataByYear($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('YEAR(created_at) as tahun, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('tahun');
+        $builder->orderBy('tahun', 'ASC');
+        return $builder->get()->getResultArray();
+    }
+
+    // 3. Analisis per Jenis Kelamin
+    public function getChartDataByGender($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('jenis_kelamin, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('jenis_kelamin');
+        return $builder->get()->getResultArray();
+    }
+
+    // 4. Analisis DTKS
+    public function getChartDataByDTKS($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('dtks, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('dtks');
+        return $builder->get()->getResultArray();
+    }
+
+    // 5. Analisis Agama
+    public function getChartDataByAgama($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('agama, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('agama');
+        return $builder->get()->getResultArray();
+    }
+
+    // 6. Analisis Pendidikan
+    public function getChartDataByPendidikan($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('pendidikan, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('pendidikan');
+        return $builder->get()->getResultArray();
+    }
+
+    // 7. Analisis Jenis Usaha
+    public function getChartDataByJenisUsaha($id_kabupaten = false)
+    {
+        $builder = $this->db->table($this->table);
+        $builder->select('jenis_usaha, COUNT(id) as jumlah');
+        if ($id_kabupaten !== false) {
+            $builder->where('id_kabupaten', $id_kabupaten);
+        }
+        $builder->groupBy('jenis_usaha');
+        return $builder->get()->getResultArray();
+    }
+
 }

@@ -32,6 +32,17 @@ $routes->get('peta/geojson_kuep/(:any)/(:any)', 'Peta::geojson_kuep/$1/$2');
 $routes->get('admin/bankel/printAll', 'BankelController::printAll'); // Memproses file
 $routes->get('admin/monevkuep/printAll', 'MonevkuepController::printAll'); // Memproses file
 
+// CHART KUEP
+    // Chart endpoints MONEVKUEP
+    $routes->group('monevkuep', ['namespace' => 'App\Controllers'], function($routes) {
+        $routes->get('chart-data-by-year', 'MonevkuepController::getChartDataByYear');
+        $routes->get('chart-data-by-gender', 'MonevkuepController::getChartDataByGender');
+        $routes->get('chart-data-by-dtks', 'MonevkuepController::getChartDataByDTKS');
+        $routes->get('chart-data-by-agama', 'MonevkuepController::getChartDataByAgama');
+        $routes->get('chart-data-by-pendidikan', 'MonevkuepController::getChartDataByPendidikan');
+        $routes->get('chart-data-by-jenis-usaha', 'MonevkuepController::getChartDataByJenisUsaha');
+    });
+
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
     // Rute untuk menampilkan daftar data (halaman utama)
@@ -86,7 +97,6 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Di dalam group('admin', ...)
     $routes->get('monevkuep/import', 'MonevkuepController::import'); // Menampilkan form
     $routes->post('monevkuep/process-import', 'MonevkuepController::processImport'); // Memproses file
-    
     //============================DIFABELKEPRI=============================//
     $routes->get('difabelkepri', 'DifabelkepriController::index');
     // Rute untuk menampilkan form tambah data baru
