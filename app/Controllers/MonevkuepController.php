@@ -7,9 +7,6 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MonevkuepController extends BaseController
 {
-    /**
-     * Menampilkan halaman utama SIM-MONEVKUEP (tabel data).
-     */
     public function index()
     {
         $monevModel = new \App\Models\MonevkuepModel();
@@ -24,6 +21,7 @@ class MonevkuepController extends BaseController
             'dtks'    => $this->request->getGet('dtks'),   // Ya/Tidak
             'sktm'    => $this->request->getGet('sktm'),   // Ada/Tidak Ada
             'jk'      => $this->request->getGet('jk'),     // Laki-laki/Perempuan
+            'id_kabupaten' => $this->request->getGet('id_kabupaten')
         ];
 
         // --- PAGINATION STYLE (mirip Bankel) ---
@@ -61,8 +59,13 @@ class MonevkuepController extends BaseController
         }
 
         // Filter wilayah untuk admin
-        
-        if ($role === 'admin') {
+        if ($role === 'superadmin') {
+            if (!empty($filters['id_kabupaten'])) {
+                // Jika superadmin memilih wilayah, filter berdasarkan pilihannya
+                $query->where('monevkuep_penerima.id_kabupaten', $filters['id_kabupaten']);
+            }
+            // Jika tidak, biarkan kosong (tampilkan semua)
+        }else{
             $query->where('monevkuep_penerima.id_kabupaten', $id_kabupaten_admin);
         }
 
@@ -99,6 +102,7 @@ class MonevkuepController extends BaseController
             'message' => session()->getFlashdata('message'),
             'title'   => $page_title,
             'filters' => $filters,
+            'kabupaten_list' => $kabupatenModel->findAll(),
             'breadcrumbs' => [
                 ['title' => 'Beranda', 'url' => '/dashboard'],
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],

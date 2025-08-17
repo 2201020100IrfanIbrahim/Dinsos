@@ -115,6 +115,11 @@ Manajemen SIM-BANKEL
     .btn-delete { 
         background-color: #dc3545; 
     }
+    .btn-info {
+        font-family: 'Inter', sans-serif;
+        color: #333333; 
+        font-size:16px; 
+    }
 
     .filter-form { 
         border-bottom: 1px solid #e9ecef; 
@@ -392,14 +397,14 @@ Manajemen SIM-BANKEL
                     <div>
                         <label for="wilayah">Wilayah:</label>
                         <select id="wilayah">
-                            <option value="tanjungpinang">Tanjung Pinang</option>
+                            <option value="tanjungpinang">TanjungPinang</option>
                             <option value="batam">Batam</option>
-                            <option value="karimun">karimun</option>
-                            <option value="lingga">lingga</option>
-                            <option value="anambas">anambas</option>
-                            <option value="natuna">natuna</option>
-                            <option value="bintan">bintan</option>
-                            </select>
+                            <option value="karimun">Karimun</option>
+                            <option value="lingga">Lingga</option>
+                            <option value="anambas">Anambas</option>
+                            <option value="natuna">Natuna</option>
+                            <option value="bintan">Bintan</option>
+                        </select>
                     </div>
                 <?php else: ?>
                     <input type="hidden" id="wilayah" value="<?= esc($nama_kabupaten_slug) ?>">
@@ -435,24 +440,33 @@ Manajemen SIM-BANKEL
         </div>
     </div>
 
+    <?php if ($message): ?>
+    <div class="flash-message"><?= esc($message) ?></div>
+    <?php endif; ?>
+
     <div class="card">
         <div class="card-header">
             <span>Data Bantuan Sembako</span>
 
-            <?php if ($message): ?>
-            <div class="flash-message"><?= esc($message) ?></div>
-            <?php endif; ?>
             
             <div class="filter-form">
                 <form action="<?= site_url('admin/bankel') ?>" method="get">
-                    <input type="text" name="keyword" placeholder="Cari NIK, Nama, Wilayah..." value="<?= esc($filters['keyword'] ?? '') ?>">
-                    <div class="tahun">
-                        <input type="number" name="tahun" placeholder="Tahun" value="<?= esc($filters['tahun'] ?? '') ?>" style="width: 100px;">
-                        <div class="button-cari">
-                            <button type="submit">Cari</button>
-                            <a href="<?= site_url('admin/bankel') ?>">Reset</a>
-                        </div>
-                    </div>
+                    <input type="text" name="keyword" placeholder="Cari NIK, Nama..." value="<?= esc($filters['keyword'] ?? '') ?>">
+                    <input type="number" name="tahun" placeholder="Tahun" value="<?= esc($filters['tahun'] ?? '') ?>">
+
+                    <?php if ($role === 'superadmin'): ?>
+                        <select name="id_kabupaten" id="filter_kabupaten" onchange="this.form.submit()">
+                            <option value="">Semua Wilayah</option>
+                            <?php foreach ($kabupaten_list as $kab): ?>
+                                <option value="<?= $kab['id'] ?>" <?= ($filters['id_kabupaten'] ?? '') == $kab['id'] ? 'selected' : '' ?>>
+                                    <?= esc($kab['nama_kabupaten']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    <?php endif; ?>
+
+                    <button type="submit">Cari</button>
+                    <a href="<?= site_url('admin/bankel') ?>">Reset</a>
                 </form>
             </div>
         </div>
@@ -475,6 +489,8 @@ Manajemen SIM-BANKEL
                             <th>No</th>
                             <th>NIK</th>
                             <th>Nama</th>
+                            <?php if (session()->get('role') === 'superadmin'): ?>
+                                <th>Kabupaten/Kota</th> <?php endif; ?>
                             <th>Kecamatan</th>
                             <th>Kelurahan</th>            
                             <th>RT</th>
@@ -482,6 +498,8 @@ Manajemen SIM-BANKEL
                             <th>Jenis Bantuan</th>
                             <th>Tahun</th>
                             <th>Diinput Pada</th>
+                            <th>KTP</th>
+                            <th>KK</th>
                             <th>Gambar</th>
                             <th>Koordinat</th>
                         </tr>
@@ -497,6 +515,8 @@ Manajemen SIM-BANKEL
                                     <td><?= $pager->getDetails('bantuan')['currentPage'] > 1 ? ($pager->getDetails('bantuan')['perPage'] * ($pager->getDetails('bantuan')['currentPage'] - 1)) + $index + 1 : $index + 1 ?></td>
                                     <td><?= esc($item['nik']) ?></td>
                                     <td><?= esc($item['nama_lengkap']) ?></td>
+                                    <?php if (session()->get('role') === 'superadmin'): ?>
+                                        <td><?= esc($item['nama_kabupaten']) ?></td> <?php endif; ?>
                                     <td><?= esc($item['nama_kecamatan']) ?></td>
                                     <td><?= esc($item['nama_kelurahan']) ?></td>
                                     <td><?= esc($item['rt']) ?></td>
@@ -504,6 +524,24 @@ Manajemen SIM-BANKEL
                                     <td><?= esc($item['kategori_bantuan']) ?></td>
                                     <td><?= esc($item['tahun_penerimaan']) ?></td>
                                     <td><?= date('d M Y', strtotime($item['created_at'])) ?></td>
+                                    <td>
+                                        <?php if (!empty($item['file_ktp'])): ?>
+                                            <a href="<?= base_url('uploads/pdf/' . $item['file_ktp']) ?>" target="_blank" class="btn btn-info">
+                                                Lihat KTP
+                                            </a>
+                                        <?php else: ?>
+                                            <span>-</span>
+                                        <?php endif; ?>
+                                    </td>
+                                    <td>
+                                        <?php if (!empty($item['file_kk'])): ?>
+                                            <a href="<?= base_url('uploads/pdf/' . $item['file_kk']) ?>" target="_blank" class="btn btn-info">
+                                                Lihat KK
+                                            </a>
+                                        <?php else: ?>
+                                            <span>-</span>
+                                        <?php endif; ?>
+                                    </td>
                                     <td>
                                         <?php if (!empty($item['gambar'])): ?>
                                             <a href="<?= base_url('uploads/' . $item['gambar']) ?>" target="_blank">Lihat</a>
@@ -522,7 +560,7 @@ Manajemen SIM-BANKEL
                             <?php endforeach; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="12" style="text-align: center;">data nya ga ada lek 🤙🏻</td>
+                                <td colspan="12" style="text-align: center;">Data Kosong</td>
                             </tr>
                         <?php endif; ?>
                     </tbody>
@@ -859,7 +897,25 @@ document.addEventListener('DOMContentLoaded', function() {
             loadGeoJSON(); 
         }
     
-    });
+        // // === LOGIKA BARU UNTUK FILTER DINAMIS ===
+        // const filterKabupaten = document.getElementById('filter_kabupaten');
+        // const petaWilayahSelect = document.getElementById('wilayah'); // Dropdown di peta
+
+        // if (filterKabupaten && petaWilayahSelect) {
+        //     // Saat filter utama diubah, ubah juga pilihan di peta dan picu reload
+        //     filterKabupaten.addEventListener('change', function() {
+        //         const selectedOption = this.options[this.selectedIndex];
+        //         const slug = selectedOption.dataset.slug; // Kita perlu menambahkan data-slug
+
+        //         if (slug) {
+        //             petaWilayahSelect.value = slug;
+        //             // Picu event 'change' pada dropdown peta untuk memuat ulang GeoJSON
+        //             petaWilayahSelect.dispatchEvent(new Event('change'));
+        //         }
+        //     });
+        // }
+    
+});
 
 </script>
 

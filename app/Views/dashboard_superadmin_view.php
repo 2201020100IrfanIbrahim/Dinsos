@@ -1,26 +1,45 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <title>Dashboard Super Admin</title>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background-color: #f4f7f6; }
-        .container { max-width: 900px; margin: auto; background: #fff; border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
-        h1 { color: #c0392b; }
-    </style> 
-</head>
-<body>
-    <div class="container">
-        <h1>Dashboard Super Admin</h1>
+<?= $this->extend('layouts/admin_layout') ?>
 
+<?= $this->section('title') ?>
+Dashboard Super Admin
+<?= $this->endSection() ?>
+
+<?= $this->section('page_styles') ?>
+<style>
+    /* (Anda bisa salin style dari dashboard_admin_view.php) */
+</style>
+<?= $this->endSection() ?>
+
+<?= $this->section('content') ?>
+
+    <div class="welcome-card">
         <h2>Halo, <?= esc($username) ?>!</h2>
-
-        <p>Anda memiliki akses penuh untuk memantau data dari semua wilayah.</p>
-
-        <p>Contoh: Laporan Bantuan Seluruh Wilayah, Manajemen User, dll.</p>
-
-        <hr>
-        <a href="<?= site_url('/logout') ?>">Logout</a>
+        <p>Anda login sebagai <strong>Super Admin</strong>. Anda memiliki hak akses penuh untuk memantau dan mengelola seluruh data sistem.</p>
     </div>
-</body>
-</html>
+
+    <h3>Ringkasan Data Seluruh Wilayah</h3>
+    <div class="dashboard-grid">
+        <div class="info-card blue">
+            <h4>Total Bantuan Terdata (SIM-BANKEL)</h4>
+            <p class="value"><?= $total_bankel ?></p>
+        </div>
+        <div class="info-card green">
+            <h4>Total Penerima (SIM-DIFABELKEPRI)</h4>
+            <p class="value"><?= $total_difabel ?></p>
+        </div>
+        <div class="info-card orange">
+            <h4>Bantuan UEP (SIM-MONEVKUEP)</h4>
+            <p class="value"><?= $total_monevkuep ?></p>
+        </div>
+    </div>
+    
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+            <h4>Fitur Tambahan</h4>
+        </div>
+        <div class="card-body">
+            <p>Di sini nanti akan ada fitur manajemen user, laporan terpusat, dan lainnya.</p>
+        </div>
+    </div>
+
+<?= $this->endSection() ?>

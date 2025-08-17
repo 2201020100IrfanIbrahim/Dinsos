@@ -12,6 +12,7 @@ Edit Data Bantuan
     .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 8px; font-weight: 500; }
+    .required-star { color: #dc3545; }
     .form-input, select, input[type="file"] { width: 100%; padding: 10px 15px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; }
     .form-actions { text-align: right; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; }
     .submit-button { padding: 12px 30px; background-color: #ffc107; color: #212529; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
@@ -46,6 +47,14 @@ Edit Data Bantuan
                 <div class="form-group">
                     <label for="nik">NIK (KTP)</label>
                     <input type="text" name="nik" id="nik" class="form-input" value="<?= old('nik', $bantuan['nik']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="file_ktp">KTP (PDF)</label>
+                    <input type="file" name="file_ktp" id="file_ktp" accept="application/pdf">
+                </div>
+                <div class="form-group">
+                    <label for="file_kk">Kartu Keluarga (PDF)</label>
+                    <input type="file" name="file_kk" id="file_kk" accept="application/pdf">
                 </div>
             </div>
         </div>
