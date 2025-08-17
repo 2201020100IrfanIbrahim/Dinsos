@@ -18,13 +18,10 @@ class DifabelkepriController extends BaseController
         $difabelModel = new \App\Models\DifabelModel();
         $kabupatenModel = new \App\Models\KabupatenModel();
 
-        $role = session()->get('role');
-        $id_kabupaten_admin = session()->get('id_kabupaten');
-
-        
         $filters = [
             'keyword'  => $this->request->getGet('keyword'),
-            'golongan' => $this->request->getGet('golongan')
+            'golongan' => $this->request->getGet('golongan'),
+            'id_kabupaten'  => $this->request->getGet('id_kabupaten')
         ];
 
         $role = session()->get('role');
@@ -33,10 +30,10 @@ class DifabelkepriController extends BaseController
         // Siapkan query dasar
         $query = $difabelModel
             // UBAH BAGIAN SELECT INI
-            ->select("data_difabel.*, kecamatan.nama_kecamatan, kelurahan.nama_kelurahan, GROUP_CONCAT(ref_jenis_disabilitas.nama_jenis SEPARATOR ', ') as jenis_disabilitas_list")
+            ->select("data_difabel.*, kabupaten.nama_kabupaten, kecamatan.nama_kecamatan, kelurahan.nama_kelurahan, GROUP_CONCAT(ref_jenis_disabilitas.nama_jenis SEPARATOR ', ') as jenis_disabilitas_list")
+            ->join('kabupaten', 'kabupaten.id = data_difabel.id_kabupaten', 'left')
             ->join('kecamatan', 'kecamatan.id = data_difabel.id_kecamatan', 'left')
             ->join('kelurahan', 'kelurahan.id = data_difabel.id_kelurahan', 'left')
-            // TAMBAHKAN DUA JOIN BARU INI
             ->join('link_difabel_jenis', 'link_difabel_jenis.id_difabel = data_difabel.id', 'left')
             ->join('ref_jenis_disabilitas', 'ref_jenis_disabilitas.id = link_difabel_jenis.id_jenis_disabilitas', 'left');
 
@@ -51,13 +48,23 @@ class DifabelkepriController extends BaseController
             $query->where('data_difabel.golongan_disabilitas', $filters['golongan']);
         }
 
-        if ($role === 'admin') {
+        // --- LOGIKA FILTER WILAYAH YANG DIPERBAIKI ---
+        if ($role === 'superadmin') {
+            if (!empty($filters['id_kabupaten'])) {
+                // Jika superadmin memilih wilayah, filter berdasarkan pilihannya
+                $query->where('data_difabel.id_kabupaten', $filters['id_kabupaten']);
+            }
+            // Jika tidak, biarkan kosong (tampilkan semua)
+        } else {
+            // Admin daerah tetap hanya bisa melihat wilayahnya sendiri
             $query->where('data_difabel.id_kabupaten', $id_kabupaten_admin);
         }
         
         // TAMBAHKAN GROUP BY
         $query->groupBy('data_difabel.id');
+
         $page_title = 'Manajemen Data Difabel';
+        $nama_kabupaten = null;
         $nama_kabupaten_slug = null; // Inisialisasi
         if ($role === 'admin') {
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
@@ -68,17 +75,19 @@ class DifabelkepriController extends BaseController
         }
         
         $data = [
-            'data_difabel' => $query->paginate(10, 'difabel'),
-            'pager'        => $difabelModel->pager,
-            'title'        => $page_title,
-            'message'      => session()->getFlashdata('message'),
-            'filters'      => $filters,
-            'breadcrumbs'  => [
+            'data_difabel'   => $query->paginate(10, 'difabel'),
+            'pager'          => $difabelModel->pager,
+            'title'          => $page_title,
+            'message'        => session()->getFlashdata('message'),
+            'filters'        => $filters,
+            'role'           => $role,
+            'nama_kabupaten' => $nama_kabupaten,
+            'kabupaten_list' => $kabupatenModel->findAll(), // Kirim daftar kabupaten
+            'nama_kabupaten_slug' => $nama_kabupaten_slug,
+            'breadcrumbs'    => [
                 ['title' => 'Beranda', 'url' => '/dashboard'],
                 ['title' => 'SIM-DIFABELKEPRI', 'url' => '/admin/difabelkepri']
-            ],
-            'role' => $role,
-            'nama_kabupaten_slug' => $nama_kabupaten_slug
+            ]
         ];
         
         return view('difabelkepri/SIM-DIFABELKEPRI', $data);

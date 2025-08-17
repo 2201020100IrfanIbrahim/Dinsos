@@ -71,6 +71,8 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('bankel/process-import', 'BankelController::processImport'); // Memproses file
     // Rute untuk data grafik berdasarkan tahun
     $routes->get('bankel/chart-data-by-year', 'BankelController::getChartDataByYear');
+    // Rute untuk AJAX, mengambil data kecamatan berdasarkan ID kabupaten
+    $routes->get('get-kecamatan/(:num)', 'BankelController::getKecamatanByKabupaten/$1');
 
 
     //============================MONEVKUEB=============================//

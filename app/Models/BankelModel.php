@@ -29,7 +29,9 @@ class BankelModel extends Model
         'tahun_penerimaan',
         'id_admin_input',
         'gambar',
-        'koordinat'
+        'koordinat',
+        'file_ktp', 
+        'file_kk'
     ];
 
     // Menggunakan timestamp otomatis
@@ -47,10 +49,12 @@ class BankelModel extends Model
         'id_kecamatan'  => 'required|integer',
         'id_kelurahan'  => 'required|integer',
         'dusun'         => 'permit_empty|string',
-        'rt'            => 'required|numeric',
-        'rw'            => 'required|numeric',
+        'rt'            => 'permit_empty|numeric',
+        'rw'            => 'permit_empty|numeric',
         'tahun_penerimaan' => 'required|exact_length[4]|integer',
-        'kategori_bantuan' => 'required'
+        'kategori_bantuan' => 'required',
+        // 'file_ktp' => 'permit_empty|ext_in[file_ktp,pdf]|max_size[file_ktp,2048]',
+        // 'file_kk'  => 'permit_empty|ext_in[file_kk,pdf]|max_size[file_kk,2048]'
     ];
 
     // Pesan Error untuk Validasi

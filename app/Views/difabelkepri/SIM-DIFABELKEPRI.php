@@ -426,9 +426,14 @@ Manajemen Data Difabel
                         <div>
                             <label for="wilayah">Wilayah:</label>
                             <select id="wilayah">
-                                <option value="tanjungpinang">Tanjung Pinang</option>
+                                <option value="tanjungpinang">TanjungPinang</option>
                                 <option value="batam">Batam</option>
-                                </select>
+                                <option value="karimun">Karimun</option>
+                                <option value="lingga">Lingga</option>
+                                <option value="anambas">Anambas</option>
+                                <option value="natuna">Natuna</option>
+                                <option value="bintan">Bintan</option>
+                            </select>
                         </div>
                     <?php else: ?>
                         <input type="hidden" id="wilayah" value="<?= esc($nama_kabupaten_slug) ?>">
@@ -482,6 +487,20 @@ Manajemen Data Difabel
                                 <option value="Disabilitas Intelektual" <?= ($filters['golongan'] ?? '') == 'Disabilitas Intelektual' ? 'selected' : '' ?>>Disabilitas Intelektual</option>
                                 <option value="Disabilitas Ganda" <?= ($filters['golongan'] ?? '') == 'Disabilitas Ganda' ? 'selected' : '' ?>>Disabilitas Ganda</option>
                             </select>
+
+                            
+                            <?php if ($role === 'superadmin'): ?>
+                                <select name="id_kabupaten" id="filter_kabupaten" onchange="this.form.submit()">
+                                    <option value="">Semua Wilayah</option>
+                                    <?php foreach ($kabupaten_list as $kab): ?>
+                                        <option value="<?= $kab['id'] ?>" <?= ($filters['id_kabupaten'] ?? '') == $kab['id'] ? 'selected' : '' ?>>
+                                            <?= esc($kab['nama_kabupaten']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            <?php endif; ?>
+
+                            
                             <div class="button-cari">
                                 <button type="submit">Cari</button>
                                 <a href="<?= site_url('admin/difabelkepri') ?>">Reset</a>
@@ -515,6 +534,8 @@ Manajemen Data Difabel
                                 <th>NIK</th>
                                 <th>Nama Lengkap</th>
                                 <th>Usia</th>
+                                <?php if (session()->get('role') === 'superadmin'): ?>
+                                    <th>Kabupaten/Kota</th> <?php endif; ?>
                                 <th>Kecamatan</th>
                                 <th>Kelurahan</th>
                                 <th>Golongan Disabilitas</th>
@@ -529,6 +550,8 @@ Manajemen Data Difabel
                                         <td><?= esc($item['nik']) ?></td>
                                         <td><?= esc($item['nama_lengkap']) ?></td>
                                         <td><?= esc($item['usia']) ?></td>
+                                        <?php if (session()->get('role') === 'superadmin'): ?>
+                                            <td><?= esc($item['nama_kabupaten']) ?></td> <?php endif; ?>
                                         <td><?= esc($item['nama_kecamatan']) ?></td>
                                         <td><?= esc($item['nama_kelurahan']) ?></td>
                                         <td><?= esc($item['golongan_disabilitas']) ?></td>
