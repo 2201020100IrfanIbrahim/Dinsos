@@ -22,10 +22,11 @@ Tambah Data MONEVKUEP
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="back">
-            <a href="<?= site_url('admin/monevkuep') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali ke Dashboard</a>
-        </div>
-<div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/monevkuep') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data MONEVKUEP</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
 
     <?php if (session()->get('errors')): ?>
         <div class="error-box">
@@ -78,6 +79,19 @@ Tambah Data MONEVKUEP
         <!-- Alamat & Wilayah -->
         <div class="form-section">
             <h3>Alamat & Wilayah</h3>
+            <?php if (isset($role) && $role === 'superadmin'): ?>
+            <div class="form-group">
+                <label for="id_kabupaten">Kabupaten/Kota <span class="required-star">*</span></label>
+                <select name="id_kabupaten" id="id_kabupaten" class="form-input" required>
+                    <option value="">-- Pilih Kabupaten --</option>
+                    <?php foreach ($kabupaten_list as $kabupaten): ?>
+                        <option value="<?= esc($kabupaten['id']) ?>" <?= set_select('id_kabupaten', $kabupaten['id']) ?>>
+                            <?= esc($kabupaten['nama_kabupaten']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
             <div class="form-row">
                 <div class="form-group">
                     <label for="id_kecamatan">Kecamatan <span class="required-star">*</span></label>
@@ -174,18 +188,48 @@ Tambah Data MONEVKUEP
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const kabupatenSelect = document.getElementById('id_kabupaten');
     const kecamatanSelect = document.getElementById('id_kecamatan');
     const kelurahanSelect = document.getElementById('id_kelurahan');
+    const userRole = '<?= esc($role ?? 'admin') ?>';
 
-    kecamatanSelect.addEventListener('change', function() {
-        const kecamatanId = this.value;
-        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-        if (!kecamatanId) return;
+    // Fungsi untuk memuat kecamatan
+    function loadKecamatan(kabupatenId) {
+        kecamatanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+        if (!kabupatenId) {
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kabupaten Dulu --</option>';
+            return;
+        }
+
+        const url = `<?= site_url('admin/monevkuep/get-kecamatan/') ?>${kabupatenId}`;
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                data.forEach(kec => {
+                    const opt = document.createElement('option');
+                    opt.value = kec.id;
+                    opt.textContent = kec.nama_kecamatan;
+                    kecamatanSelect.appendChild(opt);
+                });
+            })
+            .catch(() => alert('Gagal memuat data kecamatan'));
+    }
+
+    // Fungsi untuk memuat kelurahan
+    function loadKelurahan(kecamatanId) {
+        kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        if (!kecamatanId) {
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+            return;
+        }
 
         const url = `<?= site_url('admin/monevkuep/get-kelurahan/') ?>${kecamatanId}`;
         fetch(url)
             .then(res => res.json())
             .then(data => {
+                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
                 data.forEach(kel => {
                     const opt = document.createElement('option');
                     opt.value = kel.id;
@@ -193,10 +237,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     kelurahanSelect.appendChild(opt);
                 });
             })
-            .catch(() => {
-                alert('Gagal memuat data kelurahan');
-            });
+            .catch(() => alert('Gagal memuat data kelurahan'));
+    }
+
+    // Event listener untuk superadmin
+    if (userRole === 'superadmin' && kabupatenSelect) {
+        kabupatenSelect.addEventListener('change', function() {
+            loadKecamatan(this.value);
+        });
+    }
+
+    // Event listener untuk kecamatan (berlaku untuk admin & superadmin)
+    kecamatanSelect.addEventListener('change', function() {
+        loadKelurahan(this.value);
     });
+
+    // (Opsional) Jika ada data lama (saat validasi gagal), muat ulang dropdown
+    <?php if(session()->has('errors')): ?>
+        <?php if ($role === 'superadmin' && old('id_kabupaten')): ?>
+            // Muat ulang kecamatan jika ada kabupaten yang dipilih sebelumnya
+            loadKecamatan('<?= old('id_kabupaten') ?>'); 
+        <?php endif; ?>
+    <?php endif; ?>
 });
 </script>
 <?= $this->endSection() ?>

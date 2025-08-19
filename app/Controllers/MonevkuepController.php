@@ -120,6 +120,7 @@ class MonevkuepController extends BaseController
         $monevModel = new \App\Models\MonevkuepModel();
         $kecamatanModel = new \App\Models\KecamatanModel();
         $kelurahanModel = new \App\Models\KelurahanModel();
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
 
         $bantuanData = $monevModel->find($id);
         if (!$bantuanData) {
@@ -130,13 +131,15 @@ class MonevkuepController extends BaseController
             'bantuan' => $bantuanData,
             'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $bantuanData['id_kabupaten'])->findAll(),
             'kelurahan_list' => $kelurahanModel->where('id_kecamatan', $bantuanData['id_kecamatan'])->findAll(),
+            'kabupaten_list' => $kabupatenModel->findAll(), // Tambahkan ini
+            'role' => session()->get('role'), // Tambahkan ini
             'breadcrumbs' => [
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],
                 ['title' => 'Edit Data', 'url' => ''],
             ],
         ];
 
-        return view('monevkuep/edit_view', $data);
+        return view('monevkuep/edit_view', $data); // Pastikan nama view Anda benar
     }
 
     public function update($id = null)
@@ -165,8 +168,13 @@ class MonevkuepController extends BaseController
             'agama'            => $this->request->getPost('agama'),
             'pendidikan'       => $this->request->getPost('pendidikan'),
             'jenis_usaha'      => $this->request->getPost('jenis_usaha'),
-            'jenis_pendidikan' => $this->request->getPost('jenis_pendidikan'),
+            'jenis_pekerjaan'  => $this->request->getPost('jenis_pekerjaan'),
         ];
+
+        // Hanya superadmin yang boleh mengubah kabupaten
+        if (session()->get('role') === 'superadmin') {
+            $data['id_kabupaten'] = $this->request->getPost('id_kabupaten');
+        }
 
         // Tambahkan ID untuk UPDATE
         $data['id'] = $id;
@@ -197,10 +205,22 @@ class MonevkuepController extends BaseController
     public function new()
     {
         $kecamatanModel = new \App\Models\KecamatanModel();
-        $id_kabupaten_admin = session()->get('id_kabupaten');
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
+        $session = session();
+
+        $role = $session->get('role');
+        $id_kabupaten_admin = $session->get('id_kabupaten');
+        $kecamatan_list = [];
+
+        // Jika admin, langsung ambil kecamatan berdasarkan session
+        if ($role === 'admin') {
+            $kecamatan_list = $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll();
+        }
 
         $data = [
-            'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll(),
+            'kecamatan_list' => $kecamatan_list, // Bisa jadi kosong untuk superadmin
+            'kabupaten_list' => $kabupatenModel->findAll(), // Kirim daftar kabupaten
+            'role' => $role, // Kirim role ke view
             'breadcrumbs' => [
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],
                 ['title' => 'Tambah Data', 'url' => ''],
@@ -216,6 +236,15 @@ class MonevkuepController extends BaseController
     {
         $monevModel = new \App\Models\MonevkuepModel();
         $session = session();
+        $role = $session->get('role');
+
+        // Logika pengambilan id_kabupaten berdasarkan role
+        $id_kabupaten = 0;
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getPost('id_kabupaten');
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = $session->get('id_kabupaten');
+        }
 
         $data = [
             'nik'              => $this->request->getPost('nik'),
@@ -234,7 +263,7 @@ class MonevkuepController extends BaseController
             'pendidikan'       => $this->request->getPost('pendidikan') ?: null,
             'jenis_usaha'      => $this->request->getPost('jenis_usaha') ?: null,
             'jenis_pekerjaan'  => $this->request->getPost('jenis_pekerjaan') ?: null,
-            'id_kabupaten'     => $session->get('id_kabupaten'),
+            'id_kabupaten'     => $id_kabupaten, // Gunakan variabel yang sudah disiapkan
             'id_admin_input'   => $session->get('user_id'),
         ];
 
@@ -243,6 +272,13 @@ class MonevkuepController extends BaseController
         } else {
             return redirect()->back()->withInput()->with('errors', $monevModel->errors());
         }
+    }
+
+    public function getKecamatanByKabupaten($id_kabupaten)
+    {
+        $kecamatanModel = new \App\Models\KecamatanModel();
+        $kecamatanList = $kecamatanModel->where('id_kabupaten', $id_kabupaten)->findAll();
+        return $this->response->setJSON($kecamatanList);
     }
 
     public function export()
@@ -387,7 +423,15 @@ class MonevkuepController extends BaseController
     {
         $monevModel = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $id_kabupaten = false; // Default untuk 'semua wilayah'
+
+        if ($role === 'superadmin') {
+            // Untuk superadmin, gunakan filter dari URL jika ada
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Untuk admin
+            // Untuk admin, selalu paksa gunakan wilayah dari session mereka
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
 
         $chartData = $monevModel->getChartDataByKecamatan($id_kabupaten);
         return $this->response->setJSON($chartData);
@@ -398,7 +442,14 @@ class MonevkuepController extends BaseController
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
         return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
@@ -406,40 +457,75 @@ class MonevkuepController extends BaseController
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
-        return $this->response->setJSON($model->getChartDataByGender($id_kabupaten));
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
     public function getChartDataByDTKS()
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
-        return $this->response->setJSON($model->getChartDataByDTKS($id_kabupaten));
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
     public function getChartDataByAgama()
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
-        return $this->response->setJSON($model->getChartDataByAgama($id_kabupaten));
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
     public function getChartDataByPendidikan()
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
-        return $this->response->setJSON($model->getChartDataByPendidikan($id_kabupaten));
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
     public function getChartDataByJenisUsaha()
     {
         $model = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
-        return $this->response->setJSON($model->getChartDataByJenisUsaha($id_kabupaten));
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
     }
 
 

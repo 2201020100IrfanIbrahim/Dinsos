@@ -21,6 +21,11 @@ Tambah Data Bantuan
 
 <?= $this->section('content') ?>
 <div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/bankel') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data BANKEL</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
     
     <?php if (session()->get('errors')): ?>
         <div class="error-box">

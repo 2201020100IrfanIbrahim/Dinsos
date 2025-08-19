@@ -22,6 +22,11 @@ Edit Data Bantuan
 
 <?= $this->section('content') ?>
 <div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/bankel') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data BANKEL</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
 
     <?php if (session()->get('errors')): ?>
         <div class="error-box">
@@ -61,6 +66,21 @@ Edit Data Bantuan
 
         <div class="form-section">
             <h3>Wilayah & Alamat</h3>
+            
+            <?php if (isset($role) && $role === 'superadmin'): ?>
+            <div class="form-group">
+                <label for="id_kabupaten">Kabupaten/Kota <span class="required-star">*</span></label>
+                <select name="id_kabupaten" id="id_kabupaten" required>
+                    <option value="">-- Pilih Kabupaten/Kota --</option>
+                    <?php foreach ($kabupaten_list as $kab): ?>
+                        <option value="<?= esc($kab['id']) ?>" <?= (old('id_kabupaten', $bantuan['id_kabupaten']) == $kab['id']) ? 'selected' : '' ?>>
+                            <?= esc($kab['nama_kabupaten']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="id_kecamatan">Kecamatan</label>
@@ -130,29 +150,84 @@ Edit Data Bantuan
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const kecamatanSelect = document.getElementById('id_kecamatan');
-        const kelurahanSelect = document.getElementById('id_kelurahan');
-        kecamatanSelect.addEventListener('change', function() {
-            const kecamatanId = this.value;
-            kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
-            if (kecamatanId) {
-                const url = `<?= site_url('admin/bankel/get-kelurahan/') ?>${kecamatanId}`;
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                        data.forEach(kelurahan => {
-                            const option = document.createElement('option');
-                            option.value = kelurahan.id;
-                            option.textContent = kelurahan.nama_kelurahan;
-                            kelurahanSelect.appendChild(option);
-                        });
-                    });
-            } else {
-                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
-            }
-        });
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    const kabupatenSelect = document.getElementById('id_kabupaten');
+    const kecamatanSelect = document.getElementById('id_kecamatan');
+    const kelurahanSelect = document.getElementById('id_kelurahan');
+    const userRole = '<?= esc($role ?? 'admin') ?>';
+    
+    // Nilai awal dari controller untuk pre-select dropdown
+    const initialKabId = '<?= old('id_kabupaten', $bantuan['id_kabupaten'] ?? '') ?>';
+    const initialKecId = '<?= old('id_kecamatan', $bantuan['id_kecamatan'] ?? '') ?>';
+    const initialKelId = '<?= old('id_kelurahan', $bantuan['id_kelurahan'] ?? '') ?>';
+
+    // Fungsi untuk memuat kecamatan
+    function loadKecamatan(kabupatenId, selectedKecId = null) {
+        kecamatanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+        if (!kabupatenId) {
+            kecamatanSelect.innerHTML = userRole === 'superadmin' ? '<option value="">-- Pilih Kabupaten Dulu --</option>' : '';
+            return;
+        }
+        fetch(`<?= site_url('admin/bankel/get-kecamatan/') ?>${kabupatenId}`)
+            .then(res => res.json()).then(data => {
+                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                data.forEach(kec => {
+                    const opt = document.createElement('option');
+                    opt.value = kec.id;
+                    opt.textContent = kec.nama_kecamatan;
+                    if (kec.id == selectedKecId) opt.selected = true;
+                    kecamatanSelect.appendChild(opt);
+                });
+                if (selectedKecId) loadKelurahan(selectedKecId, initialKelId);
+            });
+    }
+
+    // Fungsi untuk memuat kelurahan
+    function loadKelurahan(kecamatanId, selectedKelId = null) {
+        kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        if (!kecamatanId) {
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+            return;
+        }
+        fetch(`<?= site_url('admin/bankel/get-kelurahan/') ?>${kecamatanId}`)
+            .then(res => res.json()).then(data => {
+                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+                data.forEach(kel => {
+                    const opt = document.createElement('option');
+                    opt.value = kel.id;
+                    opt.textContent = kel.nama_kelurahan;
+                    if (kel.id == selectedKelId) opt.selected = true;
+                    kelurahanSelect.appendChild(opt);
+                });
+            });
+    }
+
+    // Tambahkan event listener
+    if (userRole === 'superadmin' && kabupatenSelect) {
+        kabupatenSelect.addEventListener('change', () => loadKecamatan(kabupatenSelect.value));
+    }
+    kecamatanSelect.addEventListener('change', () => loadKelurahan(kecamatanSelect.value));
+
+    // Muat data awal saat halaman edit dibuka
+    if (initialKabId) {
+        // Jika admin, opsi kecamatan sudah ada dari PHP, jadi kita hanya perlu memuat kelurahan
+        if (userRole === 'admin') {
+            const listKecamatan = <?= json_encode($kecamatan_list) ?>;
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+            listKecamatan.forEach(kec => {
+                const opt = document.createElement('option');
+                opt.value = kec.id;
+                opt.textContent = kec.nama_kecamatan;
+                if (kec.id == initialKecId) opt.selected = true;
+                kecamatanSelect.appendChild(opt);
+            });
+            loadKelurahan(initialKecId, initialKelId);
+        } else {
+            // Jika superadmin, kita muat kecamatan dulu, lalu kelurahan akan dimuat otomatis
+            loadKecamatan(initialKabId, initialKecId);
+        }
+    }
+});
 </script>
 <?= $this->endSection() ?>

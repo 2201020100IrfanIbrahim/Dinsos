@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->renderSection('title', 'Dashboard') ?> - SIM DINSOS</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
@@ -26,6 +27,9 @@
         a { text-decoration: none; }
 
         .wrapper { display: flex; min-height: 100vh; }
+        th,td{
+            font-size: 14px;
+        }
 
         /* Sidebar */
         .sidebar {
@@ -179,6 +183,33 @@
             color: #fff;
         }
 
+        .menu-button {
+            display: flex; /* Membuat ikon dan teks sejajar */
+            align-items: center; /* Menengahkan ikon dan teks secara vertikal */
+            justify-content: center;
+            gap: 10px; /* Jarak antara ikon dan teks */
+            
+            padding: 12px 15px; /* Ruang di dalam tombol */
+            border-radius: 8px; /* Sudut yang sedikit melengkung */
+            
+            text-decoration: none; /* Menghilangkan garis bawah */
+            font-weight: 600; /* Sedikit tebal */
+            color: #334155; /* Warna teks abu-abu tua yang profesional */
+
+            transition: all 0.2s ease-in-out; /* Animasi halus saat hover */
+        }
+
+        /* Efek saat kursor diarahkan ke tombol */
+        .menu-button:hover {
+            background-color: #e2e8f0; /* Warna latar sedikit abu-abu */
+            color: #0056b3; /* Warna teks menjadi biru tua */
+        }
+
+        /* (Opsional) Mengatur ukuran ikon jika perlu */
+        .menu-button i {
+            font-size: 1.1rem;
+        }
+
         /* Aturan untuk layar kecil */
         @media (max-width: 992px) {
             .sidebar {
@@ -238,7 +269,7 @@
     <div class="wrapper">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-profile">
-                <img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Foto Profil">
+                <a href="<?= site_url('admin/profile') ?>"><img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Foto Profil"></a>
                 <h3><?= esc(session()->get('username')) ?></h3>
                 <p><?= (session()->get('role') == 'admin') ? 'Admin Wilayah Kerja' : 'Super Admin' ?></p>
             </div>
@@ -251,6 +282,14 @@
             </ul>
             
             <div class="sidebar-footer">
+                <?php if (session()->get('role') === 'superadmin'): ?>
+                    <li style="list-style: none;">
+                        <a href="<?= site_url('admin/users') ?>" class="menu-button">
+                            <i class="fas fa-users-cog"></i> 
+                            <span>Manajemen Pengguna</span>
+                        </a>
+                    </li>
+                <?php endif; ?>
                 <a href="<?= site_url('logout') ?>" class="footer-logout">⏻ Logout</a>
                 <p>&copy; <?= date('Y') ?> Dinsos Kepri</p>
             </div>
@@ -280,7 +319,7 @@
                             </div>
                         </div>
                     </div>
-                    <img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Avatar">
+                    <a href="<?= site_url('admin/profile') ?>"><img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Foto Profil"></a>
                 </div>
             </header>
 
@@ -319,5 +358,6 @@
              closeSidebarBtn.addEventListener('click', hideSidebar);
         }
     </script>
+    <?= $this->renderSection('page_scripts') ?> 
     </body>
 </html>

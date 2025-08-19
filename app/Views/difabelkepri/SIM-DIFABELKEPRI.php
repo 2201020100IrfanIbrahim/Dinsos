@@ -467,12 +467,12 @@ Manajemen Data Difabel
     </div>
 
     <div class="card">
+        <?php if (session()->getFlashdata('message')): ?>
+            <div class="flash-message"><?= esc(session()->getFlashdata('message')) ?></div>
+        <?php endif; ?>
         <div class="card-header">
             <span>Data Penyandang Disabilitas</span>
 
-            <?php if (session()->getFlashdata('message')): ?>
-                <div class="flash-message"><?= esc(session()->getFlashdata('message')) ?></div>
-            <?php endif; ?>
             
             
                 <div class="filter-form">

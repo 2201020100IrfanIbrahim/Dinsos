@@ -10,6 +10,7 @@ use App\Models\JenisDisabilitasModel;
 use App\Models\LinkDifabelJenisModel;
 use App\Models\KecamatanModel;
 use App\Models\KelurahanModel;
+use App\Models\KabupatenModel;
 
 class DifabelkepriController extends BaseController
 {
@@ -98,13 +99,22 @@ class DifabelkepriController extends BaseController
     public function new()
     {
         $kecamatanModel = new KecamatanModel();
+        $kabupatenModel = new KabupatenModel();
         $jenisDisabilitasModel = new JenisDisabilitasModel();
-        $id_kabupaten_admin = session()->get('id_kabupaten');
+        $session = session();
+        
+        $role = $session->get('role');
+        $id_kabupaten_admin = $session->get('id_kabupaten');
+        $kecamatan_list = [];
+
+        if ($role === 'admin') {
+            $kecamatan_list = $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll();
+        }
 
         $data = [
-            // Mengambil daftar kecamatan untuk wilayah admin
-            'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll(),
-            // Mengambil semua pilihan jenis disabilitas
+            'kecamatan_list'         => $kecamatan_list,
+            'kabupaten_list'         => $kabupatenModel->findAll(),
+            'role'                   => $role,
             'jenis_disabilitas_list' => $jenisDisabilitasModel->findAll(),
             'breadcrumbs' => [
                 ['title' => 'SIM-DIFABELKEPRI', 'url' => '/admin/difabelkepri'],
@@ -124,7 +134,17 @@ class DifabelkepriController extends BaseController
         $linkModel = new \App\Models\LinkDifabelJenisModel();
         $session = session();
 
-        // 1. Siapkan data utama dari form
+        // Bagian penting: Ambil id_kabupaten berdasarkan role
+        $role = $session->get('role');
+        $id_kabupaten = null; // Mulai dengan null
+        if ($role === 'superadmin') {
+            // Jika superadmin, ambil dari input form
+            $id_kabupaten = $this->request->getPost('id_kabupaten');
+        } else {
+            // Jika admin, ambil dari session
+            $id_kabupaten = $session->get('id_kabupaten');
+        }
+
         $dataDifabel = [
             'nik'                   => $this->request->getPost('nik'),
             'nama_lengkap'          => $this->request->getPost('nama_lengkap'),
@@ -135,22 +155,19 @@ class DifabelkepriController extends BaseController
             'alamat_lengkap'        => $this->request->getPost('alamat_lengkap'),
             'golongan_disabilitas'  => $this->request->getPost('golongan_disabilitas'),
             'sebab_disabilitas'     => $this->request->getPost('sebab_disabilitas'),
-            'id_kabupaten'          => $session->get('id_kabupaten'),
+            'id_kabupaten'          => $id_kabupaten, // Gunakan variabel yang sudah disiapkan
             'id_admin_input'        => $session->get('user_id'),
         ];
 
-        // 2. Coba simpan data utama. Metode save() akan menjalankan validasi.
         if ($difabelModel->save($dataDifabel) === false) {
-            // Jika validasi GAGAL, langsung kembali ke form dengan error (yang berbentuk ARRAY)
             return redirect()->back()->withInput()->with('errors', $difabelModel->errors());
         }
 
-        // 3. Jika BERHASIL, lanjutkan menyimpan data ke tabel penghubung
+        // --- Sisa fungsi untuk menyimpan ke tabel link ---
         $newDifabelId = $difabelModel->getInsertID();
         $jenisDisabilitasIds = $this->request->getPost('jenis_disabilitas_ids');
 
         if (!empty($jenisDisabilitasIds)) {
-            // Kita gunakan transaksi di sini untuk memastikan data link tersimpan semua atau tidak sama sekali
             $db = \Config\Database::connect();
             $db->transStart();
             foreach ($jenisDisabilitasIds as $jenisId) {
@@ -172,6 +189,7 @@ class DifabelkepriController extends BaseController
         $kelurahanModel = new KelurahanModel();
         $jenisDisabilitasModel = new JenisDisabilitasModel();
         $linkModel = new LinkDifabelJenisModel();
+        $kabupatenModel = new KabupatenModel();
 
         $dataDifabel = $difabelModel->find($id);
         if (!$dataDifabel) {
@@ -183,10 +201,12 @@ class DifabelkepriController extends BaseController
             // Ambil semua jenis disabilitas untuk pilihan di form
             'jenis_disabilitas_list' => $jenisDisabilitasModel->findAll(),
             // Ambil jenis disabilitas yang sudah terpilih untuk orang ini
-            'selected_jenis_ids' => $linkModel->getJenisByDifabelId($id),
+            'selected_jenis_ids'     => $linkModel->getJenisByDifabelId($id),
             // Data untuk dropdown wilayah
-            'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $dataDifabel['id_kabupaten'])->findAll(),
-            'kelurahan_list' => $kelurahanModel->where('id_kecamatan', $dataDifabel['id_kecamatan'])->findAll(),
+            'kecamatan_list'         => $kecamatanModel->where('id_kabupaten', $dataDifabel['id_kabupaten'])->findAll(),
+            'kelurahan_list'         => $kelurahanModel->where('id_kecamatan', $dataDifabel['id_kecamatan'])->findAll(),
+            'kabupaten_list'         => $kabupatenModel->findAll(),
+            'role'                   => session()->get('role'),
             'breadcrumbs' => [
                 ['title' => 'SIM-DIFABELKEPRI', 'url' => '/admin/difabelkepri'],
                 ['title' => 'Edit Data', 'url' => '']
@@ -213,6 +233,10 @@ class DifabelkepriController extends BaseController
             'golongan_disabilitas'  => $this->request->getPost('golongan_disabilitas'),
             'sebab_disabilitas'     => $this->request->getPost('sebab_disabilitas'),
         ];
+
+        if (session()->get('role') === 'superadmin') {
+            $dataDifabel['id_kabupaten'] = $this->request->getPost('id_kabupaten');
+        }
 
         // --- BAGIAN KUNCI PERBAIKAN ---
         // Tambahkan ID ke dalam data untuk memberitahu model ini adalah proses UPDATE
@@ -250,6 +274,20 @@ class DifabelkepriController extends BaseController
         }
 
         return redirect()->to('/admin/difabelkepri')->with('message', 'Data berhasil diupdate!');
+    }
+
+    public function getKecamatanByKabupaten($id_kabupaten)
+    {
+        $kecamatanModel = new KecamatanModel();
+        $kecamatanList = $kecamatanModel->where('id_kabupaten', $id_kabupaten)->findAll();
+        return $this->response->setJSON($kecamatanList);
+    }
+
+    public function getKelurahanByKecamatan($id_kecamatan)
+    {
+        $kelurahanModel = new \App\Models\KelurahanModel();
+        $kelurahanList = $kelurahanModel->where('id_kecamatan', $id_kecamatan)->findAll();
+        return $this->response->setJSON($kelurahanList);
     }
 
     public function delete($id = null)

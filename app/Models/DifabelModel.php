@@ -27,6 +27,7 @@ class DifabelModel extends Model
         'nama_lengkap'          => 'required|min_length[3]',
         'jenis_kelamin'         => 'required',
         'usia'                  => 'required|integer',
+        'id_kabupaten'          => 'required|integer',
         'id_kecamatan'          => 'required|integer',
         'id_kelurahan'          => 'required|integer',
         'golongan_disabilitas'  => 'required'

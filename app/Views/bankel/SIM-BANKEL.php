@@ -599,6 +599,18 @@ Manajemen SIM-BANKEL
         });
 
 document.addEventListener('DOMContentLoaded', function() {
+    const filteredKabupatenId = '<?= esc($filters['id_kabupaten'] ?? '') ?>';
+
+    // 2. Buat URL dasar untuk setiap chart
+    let kecamatanChartUrl = '<?= site_url('admin/bankel/chart-data') ?>';
+    let tahunChartUrl = '<?= site_url('admin/bankel/chart-data-by-year') ?>';
+
+    // 3. Jika ada filter kabupaten, tambahkan sebagai parameter query
+    if (filteredKabupatenId) {
+        kecamatanChartUrl += `?id_kabupaten=${filteredKabupatenId}`;
+        tahunChartUrl += `?id_kabupaten=${filteredKabupatenId}`;
+    }
+
     const ctx = document.getElementById('kecamatanChart');
     if (!ctx) return;
 
@@ -697,10 +709,13 @@ document.addEventListener('DOMContentLoaded', function() {
         // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
     const ctxTahun = document.getElementById('tahunChart');
     if (ctxTahun) {
-        fetch('<?= site_url('admin/bankel/chart-data-by-year') ?>')
+        fetch(tahunChartUrl) // Gunakan URL baru
             .then(response => response.json())
             .then(data => {
-                if (data.length === 0) return;
+                if (data.length === 0) {
+                    ctxTahun.getContext('2d').clearRect(0, 0, ctxTahun.width, ctxTahun.height);
+                    return;
+                };
 
                 const labels = data.map(item => item.tahun_penerimaan);
                 const values = data.map(item => Number(item.jumlah));
@@ -738,11 +753,14 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    fetch('<?= site_url('admin/bankel/chart-data') ?>')
+    fetch(kecamatanChartUrl) // Gunakan URL baru
         .then(response => response.json())
         .then(data => {
-            console.log('Data yang diterima untuk grafik:', data); 
-            if (data.length === 0) return;
+            if (data.length === 0) {
+                ctx.getContext('2d').clearRect(0, 0, ctx.width, ctx.height);
+                document.getElementById('chart-legend').innerHTML = 'Tidak ada data untuk wilayah ini.';
+                return;
+            };
             const labels = data.map(item => item.nama_kecamatan);
             const values = data.map(item => Number(item.jumlah));
             const dynamicColors = generateDynamicColors(values.length);
@@ -897,23 +915,6 @@ document.addEventListener('DOMContentLoaded', function() {
             loadGeoJSON(); 
         }
     
-        // // === LOGIKA BARU UNTUK FILTER DINAMIS ===
-        // const filterKabupaten = document.getElementById('filter_kabupaten');
-        // const petaWilayahSelect = document.getElementById('wilayah'); // Dropdown di peta
-
-        // if (filterKabupaten && petaWilayahSelect) {
-        //     // Saat filter utama diubah, ubah juga pilihan di peta dan picu reload
-        //     filterKabupaten.addEventListener('change', function() {
-        //         const selectedOption = this.options[this.selectedIndex];
-        //         const slug = selectedOption.dataset.slug; // Kita perlu menambahkan data-slug
-
-        //         if (slug) {
-        //             petaWilayahSelect.value = slug;
-        //             // Picu event 'change' pada dropdown peta untuk memuat ulang GeoJSON
-        //             petaWilayahSelect.dispatchEvent(new Event('change'));
-        //         }
-        //     });
-        // }
     
 });
 

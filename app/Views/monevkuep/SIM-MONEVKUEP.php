@@ -451,11 +451,11 @@ Manajemen SIM-MONEVKUEP
     </div>
 
     <div class="card">
+        <?php if ($message): ?>
+            <div class="flash-message"><?= esc($message) ?></div>
+        <?php endif; ?>
         <div class="card-header">
             <span>Data MONEVKUEP</span>
-            <?php if ($message): ?>
-                <div class="flash-message"><?= esc($message) ?></div>
-            <?php endif; ?>
             
             <div class="filter-form">
                 <form action="<?= site_url('admin/monevkuep') ?>" method="get">
@@ -579,71 +579,66 @@ Manajemen SIM-MONEVKUEP
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+
 
 <script>
-    // --- SCRIPT UNTUK GRAFIK BERDASARKAN TAHUN ---
-    const ctxTahun = document.getElementById('tahunChart');
-    if (ctxTahun) {
-        fetch('<?= site_url('admin/bankel/chart-data-by-year') ?>')
-            .then(response => response.json())
-            .then(data => {
-                if (data.length === 0) return;
+    const tombolHapus = document.querySelectorAll('.tombol-hapus');
+    tombolHapus.forEach(tombol => {
+        tombol.addEventListener('click', function(event) {
+            event.preventDefault(); 
+            const href = this.getAttribute('href');
 
-                const labels = data.map(item => item.tahun_penerimaan);
-                const values = data.map(item => Number(item.jumlah));
-
-                // Gunakan fungsi yang sama untuk menghasilkan warna yang konsisten
-                const dynamicColors = generateDynamicColors(values.length);
-
-                new Chart(ctxTahun, {
-                    type: 'bar',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'Jumlah Penerima',
-                            data: values,
-                            backgroundColor: dynamicColors, // Terapkan warna dinamis
-                            borderColor: dynamicColors.map(color => color.replace('0.8', '1')), // Warna border lebih solid
-                            borderWidth: 1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: {
-                                beginAtZero: true
-                            }
-                        },
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: false 
-                            }
-                        }
-                    }
-                });
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data yang dihapus tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Ya, hapus!',
+                cancelButtonText: 'Batal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = href;
+                }
             });
-    }
+        });
+    });
 
     // --- SCRIPT UNTUK GRAFIK MIX ---
-        document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const filteredKabupatenId = '<?= esc($filters['id_kabupaten'] ?? '') ?>';
         const chartCanvas = document.getElementById("dynamicChart");
         let chartInstance = null;
 
         function renderChart(url, type, label) {
-            fetch(url)
+            let finalUrl = url;
+            if (filteredKabupatenId) {
+                finalUrl += `?id_kabupaten=${filteredKabupatenId}`;
+            }
+
+            fetch(finalUrl)
                 .then(res => res.json())
                 .then(data => {
-                    if (!data || data.length === 0) return;
-
-                    const labels = data.map(item => Object.values(item)[0]); // kolom pertama
-                    const values = data.map(item => Number(Object.values(item)[1])); // kolom kedua
-
-                    const dynamicColors = labels.map(() => `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 0.8)`);
-
                     if (chartInstance) {
                         chartInstance.destroy();
                     }
+
+                    // Tambahkan penanganan jika data kosong
+                    if (!data || data.length === 0) {
+                         const ctx = chartCanvas.getContext('2d');
+                         ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+                         ctx.font = "16px Arial";
+                         ctx.fillStyle = "#999";
+                         ctx.textAlign = "center";
+                         ctx.fillText("Tidak ada data untuk ditampilkan.", chartCanvas.width / 2, chartCanvas.height / 2);
+                         return;
+                    }
+
+                    const labels = data.map(item => Object.values(item)[0]); // kolom pertama
+                    const values = data.map(item => Number(Object.values(item)[1])); // kolom kedua
+                    const dynamicColors = labels.map(() => `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 0.8)`);
 
                     chartInstance = new Chart(chartCanvas, {
                         type: type,
@@ -708,32 +703,11 @@ Manajemen SIM-MONEVKUEP
     });
 
 
-    const tombolHapus = document.querySelectorAll('.tombol-hapus');
-    tombolHapus.forEach(tombol => {
-        tombol.addEventListener('click', function(event) {
-            event.preventDefault(); 
-            const href = this.getAttribute('href');
 
-            Swal.fire({
-                title: 'Apakah Anda yakin?',
-                text: "Data yang dihapus tidak dapat dikembalikan!",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Ya, hapus!',
-                cancelButtonText: 'Batal'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = href;
-                }
-            });
-        });
-    });
 
     document.addEventListener('DOMContentLoaded', function() {
-        const ctx = document.getElementById('kecamatanChart');
-        if (!ctx) return;
+        const filteredKabupatenId = '<?= esc($filters['id_kabupaten'] ?? '') ?>';
+
 
         function generateDynamicColors(count) {
             let colors = [];
@@ -810,63 +784,118 @@ Manajemen SIM-MONEVKUEP
             }
         };
 
-        // 🔁 Ambil data chart dari endpoint MONEVKUEP
-        fetch('<?= site_url('admin/monevkuep/chart-data') ?>')
-            .then(response => response.json())
-            .then(data => {
-                if (data.length === 0) return;
-                const labels = data.map(item => item.nama_kecamatan);
-                const values = data.map(item => Number(item.jumlah));
-                const dynamicColors = generateDynamicColors(values.length);
+        // =======================================================================
+        // GRAFIK 1: ANALISIS PER KECAMATAN (YANG DIPERBAIKI)
+        // =======================================================================
+        const ctxKecamatan = document.getElementById('kecamatanChart');
+        if (ctxKecamatan) {
+            // 1. Buat URL dinamis untuk chart kecamatan
+            let kecamatanChartUrl = '<?= site_url('admin/monevkuep/chart-data') ?>';
+            if (filteredKabupatenId) {
+                kecamatanChartUrl += `?id_kabupaten=${filteredKabupatenId}`;
+            }
 
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            data: values,
-                            backgroundColor: dynamicColors,
-                            borderColor: '#fff',
-                            borderWidth: 2,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            htmlLegend: { containerID: 'chart-legend' },
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(context) {
-                                        const total = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                        const value = context.parsed;
-                                        let percentage = '0.00%';
-                                        if (total > 0) {
-                                            percentage = ((value / total) * 100).toFixed(1) + '%';
-                                        }
-                                        return `${context.label}: ${value} (${percentage})`;
+            // 2. Gunakan URL dinamis tersebut di fetch
+            fetch(kecamatanChartUrl)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data || data.length === 0) {
+                        const chartWrapper = ctxKecamatan.closest('.chart-wrapper');
+                        chartWrapper.innerHTML = '<h4>Analisis per Kecamatan</h4><div class="doughnut-container" style="display:flex; align-items:center; justify-content:center; color:#999; height: 250px;">Tidak ada data.</div>';
+                        return;
+                    }
+
+                    const labels = data.map(item => item.nama_kecamatan);
+                    const values = data.map(item => Number(item.jumlah));
+                    const dynamicColors = generateDynamicColors(values.length);
+
+                    new Chart(ctxKecamatan, {
+                        type: 'doughnut',
+                        data: {
+                            labels: labels,
+                            datasets: [{ data: values, backgroundColor: dynamicColors, borderColor: '#fff', cutout: '60%' }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                htmlLegend: { containerID: 'chart-legend' },
+                                legend: { display: false },
+                                datalabels: {
+                                formatter: (value) => {
+                                        return value; 
+                                    },
+                                    // Atur warna font menjadi putih
+                                    color: '#fff', 
+                                    font: {
+                                        size: 14 
                                     }
                                 }
-                            },
-                            datalabels: {
-                                formatter: (value, ctx) => {
-                                    const total = ctx.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                                    let percentage = '0%';
-                                    if (total > 0) {
-                                       percentage = ((value / total) * 100).toFixed(1) + '%';
-                                    }
-                                    return percentage;
-                                },
-                                color: '#fff',
-                                font: { weight: 'bold', size: 12 }
+                                // Opsi tooltip dan datalabels bisa ditambahkan di sini jika perlu
                             }
-                        }
-                    },
-                    plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels],
+                        },
+                        plugins: [htmlLegendPlugin, centerTextPlugin, ChartDataLabels],
+                    });
                 });
-            });
+        }
+
+
+        // =======================================================================
+        // GRAFIK 2: ANALISIS PER KATEGORI (YANG SUDAH BENAR)
+        // =======================================================================
+        const chartCanvas = document.getElementById("dynamicChart");
+        let chartInstance = null;
+
+        function renderChart(url, type, label) {
+            let finalUrl = url;
+            if (filteredKabupatenId) {
+                finalUrl += `?id_kabupaten=${filteredKabupatenId}`;
+            }
+            fetch(finalUrl)
+                .then(res => res.json())
+                .then(data => {
+                    if (chartInstance) { chartInstance.destroy(); }
+                    if (!data || data.length === 0) {
+                        const ctx = chartCanvas.getContext('2d');
+                        ctx.clearRect(0, 0, chartCanvas.width, chartCanvas.height);
+                        ctx.font = "16px Arial"; ctx.fillStyle = "#999"; ctx.textAlign = "center";
+                        ctx.fillText("Tidak ada data.", chartCanvas.width / 2, chartCanvas.height / 2);
+                        return;
+                    }
+                    const labels = data.map(item => Object.values(item)[0] || 'Lainnya');
+                    const values = data.map(item => Number(Object.values(item)[1]));
+                    const dynamicColors = labels.map((_, i) => `hsla(${(i * 60) % 360}, 70%, 60%, 0.8)`);
+                    chartInstance = new Chart(chartCanvas, {
+                        type: type,
+                        data: {
+                            labels: labels,
+                            datasets: [{ label: label, data: values, backgroundColor: dynamicColors }]
+                        },
+                        options: {
+                            scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } },
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { position: 'bottom' } }
+                        }
+                    });
+                });
+        }
+
+        document.getElementById("chartSelector").addEventListener("change", function () {
+            const val = this.value;
+            switch (val) {
+                case "tahun": renderChart("/monevkuep/chart-data-by-year", "bar", "Jumlah per Tahun"); break;
+                case "jk": renderChart("/monevkuep/chart-data-by-gender", "pie", "Distribusi Jenis Kelamin"); break;
+                case "dtks": renderChart("/monevkuep/chart-data-by-dtks", "doughnut", "Distribusi DTKS"); break;
+                case "agama": renderChart("/monevkuep/chart-data-by-agama", "pie", "Distribusi Agama"); break;
+                case "pendidikan": renderChart("/monevkuep/chart-data-by-pendidikan", "bar", "Distribusi Pendidikan"); break;
+                case "usaha": renderChart("/monevkuep/chart-data-by-jenis-usaha", "bar", "Distribusi Jenis Usaha"); break;
+            }
+        });
+
+        // Memuat chart kategori default saat halaman dibuka
+        renderChart("/monevkuep/chart-data-by-year", "bar", "Jumlah per Tahun");
+
 
          if (document.getElementById('map')) { // Hanya jalankan jika elemen #map ada
             const map = L.map('map').setView([1.1, 104], 8); // Zoom awal sedikit diubah
