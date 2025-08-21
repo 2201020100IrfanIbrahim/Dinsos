@@ -79,6 +79,15 @@ Import Data dari Excel
                     <th style="background-color: #b9e1ffff;">G</th>
                     <th style="background-color: #b9e1ffff;">H</th>
                     <th style="background-color: #b9e1ffff;">I</th>
+                    <th style="background-color: #b9e1ffff;">J</th>
+                    <th style="background-color: #b9e1ffff;">K</th>
+                    <th style="background-color: #b9e1ffff;">L</th>
+                    <th style="background-color: #b9e1ffff;">M</th>
+                    <th style="background-color: #b9e1ffff;">N</th>
+                    <th style="background-color: #b9e1ffff;">O</th>
+                    <th style="background-color: #b9e1ffff;">P</th>
+                    <th style="background-color: #b9e1ffff;">Q</th>
+                    <th style="background-color: #b9e1ffff;">R</th>
                 </tr>
                 <tr>
                     <th style="background-color: #b9e1ffff;">1</th>
@@ -89,24 +98,38 @@ Import Data dari Excel
                     <th>Tempat Lahir</th>
                     <th>Tanggal Lahir</th>
                     <th>Usia</th>
-                    
+                    <th>Kabupaten</th>
                     <th>Kecamatan</th>
                     <th>Kelurahan</th>
-                    <th>Usia</th>
-                    <th>Jenis Kelamin</th>
-                    <th>Jenis Disabilitas</th>
+                    <th>Alamat</th>
+                    <th>DTKS</th>
+                    <th>SKTM</th>
+                    <th>Agama</th>
+                    <th>Pendidikan</th>
+                    <th>Jenis Usaha</th>
+                    <th>Jenis Pekerjaan</th>
+                    <th>RAB (Nominal)</th>
                 </tr>
                 <tr>
                     <th style="background-color: #b9e1ffff;">2</th>
                     <th>1</th>
-                    <th>aman</th>
                     <th>1234567890123456</th>
-                    <th>Alamat Lengkap</th>
-                    <th>Bukit Bestari</th>
-                    <th>Dompak</th>
-                    <th>22</th>
-                    <th>Laki-Laki</th>
-                    <th>Tunanetra, Tunarungu</th>
+                    <th>aman</th>
+                    <th>Laki-laki</th>
+                    <th>Medan</th>
+                    <th>14/10/1932</th>
+                    <th>(Boleh dibiarkan kosong)</th>
+                    <th>Kabupaten Lingga</th>
+                    <th>Lingga</th>
+                    <th>Mepar</th>
+                    <th>Desa Wisata Pulau Mepar, Kabupaten Lingga</th>
+                    <th>Ya</th>
+                    <th>Tidak</th>
+                    <th>Islam</th>
+                    <th>SLTA Sederajat</th>
+                    <th>Makanan Ringan</th>
+                    <th>Nelayan</th>
+                    <th>Rp3.500.000</th>
                 </tr>
             </thead>
         </table>
