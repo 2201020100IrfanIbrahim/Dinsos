@@ -186,13 +186,23 @@ class MonevkuepModel extends Model
     public function getChartDataByDTKS($id_kabupaten = false)
     {
         $builder = $this->db->table($this->table);
-        $builder->select('dtks, COUNT(id) as jumlah');
+        $builder->select("
+            CASE 
+                WHEN dtks IS NULL THEN 'Tidak Diisi'
+                WHEN dtks = '' THEN 'Diedit Kosong'
+                ELSE dtks 
+            END as dtks, 
+            COUNT(id) as jumlah
+        ");
+        
         if ($id_kabupaten !== false) {
             $builder->where('id_kabupaten', $id_kabupaten);
         }
+        
         $builder->groupBy('dtks');
         return $builder->get()->getResultArray();
     }
+
 
     // 5. Analisis Agama
     public function getChartDataByAgama($id_kabupaten = false)

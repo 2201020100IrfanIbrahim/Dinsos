@@ -461,11 +461,11 @@ class MonevkuepController extends BaseController
 
         if ($role === 'superadmin') {
             $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
-        } else { // Jika role adalah 'admin'
+        } else {
             $id_kabupaten = session()->get('id_kabupaten');
         }
 
-        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+        return $this->response->setJSON($model->getChartDataByGender($id_kabupaten));
     }
 
     public function getChartDataByDTKS()
@@ -476,11 +476,11 @@ class MonevkuepController extends BaseController
 
         if ($role === 'superadmin') {
             $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
-        } else { // Jika role adalah 'admin'
+        } else {
             $id_kabupaten = session()->get('id_kabupaten');
         }
 
-        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+        return $this->response->setJSON($model->getChartDataByDTKS($id_kabupaten));
     }
 
     public function getChartDataByAgama()
@@ -491,11 +491,11 @@ class MonevkuepController extends BaseController
 
         if ($role === 'superadmin') {
             $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
-        } else { // Jika role adalah 'admin'
+        } else {
             $id_kabupaten = session()->get('id_kabupaten');
         }
 
-        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+        return $this->response->setJSON($model->getChartDataByAgama($id_kabupaten));
     }
 
     public function getChartDataByPendidikan()
@@ -506,11 +506,11 @@ class MonevkuepController extends BaseController
 
         if ($role === 'superadmin') {
             $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
-        } else { // Jika role adalah 'admin'
+        } else {
             $id_kabupaten = session()->get('id_kabupaten');
         }
 
-        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+        return $this->response->setJSON($model->getChartDataByPendidikan($id_kabupaten));
     }
 
     public function getChartDataByJenisUsaha()
@@ -521,12 +521,13 @@ class MonevkuepController extends BaseController
 
         if ($role === 'superadmin') {
             $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
-        } else { // Jika role adalah 'admin'
+        } else {
             $id_kabupaten = session()->get('id_kabupaten');
         }
 
-        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+        return $this->response->setJSON($model->getChartDataByJenisUsaha($id_kabupaten));
     }
+
 
 
     ///////////////////////////////////////////////////////////////////////////////////////////

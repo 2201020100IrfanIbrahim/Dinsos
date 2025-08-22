@@ -606,6 +606,7 @@ Manajemen SIM-MONEVKUEP
         });
     });
 
+    /*
     // --- SCRIPT UNTUK GRAFIK MIX ---
     document.addEventListener("DOMContentLoaded", function () {
         const filteredKabupatenId = '<?= esc($filters['id_kabupaten'] ?? '') ?>';
@@ -702,7 +703,7 @@ Manajemen SIM-MONEVKUEP
         renderChart("/monevkuep/chart-data-by-year", "bar", "Jumlah per Tahun");
     });
 
-
+*/
 
 
     document.addEventListener('DOMContentLoaded', function() {
@@ -862,7 +863,7 @@ Manajemen SIM-MONEVKUEP
                         ctx.fillText("Tidak ada data.", chartCanvas.width / 2, chartCanvas.height / 2);
                         return;
                     }
-                    const labels = data.map(item => Object.values(item)[0] || 'Lainnya');
+                    const labels = data.map(item => Object.values(item)[0] || 'Tidak Diisi');
                     const values = data.map(item => Number(Object.values(item)[1]));
                     const dynamicColors = labels.map((_, i) => `hsla(${(i * 60) % 360}, 70%, 60%, 0.8)`);
                     chartInstance = new Chart(chartCanvas, {
