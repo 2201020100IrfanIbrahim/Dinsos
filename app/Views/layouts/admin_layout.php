@@ -269,7 +269,7 @@
     <div class="wrapper">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-profile">
-                <a href="<?= site_url('admin/profile') ?>"><img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Foto Profil"></a>
+                <a href="<?php if (session()->get('role') == 'superadmin') echo site_url('admin/profile') ?>"><img src="<?= base_url('assets/images/default-avatar.svg') ?>" alt="Foto Profil"></a>
                 <h3><?= esc(session()->get('username')) ?></h3>
                 <p><?= (session()->get('role') == 'admin') ? 'Admin Wilayah Kerja' : 'Super Admin' ?></p>
             </div>

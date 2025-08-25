@@ -110,6 +110,11 @@ class UserController extends BaseController
     // Tambahkan fungsi baru ini
     public function profile()
     {
+        // Batasi hanya untuk superadmin
+        if (session()->get('role') !== 'superadmin') {
+            return redirect()->to('/dashboard')->with('error', 'Anda tidak memiliki akses ke halaman ini.');
+        }
+
         $userModel = new \App\Models\UserModel();
         $userId = session()->get('user_id');
 
@@ -124,6 +129,7 @@ class UserController extends BaseController
 
         return view('users/profile', $data);
     }
+
 
     // Tambahkan juga fungsi baru ini
     public function updateProfile()
