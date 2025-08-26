@@ -47,19 +47,62 @@ Import Data dari Excel
     }
     .alert-success { background-color: #d4edda; color: #155724; }
     .alert-danger { background-color: #f8d7da; color: #721c24; }
+
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border: 2px solid #333333; padding: 6px; text-align: center; vertical-align: middle; color: #333333; }
+    thead th { background-color: #ffffffff; }
+    tbody tr:hover { background-color: #f1f1f1; }
 </style>
 <?= $this->endSection() ?>
 
-
 <?= $this->section('content') ?>
-
 <div class="card">
-    <h3>Import Data Bantuan dari Excel</h3>
-
+    <div class="back">
+            <a href="<?= site_url('admin/bankel') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali ke Dashboard</a>
+        </div>
+    <div class="card-header">
+        <h3>Import Data Bankel dari Excel</h3>
+    </div>
     <div class="import-instructions">
         <p>Silakan upload file Excel (.xlsx) dengan format yang telah ditentukan.</p>
         <p><strong>Penting:</strong> Pastikan urutan dan nama kolom di file Excel Anda sudah benar untuk menghindari kegagalan import.</p>
-        <a href="#">Download Template Format Excel</a>
+        <table>
+            <thead>
+                <tr>
+                    <th style="background-color: #b9e1ffff;"></th>
+                    <th style="background-color: #b9e1ffff;">A</th>
+                    <th style="background-color: #b9e1ffff;">B</th>
+                    <th style="background-color: #b9e1ffff;">C</th>
+                    <th style="background-color: #b9e1ffff;">D</th>
+                    <th style="background-color: #b9e1ffff;">E</th>
+                    <th style="background-color: #b9e1ffff;">F</th>
+                    <th style="background-color: #b9e1ffff;">G</th>
+                    <th style="background-color: #b9e1ffff;">H</th>
+                </tr>
+                <tr>
+                    <th style="background-color: #b9e1ffff;">1</th>
+                    <th>No</th>
+                    <th>NIK</th>
+                    <th>Nama Lengkap</th>
+                    <th>Kabupaten</th>
+                    <th>Kecamatan</th>
+                    <th>Kelurahan</th>
+                    <th>Kategori Bantuan</th>
+                    <th>Tahun</th>
+                </tr>
+                <tr>
+                    <th style="background-color: #b9e1ffff;">2</th>
+                    <th>1</th>
+                    <th>1234567890123456</th>
+                    <th>aman</th>
+                    <th>Kabupaten Lingga</th>
+                    <th>Lingga</th>
+                    <th>Daik</th>
+                    <th>Mie Ayam</th>
+                    <th>2029</th>
+                </tr>
+            </thead>
+        </table>
     </div>
 
     <?php if (session()->getFlashdata('error')): ?>
@@ -96,5 +139,4 @@ Import Data dari Excel
     </form>
     
 </div>
-
 <?= $this->endSection() ?>

@@ -10,7 +10,7 @@ class BankelController extends BaseController
     public function index()
     {
         $bankelModel = new \App\Models\BankelModel();
-        $kabupatenModel = new \App\Models\KabupatenModel();//new
+        $kabupatenModel = new \App\Models\KabupatenModel(); //new
 
         $role = session()->get('role');
         $id_kabupaten_admin = session()->get('id_kabupaten');
@@ -81,7 +81,7 @@ class BankelController extends BaseController
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
             if ($kabupaten) {
                 $nama_kabupaten = $kabupaten['nama_kabupaten'];
-                $nama_kabupaten_slug = $kabupaten['slug']; 
+                $nama_kabupaten_slug = $kabupaten['slug'];
                 $page_title .= ' - Wilayah ' . $nama_kabupaten;
             }
         }
@@ -93,7 +93,7 @@ class BankelController extends BaseController
             'title'   => $page_title,
             'filters' => $filters,
             'role'    => $role, // Kirim peran pengguna
-            'kabupaten_list' => $kabupatenModel->findAll(), 
+            'kabupaten_list' => $kabupatenModel->findAll(),
             'nama_kabupaten' => $nama_kabupaten, // Kirim nama kabupaten
             'nama_kabupaten_slug' => $nama_kabupaten_slug,
             'breadcrumbs' => [
@@ -101,10 +101,9 @@ class BankelController extends BaseController
                 ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel']
             ]
         ];
-        
+
 
         return view('bankel/SIM-BANKEL', $data);
-
     }
 
     public function edit($id = null)
@@ -161,7 +160,7 @@ class BankelController extends BaseController
             'file_ktp'         => $dataLama['file_ktp'],
             'file_kk'          => $dataLama['file_kk']
         ];
-        
+
         // --- MODIFIKASI: Hanya superadmin yang boleh mengubah kabupaten ---
         if (session()->get('role') === 'superadmin') {
             $data['id_kabupaten'] = $this->request->getPost('id_kabupaten');
@@ -179,7 +178,7 @@ class BankelController extends BaseController
                 unlink(FCPATH . 'uploads/pdf/' . $dataLama['file_ktp']);
             }
         }
-        
+
         // Proses upload file KK
         $fileKK = $this->request->getFile('file_kk');
         if ($fileKK && $fileKK->isValid() && !$fileKK->hasMoved()) {
@@ -286,7 +285,7 @@ class BankelController extends BaseController
 
         // Tambahkan id admin yang menginput
         $data['id_admin_input'] = $session->get('user_id');
-        
+
         // Inisialisasi variabel dengan nilai default (null)
         $namaGambar = null;
         $koordinat = null;
@@ -352,7 +351,6 @@ class BankelController extends BaseController
                 ->withFile($gambarFile)
                 ->resize(800, 800, true, 'height')
                 ->save($fullPath, 85);
-
         }
 
         // // 3. Kumpulkan semua data untuk disimpan ke database
@@ -418,37 +416,35 @@ class BankelController extends BaseController
         $sheet->setCellValue('C1', 'Nama Lengkap');
         $sheet->setCellValue('D1', 'Kabupaten/Kota');
         $sheet->setCellValue('E1', 'Kecamatan');
-        $sheet->setCellValue('F1', 'Kategori Bantuan');
-        $sheet->setCellValue('G1', 'Tahun');
-        $sheet->setCellValue('H1', 'Status');
+        $sheet->setCellValue('F1', 'Kelurahan'); // 🔹 Tambahkan kolom Kelurahan
+        $sheet->setCellValue('G1', 'Kategori Bantuan');
+        $sheet->setCellValue('H1', 'Tahun');
 
         // Tulis data dari database
         $rowNumber = 2;
         foreach ($data_bantuan as $index => $item) {
             $sheet->setCellValue('A' . $rowNumber, $index + 1);
-            $sheet->setCellValue('B' . $rowNumber, "'" . $item['nik']);
+            $sheet->setCellValue('B' . $rowNumber, "'" . $item['nik']); // Tambahkan ' supaya format NIK tetap teks
             $sheet->setCellValue('C' . $rowNumber, $item['nama_lengkap']);
             $sheet->setCellValue('D' . $rowNumber, $item['nama_kabupaten']);
             $sheet->setCellValue('E' . $rowNumber, $item['nama_kecamatan']);
-            $sheet->setCellValue('F' . $rowNumber, $item['kategori_bantuan']);
-            $sheet->setCellValue('G' . $rowNumber, $item['tahun_penerimaan']);
-            $sheet->setCellValue('H' . $rowNumber, $item['status_penerimaan']);
+            $sheet->setCellValue('F' . $rowNumber, $item['nama_kelurahan']); // 🔹 Isi kolom Kelurahan
+            $sheet->setCellValue('G' . $rowNumber, $item['kategori_bantuan']);
+            $sheet->setCellValue('H' . $rowNumber, $item['tahun_penerimaan']);
+            // ❌ Hapus kolom status_penerimaan
             $rowNumber++;
         }
 
-        // Siapkan writer
         $writer = new Xlsx($spreadsheet);
-
-        // Set header untuk download
         $fileName = 'rekap_data_bankel_' . date('Y-m-d') . '.xlsx';
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $fileName . '"');
         header('Cache-Control: max-age=0');
 
-        // Tulis file ke output dan kirim ke browser
         $writer->save('php://output');
         exit();
     }
+
 
     // Fungsi bantu: konversi EXIF ke desimal
     private function convertExifToCoordinate($exifCoord, $ref)
@@ -506,7 +502,7 @@ class BankelController extends BaseController
     ///////////////////////////////////////////////////////////////////////////////////////////
     //--------------------------------------- GRAFIK ----------------------------------------//
     ///////////////////////////////////////////////////////////////////////////////////////////
-    
+
     public function getChartData()
     {
         $bankelModel = new \App\Models\BankelModel();
@@ -568,114 +564,120 @@ class BankelController extends BaseController
         $filePath = WRITEPATH . 'uploads/' . $newName;
 
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-        
-        $bankelModel = new \App\Models\BankelModel();
-        $kecamatanModel = new \App\Models\KecamatanModel();
-        $kelurahanModel = new \App\Models\KelurahanModel();
+        $rows = $spreadsheet->getActiveSheet()->toArray();
 
-        $dataToInsert = [];
+        $bankelModel     = new \App\Models\BankelModel();
+        $kecamatanModel  = new \App\Models\KecamatanModel();
+        $kelurahanModel  = new \App\Models\KelurahanModel();
+
         $errors = [];
         $rowCount = 0;
+        $successCount = 0;
 
         $session = session();
         $id_kabupaten_admin = $session->get('id_kabupaten');
-        $id_admin_input = $session->get('user_id');
+        $id_admin_input     = $session->get('user_id');
 
+        $db = \Config\Database::connect();
+
+        // Cache
         $kecamatanCache = [];
         $kelurahanCache = [];
 
-        // Mulai dari baris ke-2 untuk melewati header
         foreach ($rows as $index => $row) {
-            if ($index == 0) continue;
-            $excelRowNumber = $index + 1;
+            if ($index == 0) continue; // skip header
             $rowCount++;
+            $excelRowNumber = $index + 1;
 
-            $nama_kecamatan = trim($row[7]);
-            $nama_kelurahan = trim($row[8]);
+            $db->transStart();
 
-            // Cari ID Kecamatan (dengan cache)
+            $nama_kecamatan = trim((string)($row[4] ?? ''));
+            $nama_kelurahan = trim((string)($row[5] ?? ''));
+
+            // --- Cari ID Kecamatan (pakai cache)
             if (!isset($kecamatanCache[$nama_kecamatan])) {
-                $kec = $kecamatanModel->where('nama_kecamatan', $nama_kecamatan)->where('id_kabupaten', $id_kabupaten_admin)->first();
-                $kecamatanCache[$nama_kecamatan] = $kec ? $kec['id'] : null;
+                $kec = $kecamatanModel
+                    ->where('nama_kecamatan', $nama_kecamatan)
+                    ->where('id_kabupaten', $id_kabupaten_admin)
+                    ->first();
+                $kecamatanCache[$nama_kecamatan] = $kec['id'] ?? null;
             }
             $id_kecamatan = $kecamatanCache[$nama_kecamatan];
 
             if (!$id_kecamatan) {
                 $errors["Kecamatan '$nama_kecamatan' tidak ditemukan"][] = $excelRowNumber;
+                $db->transRollback();
                 continue;
             }
 
-            // Cari ID Kelurahan (dengan cache)
+            // --- Cari ID Kelurahan (pakai cache)
             if (!isset($kelurahanCache[$nama_kelurahan])) {
-                $kel = $kelurahanModel->where('nama_kelurahan', $nama_kelurahan)->where('id_kecamatan', $id_kecamatan)->first();
-                $kelurahanCache[$nama_kelurahan] = $kel ? $kel['id'] : null;
+                $kel = $kelurahanModel
+                    ->where('nama_kelurahan', $nama_kelurahan)
+                    ->where('id_kecamatan', $id_kecamatan)
+                    ->first();
+                $kelurahanCache[$nama_kelurahan] = $kel['id'] ?? null;
             }
             $id_kelurahan = $kelurahanCache[$nama_kelurahan];
 
             if (!$id_kelurahan) {
                 $errors["Kelurahan '$nama_kelurahan' tidak ditemukan di kec. '$nama_kecamatan'"][] = $excelRowNumber;
+                $db->transRollback();
                 continue;
             }
-            
+
             $rowData = [
-                'nik'              => preg_replace('/[^0-9]/', '', $row[0]),
-                'nama_lengkap'     => $row[1],
-                'alamat_lengkap'   => $row[2],
-                'rt'               => $row[3],
-                'rw'               => $row[4],
-                'kategori_bantuan' => $row[5],
-                'tahun_penerimaan' => $row[6],
+                'nik'              => preg_replace('/[^0-9]/', '', $row[1]),
+                'nama_lengkap'     => $row[2],
+                'id_kabupaten'     => $id_kabupaten_admin,
                 'id_kecamatan'     => $id_kecamatan,
                 'id_kelurahan'     => $id_kelurahan,
-                'id_kabupaten'     => $id_kabupaten_admin,
+                'kategori_bantuan' => $row[6],
+                'tahun_penerimaan' => $row[7],
                 'id_admin_input'   => $id_admin_input,
             ];
 
-            // Validasi Manual Setiap Baris
+            // --- Validasi baris
             if ($bankelModel->validate($rowData) === false) {
-                $rowErrors = $bankelModel->errors();
-                foreach ($rowErrors as $message) {
+                foreach ($bankelModel->errors() as $message) {
                     $errors[$message][] = $excelRowNumber;
                 }
+                $db->transRollback();
                 continue;
             }
-            
-            $dataToInsert[] = $rowData;
+
+            // --- Simpan
+            $bankelModel->save($rowData);
+
+            if ($db->transComplete()) {
+                $successCount++;
+            } else {
+                $errors["Gagal menyimpan ke database"][] = $excelRowNumber;
+            }
         }
 
-        // Hanya jalankan insert jika ada data yang lolos validasi
-        if (!empty($dataToInsert)) {
-            $bankelModel->insertBatch($dataToInsert);
-        }
-        
-        // Siapkan pesan feedback yang baru dan terstruktur
-        $successCount = count($dataToInsert);
         $failCount = $rowCount - $successCount;
         $message = "Proses import selesai. <strong>Berhasil: $successCount data.</strong>";
-
         if ($failCount > 0) {
             $session->setFlashdata('fail_count', $failCount);
             $session->setFlashdata('errors_list', $errors);
         }
 
-        unlink($filePath);
+        @unlink($filePath);
 
         return redirect()->to('/admin/bankel/import')->with('message', $message);
     }
+
 
     public function printAll()
     {
         $bankelModel = new \App\Models\BankelModel();
         $role = session()->get('role');
         $id_kabupaten_admin = session()->get('id_kabupaten');
-        $data['all_data'] = $role === 'superadmin' 
+        $data['all_data'] = $role === 'superadmin'
             ? $bankelModel->getBankelData()
             : $bankelModel->getBankelData($id_kabupaten_admin);
 
         return view('admin/print_bankel', $data); // Buat view khusus cetak
     }
-
-
 }
