@@ -58,7 +58,7 @@ Manajemen Jenis Disabilitas
     
     <div class="card">
         <div class="back">
-            <a href="<?= site_url('admin/difabelkepri') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali ke Dashboard</a>
+            <a href="<?= site_url('admin/difabelkepri') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
         </div>
         <div class="card-header">
             <span>Manajemen Referensi Jenis Disabilitas</span>

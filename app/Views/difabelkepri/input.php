@@ -26,6 +26,11 @@ Tambah Data Difabel
 
 <?= $this->section('content') ?>
 <div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/difabelkepri') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data Difabel</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
     
     <?php if (session()->get('errors')): ?>
         <div class="error-box">
@@ -71,6 +76,21 @@ Tambah Data Difabel
 
         <div class="form-section">
             <h3>Wilayah & Alamat</h3>
+
+            <?php if (isset($role) && $role === 'superadmin'): ?>
+            <div class="form-group">
+                <label for="id_kabupaten">Kabupaten/Kota <span class="required-star">*</span></label>
+                <select name="id_kabupaten" id="id_kabupaten" class="form-input" required>
+                    <option value="">-- Pilih Kabupaten --</option>
+                    <?php foreach ($kabupaten_list as $kabupaten): ?>
+                        <option value="<?= esc($kabupaten['id']) ?>" <?= set_select('id_kabupaten', $kabupaten['id']) ?>>
+                            <?= esc($kabupaten['nama_kabupaten']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="id_kecamatan">Kecamatan <span class="required-star">*</span></label>
@@ -133,45 +153,71 @@ Tambah Data Difabel
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const kecamatanSelect = document.getElementById('id_kecamatan');
-        const kelurahanSelect = document.getElementById('id_kelurahan');
-        kecamatanSelect.addEventListener('change', function() {
-            const kecamatanId = this.value;
-            kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
-            if (kecamatanId) {
-                const url = `<?= site_url('admin/bankel/get-kelurahan/') ?>${kecamatanId}`;
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                        data.forEach(kelurahan => {
-                            const option = document.createElement('option');
-                            option.value = kelurahan.id;
-                            option.textContent = kelurahan.nama_kelurahan;
-                            kelurahanSelect.appendChild(option);
-                        });
-                    });
-            } else {
-                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
-            }
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    const kabupatenSelect = document.getElementById('id_kabupaten');
+    const kecamatanSelect = document.getElementById('id_kecamatan');
+    const kelurahanSelect = document.getElementById('id_kelurahan');
+    const checkboxContainer = document.querySelector('.checkbox-container');
+    const golonganInput = document.getElementById('golongan_disabilitas');
+    const userRole = '<?= esc($role ?? 'admin') ?>';
 
-        const checkboxContainer = document.querySelector('.checkbox-container');
-        const golonganInput = document.getElementById('golongan_disabilitas');
-        function updateGolongan() {
-            const checkedBoxes = checkboxContainer.querySelectorAll('input[type="checkbox"]:checked');
-            if (checkedBoxes.length > 1) {
-                golonganInput.value = 'Disabilitas Ganda';
-            } else if (checkedBoxes.length === 1) {
-                golonganInput.value = checkedBoxes[0].getAttribute('data-golongan');
-            } else {
-                golonganInput.value = '';
-            }
+    // --- LOGIKA DROPDOWN WILAYAH ---
+    function loadKecamatan(kabupatenId) {
+        kecamatanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+        if (!kabupatenId) {
+            kecamatanSelect.innerHTML = userRole === 'superadmin' ? '<option value="">-- Pilih Kabupaten Dulu --</option>' : '<option value="">-- Pilih Kecamatan --</option>';
+            return;
         }
-        checkboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-            checkbox.addEventListener('change', updateGolongan);
-        });
+        fetch(`<?= site_url('admin/difabelkepri/get-kecamatan/') ?>${kabupatenId}`)
+            .then(res => res.json()).then(data => {
+                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                data.forEach(kec => {
+                    const opt = document.createElement('option');
+                    opt.value = kec.id;
+                    opt.textContent = kec.nama_kecamatan;
+                    kecamatanSelect.appendChild(opt);
+                });
+            });
+    }
+
+    function loadKelurahan(kecamatanId) {
+        kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        if (!kecamatanId) {
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+            return;
+        }
+        fetch(`<?= site_url('admin/difabelkepri/get-kelurahan/') ?>${kecamatanId}`)
+            .then(res => res.json()).then(data => {
+                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+                data.forEach(kel => {
+                    const opt = document.createElement('option');
+                    opt.value = kel.id;
+                    opt.textContent = kel.nama_kelurahan;
+                    kelurahanSelect.appendChild(opt);
+                });
+            });
+    }
+
+    if (userRole === 'superadmin' && kabupatenSelect) {
+        kabupatenSelect.addEventListener('change', () => loadKecamatan(kabupatenSelect.value));
+    }
+    kecamatanSelect.addEventListener('change', () => loadKelurahan(kecamatanSelect.value));
+
+    // --- LOGIKA GOLONGAN DISABILITAS OTOMATIS ---
+    function updateGolongan() {
+        const checkedBoxes = checkboxContainer.querySelectorAll('input[type="checkbox"]:checked');
+        if (checkedBoxes.length > 1) {
+            golonganInput.value = 'Disabilitas Ganda';
+        } else if (checkedBoxes.length === 1) {
+            golonganInput.value = checkedBoxes[0].getAttribute('data-golongan');
+        } else {
+            golonganInput.value = '';
+        }
+    }
+    checkboxContainer.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', updateGolongan);
     });
+});
 </script>
 <?= $this->endSection() ?>

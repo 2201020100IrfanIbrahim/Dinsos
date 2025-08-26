@@ -11,6 +11,7 @@ Tambah Data Bantuan
     .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
     .form-group { margin-bottom: 20px; }
     label { display: block; margin-bottom: 8px; font-weight: 500; }
+    .required-star { color: #dc3545; }
     .form-input, select, input[type="file"] { width: 100%; padding: 10px 15px; box-sizing: border-box; border: 1px solid #ced4da; border-radius: 8px; font-size: 14px; }
     .form-actions { text-align: right; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e9ecef; }
     .submit-button { padding: 12px 30px; background-color: #007bff; color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
@@ -20,6 +21,11 @@ Tambah Data Bantuan
 
 <?= $this->section('content') ?>
 <div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/bankel') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data BANKEL</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
     
     <?php if (session()->get('errors')): ?>
         <div class="error-box">
@@ -46,12 +52,32 @@ Tambah Data Bantuan
                     <label for="nik">NIK (KTP)<span class="required-star">*</span></label></label>
                     <input type="text" name="nik" id="nik" class="form-input" placeholder="Masukkan 16 digit NIK" value="<?= old('nik') ?>" required>
                 </div>
+                <div class="form-group">
+                    <label for="file_ktp">KTP (PDF)</label>
+                    <input type="file" name="file_ktp" id="file_ktp" accept="application/pdf">
+                </div>
+                <div class="form-group">
+                    <label for="file_kk">Kartu Keluarga (PDF)</label>
+                    <input type="file" name="file_kk" id="file_kk" accept="application/pdf">
+                </div>
             </div>
         </div>
 
         <div class="form-section">
             <h3>Wilayah & Alamat</h3>
             <div class="form-row">
+                <?php if (session()->get('role') === 'superadmin'): ?>
+                <div class="form-group">
+                    <label for="id_kabupaten">Kabupaten/Kota <span class="required-star">*</span></label>
+                    <select name="id_kabupaten" id="id_kabupaten" required> <option value="">-- Pilih Kabupaten/Kota --</option>
+                        <?php foreach ($kabupaten_list as $kab): ?>
+                            <option value="<?= esc($kab['id']) ?>" <?= old('id_kabupaten') == $kab['id'] ? 'selected' : '' ?>>
+                                <?= esc($kab['nama_kabupaten']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <?php endif; ?>
                 <div class="form-group">
                     <label for="id_kecamatan">Kecamatan<span class="required-star">*</span></label></label>
                     <select name="id_kecamatan" id="id_kecamatan" required>
@@ -76,12 +102,12 @@ Tambah Data Bantuan
                     <input type="text" name="dusun" id="dusun" class="form-input" placeholder="Isikan dusun" value="<?= old('dusun') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="rt">RT<span class="required-star">*</span></label></label>
-                    <input type="text" name="rt" id="rt" class="form-input" placeholder="001" value="<?= old('rt') ?>" required>
+                    <label for="rt">RT</label>
+                    <input type="text" name="rt" id="rt" class="form-input" placeholder="001" value="<?= old('rt') ?>">
                 </div>
                 <div class="form-group">
-                    <label for="rw">RW<span class="required-star">*</span></label></label>
-                    <input type="text" name="rw" id="rw" class="form-input" placeholder="001" value="<?= old('rw') ?>" required>
+                    <label for="rw">RW</label>
+                    <input type="text" name="rw" id="rw" class="form-input" placeholder="001" value="<?= old('rw') ?>">
                 </div>
             </div>
             <div class="form-group">
@@ -115,29 +141,61 @@ Tambah Data Bantuan
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const kecamatanSelect = document.getElementById('id_kecamatan');
-        const kelurahanSelect = document.getElementById('id_kelurahan');
-        kecamatanSelect.addEventListener('change', function() {
-            const kecamatanId = this.value;
-            kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
-            if (kecamatanId) {
-                const url = `<?= site_url('admin/bankel/get-kelurahan/') ?>${kecamatanId}`;
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                        data.forEach(kelurahan => {
-                            const option = document.createElement('option');
-                            option.value = kelurahan.id;
-                            option.textContent = kelurahan.nama_kelurahan;
-                            kelurahanSelect.appendChild(option);
-                        });
+document.addEventListener('DOMContentLoaded', function() {
+    const kabupatenSelect = document.getElementById('id_kabupaten');
+    const kecamatanSelect = document.getElementById('id_kecamatan');
+    const kelurahanSelect = document.getElementById('id_kelurahan');
+    
+    // Fungsi untuk mengambil data kecamatan
+    function fetchKecamatan(kabupatenId) {
+        kecamatanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+
+        if (kabupatenId) {
+            const url = `<?= site_url('admin/get-kecamatan/') ?>${kabupatenId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                    data.forEach(kecamatan => {
+                        const option = document.createElement('option');
+                        option.value = kecamatan.id;
+                        option.textContent = kecamatan.nama_kecamatan;
+                        kecamatanSelect.appendChild(option);
                     });
-            } else {
-                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
-            }
+                });
+        } else {
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kabupaten Dulu --</option>';
+        }
+    }
+
+    if (kabupatenSelect) {
+        kabupatenSelect.addEventListener('change', function() {
+            fetchKecamatan(this.value);
         });
+    }
+
+    kecamatanSelect.addEventListener('change', function() {
+        const kecamatanId = this.value;
+        kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        
+        if (kecamatanId) {
+            const url = `<?= site_url('admin/bankel/get-kelurahan/') ?>${kecamatanId}`;
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+                    data.forEach(kelurahan => {
+                        const option = document.createElement('option');
+                        option.value = kelurahan.id;
+                        option.textContent = kelurahan.nama_kelurahan;
+                        kelurahanSelect.appendChild(option);
+                    });
+                });
+        } else {
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+        }
     });
+});
 </script>
 <?= $this->endSection() ?>

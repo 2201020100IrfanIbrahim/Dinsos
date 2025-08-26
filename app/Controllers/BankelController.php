@@ -7,17 +7,22 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class BankelController extends BaseController
 {
-    /**
-     * Menampilkan halaman utama SIM-BANKEL (nantinya berisi tabel data).
-     */
     public function index()
     {
         $bankelModel = new \App\Models\BankelModel();
+        $kabupatenModel = new \App\Models\KabupatenModel();//new
+
+        $role = session()->get('role');
+        $id_kabupaten_admin = session()->get('id_kabupaten');
 
         $filters = [
-            'keyword' => $this->request->getGet('keyword'),
-            'tahun'   => $this->request->getGet('tahun')
+            'keyword'       => $this->request->getGet('keyword'),
+            'tahun'         => $this->request->getGet('tahun'),
+            'id_kabupaten'  => $this->request->getGet('id_kabupaten')
         ];
+
+        $role = session()->get('role');
+        $id_kabupaten_admin = session()->get('id_kabupaten');
 
         // --- LOGIKA BARU UNTUK PAGINATION ---
 
@@ -43,11 +48,22 @@ class BankelController extends BaseController
         }
 
         // Terapkan filter wilayah untuk admin
-        $role = session()->get('role');
-        $id_kabupaten_admin = session()->get('id_kabupaten');
-        if ($role === 'admin') {
+        // $role = session()->get('role');
+        // $id_kabupaten_admin = session()->get('id_kabupaten');
+        // if ($role === 'admin') {
+        //     $query->where('data_bankel.id_kabupaten', $id_kabupaten_admin);
+        // }
+
+
+        // 2. Terapkan filter wilayah yang lebih cerdas
+        if ($role === 'superadmin') {
+            if (!empty($filters['id_kabupaten'])) {
+                $query->where('data_bankel.id_kabupaten', $filters['id_kabupaten']);
+            }
+        } else {
             $query->where('data_bankel.id_kabupaten', $id_kabupaten_admin);
         }
+
 
         // Ambil data menggunakan paginate, 10 data per halaman
         $data_bantuan = $query->paginate(10, 'bantuan'); // 'bantuan' adalah nama grup pager
@@ -55,45 +71,16 @@ class BankelController extends BaseController
 
         // --- BATAS LOGIKA BARU ---
 
-        // Siapkan judul halaman
-        $page_title = 'Data Bantuan Sembako';
-        // Di dalam method index()
-        if ($role === 'admin') {
-            $kabupatenModel = new \App\Models\KabupatenModel();
-            $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
-            if ($kabupaten) {
-                $nama_kabupaten = $kabupaten['nama_kabupaten'];
-                // Ambil slug langsung dari database, bukan menebak-nebak lagi
-                $nama_kabupaten_slug = $kabupaten['slug']; 
-                $page_title .= ' - Wilayah ' . $nama_kabupaten;
-            }
-        }
-
-        $data = [
-            // ... (data lain seperti $bantuan, $pager, dll) ...
-            'bantuan' => $data_bantuan,
-            'pager'   => $pager,
-            'message' => session()->getFlashdata('message'),
-            'title'   => $page_title,
-            'filters' => $filters,
-
-            // Data breadcrumbs untuk halaman index
-            'breadcrumbs' => [
-                ['title' => 'Beranda', 'url' => '/dashboard'],
-                ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel']
-            ]
-        ];
-
         $page_title = 'Data Bantuan Sembako';
         $nama_kabupaten = null;
         $nama_kabupaten_slug = null;
 
+        // Siapkan judul halaman
         if ($role === 'admin') {
             $kabupatenModel = new \App\Models\KabupatenModel();
             $kabupaten = $kabupatenModel->find($id_kabupaten_admin);
             if ($kabupaten) {
                 $nama_kabupaten = $kabupaten['nama_kabupaten'];
-                // Buat 'slug' dari nama kabupaten, contoh: "Kabupaten Lingga" -> "lingga"
                 $nama_kabupaten_slug = $kabupaten['slug']; 
                 $page_title .= ' - Wilayah ' . $nama_kabupaten;
             }
@@ -106,8 +93,13 @@ class BankelController extends BaseController
             'title'   => $page_title,
             'filters' => $filters,
             'role'    => $role, // Kirim peran pengguna
+            'kabupaten_list' => $kabupatenModel->findAll(), 
             'nama_kabupaten' => $nama_kabupaten, // Kirim nama kabupaten
-            'nama_kabupaten_slug' => $nama_kabupaten_slug // Kirim slug
+            'nama_kabupaten_slug' => $nama_kabupaten_slug,
+            'breadcrumbs' => [
+                ['title' => 'Beranda', 'url' => '/dashboard'],
+                ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel']
+            ]
         ];
         
 
@@ -120,20 +112,21 @@ class BankelController extends BaseController
         $bankelModel = new \App\Models\BankelModel();
         $kecamatanModel = new \App\Models\KecamatanModel();
         $kelurahanModel = new \App\Models\KelurahanModel();
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
 
-        // Ambil data utama yang akan diedit
         $bantuanData = $bankelModel->find($id);
-
         if (!$bantuanData) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Data bantuan tidak ditemukan.');
         }
 
         // Siapkan data untuk dikirim ke view
         $data = [
-            'bantuan' => $bantuanData,
+            'bantuan'        => $bantuanData,
             'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $bantuanData['id_kabupaten'])->findAll(),
             'kelurahan_list' => $kelurahanModel->where('id_kecamatan', $bantuanData['id_kecamatan'])->findAll(),
-            'breadcrumbs' => [
+            'kabupaten_list' => $kabupatenModel->findAll(), // Tambahkan ini
+            'role'           => session()->get('role'),      // Tambahkan ini
+            'breadcrumbs'    => [
                 ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel'],
                 ['title' => 'Edit Data', 'url' => '']
             ]
@@ -145,15 +138,14 @@ class BankelController extends BaseController
 
     public function update($id = null)
     {
-        // 1. Inisialisasi Model dan ambil data lama dari database
         $bankelModel = new \App\Models\BankelModel();
         $dataLama = $bankelModel->find($id);
         if (!$dataLama) {
             throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Data bantuan tidak ditemukan.');
         }
 
-        // 2. Kumpulkan semua data berbasis teks dari formulir
         $data = [
+            'id'               => $id,
             'nik'              => $this->request->getPost('nik'),
             'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
             'id_kecamatan'     => $this->request->getPost('id_kecamatan'),
@@ -164,92 +156,71 @@ class BankelController extends BaseController
             'alamat_lengkap'   => $this->request->getPost('alamat_lengkap'),
             'kategori_bantuan' => $this->request->getPost('kategori_bantuan'),
             'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
+            'gambar'           => $dataLama['gambar'],
+            'koordinat'        => $dataLama['koordinat'],
+            'file_ktp'         => $dataLama['file_ktp'],
+            'file_kk'          => $dataLama['file_kk']
         ];
+        
+        // --- MODIFIKASI: Hanya superadmin yang boleh mengubah kabupaten ---
+        if (session()->get('role') === 'superadmin') {
+            $data['id_kabupaten'] = $this->request->getPost('id_kabupaten');
+        }
+        // --- BATAS MODIFIKASI ---
 
-        // 3. Proses upload gambar HANYA JIKA ada gambar baru yang diunggah
+        // ( ... sisa kode untuk proses upload file tidak perlu diubah ... )
+        // Proses upload file KTP
+        $fileKTP = $this->request->getFile('file_ktp');
+        if ($fileKTP && $fileKTP->isValid() && !$fileKTP->hasMoved()) {
+            $namaFileKTPBaru = $fileKTP->getRandomName();
+            $fileKTP->move(FCPATH . 'uploads/pdf', $namaFileKTPBaru);
+            $data['file_ktp'] = $namaFileKTPBaru;
+            if (!empty($dataLama['file_ktp']) && file_exists(FCPATH . 'uploads/pdf/' . $dataLama['file_ktp'])) {
+                unlink(FCPATH . 'uploads/pdf/' . $dataLama['file_ktp']);
+            }
+        }
+        
+        // Proses upload file KK
+        $fileKK = $this->request->getFile('file_kk');
+        if ($fileKK && $fileKK->isValid() && !$fileKK->hasMoved()) {
+            $namaFileKKBaru = $fileKK->getRandomName();
+            $fileKK->move(FCPATH . 'uploads/pdf', $namaFileKKBaru);
+            $data['file_kk'] = $namaFileKKBaru;
+            if (!empty($dataLama['file_kk']) && file_exists(FCPATH . 'uploads/pdf/' . $dataLama['file_kk'])) {
+                unlink(FCPATH . 'uploads/pdf/' . $dataLama['file_kk']);
+            }
+        }
+
+        // Proses upload gambar
         $gambarFile = $this->request->getFile('gambar');
         if ($gambarFile && $gambarFile->isValid() && !$gambarFile->hasMoved()) {
-
-            // Ekstrak koordinat dari gambar BARU
+            $now = new \DateTime();
+            $tahun = $now->format('Y');
+            $bulan = $now->format('F');
+            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
+            if (!is_dir($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+            $namaGambarBaru = $gambarFile->getRandomName();
+            $fullPath = $folderPath . '/' . $namaGambarBaru;
+            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambarBaru;
+            \Config\Services::image()
+                ->withFile($gambarFile)
+                ->resize(800, 800, true, 'height')
+                ->save($fullPath, 70);
+            $data['gambar'] = $relativePath;
             $exif = @exif_read_data($gambarFile->getTempName());
             if ($exif && isset($exif['GPSLatitude'], $exif['GPSLongitude'])) {
                 $lat = $this->convertExifToCoordinate($exif['GPSLatitude'], $exif['GPSLatitudeRef']);
                 $lon = $this->convertExifToCoordinate($exif['GPSLongitude'], $exif['GPSLongitudeRef']);
                 $data['koordinat'] = $lat . ',' . $lon;
             }
-
-            // ==== Generate folder berdasarkan waktu upload ====
-            $now = new \DateTime();
-            $tahun = $now->format('Y');
-            $bulan = $now->format('F');
-            $tanggal = $now->format('dmY');
-
-
-            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
-
-            // Buat folder jika belum ada
-            if (!is_dir($folderPath)) {
-                mkdir($folderPath, 0777, true);
-            }
-
-            // Ambil ekstensi asli file
-            $ext = $gambarFile->getExtension();
-
-            // Cari nama file yang belum ada
-            $index = 0;
-            do {
-                $namaGambarBaru = $tanggal . '_' . $index . '.' . $ext;
-                $fullPath = $folderPath . '/' . $namaGambarBaru;
-                $index++;
-            } while (file_exists($fullPath));
-
-            // Simpan path relatif untuk database
-            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambarBaru;
-
-
-            $folderPath = FCPATH . 'uploads/' . $tahun . '/' . $bulan;
-
-            // Buat folder jika belum ada
-            if (!is_dir($folderPath)) {
-                mkdir($folderPath, 0777, true);
-            }
-
-            // Ambil ekstensi asli file
-            $ext = $gambarFile->getExtension();
-
-            // Cari nama file yang belum ada
-            $index = 0;
-            do {
-                $namaGambarBaru = $tanggal . '_' . $index . '.' . $ext;
-                $fullPath = $folderPath . '/' . $namaGambarBaru;
-                $index++;
-            } while (file_exists($fullPath));
-
-            // Simpan path relatif untuk database
-            $relativePath = $tahun . '/' . $bulan . '/' . $namaGambarBaru;
-
-            // Kompres dan simpan gambar
-            \Config\Services::image()
-                ->withFile($gambarFile)
-                ->resize(800, 800, true, 'height')
-                ->save($fullPath, 70);
-
-            // Simpan nama file ke database
-            $data['gambar'] = $relativePath;
-
-            // Hapus file gambar LAMA jika ada
-            if (!empty($dataLama['gambar'])) {
-                $pathGambarLama = FCPATH . 'uploads/' . $dataLama['gambar'];
-                if (file_exists($pathGambarLama)) {
-                    unlink($pathGambarLama);
-                }
+            if (!empty($dataLama['gambar']) && file_exists(FCPATH . 'uploads/' . $dataLama['gambar'])) {
+                unlink(FCPATH . 'uploads/' . $dataLama['gambar']);
             }
         }
 
-        // 4. Tambahkan ID ke dalam data untuk memastikan ini adalah proses UPDATE
-        $data['id'] = $id;
-
-        // 5. Simpan data ke database
+        // Simpan data ke database
         if ($bankelModel->save($data)) {
             return redirect()->to('/admin/bankel')->with('message', 'Data berhasil diupdate!');
         } else {
@@ -279,16 +250,14 @@ class BankelController extends BaseController
      */
     public function new()
     {
-        // Panggil model yang baru kita buat
         $kecamatanModel = new \App\Models\KecamatanModel();
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
 
-        // Ambil id_kabupaten dari admin yang sedang login
         $id_kabupaten_admin = session()->get('id_kabupaten');
 
-        // Siapkan data untuk dikirim ke view
         $data = [
             'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll(),
-
+            'kabupaten_list' => $kabupatenModel->findAll(),
             'breadcrumbs' => [
                 ['title' => 'SIM-BANKEL', 'url' => '/admin/bankel'],
                 ['title' => 'Tambah Data', 'url' => ''] // URL kosong karena ini halaman aktif
@@ -296,22 +265,50 @@ class BankelController extends BaseController
         ];
 
         return view('bankel/input', $data);
-        }
+    }
 
-        /**
-         * Menyimpan data baru dari form ke database.
-         */
-        public function create()
+    public function create()
     {
         $bankelModel = new \App\Models\BankelModel();
         $session = session();
 
-        // 1. Inisialisasi variabel dengan nilai default (null)
+
+        $data = $this->request->getPost();
+
+        // Cek peran pengguna
+        if (session()->get('role') === 'superadmin') {
+            // Jika superadmin, id_kabupaten diambil dari form
+            $data['id_kabupaten'] = $this->request->getPost('id_kabupaten');
+        } else {
+            // Jika admin, id_kabupaten diambil dari sesi
+            $data['id_kabupaten'] = $session->get('id_kabupaten');
+        }
+
+        // Tambahkan id admin yang menginput
+        $data['id_admin_input'] = $session->get('user_id');
+        
+        // Inisialisasi variabel dengan nilai default (null)
         $namaGambar = null;
         $koordinat = null;
         $relativePath = null;
+        $namaFileKTP = null;
+        $namaFileKK = null;
 
-        // 2. Cek dan proses file gambar HANYA JIKA ada yang di-upload
+        // Proses upload file KTP
+        $fileKTP = $this->request->getFile('file_ktp');
+        if ($fileKTP && $fileKTP->isValid() && !$fileKTP->hasMoved()) {
+            $namaFileKTP = $fileKTP->getRandomName();
+            $fileKTP->move(FCPATH . 'uploads/pdf', $namaFileKTP); // Simpan di public/uploads/pdf
+        }
+
+        // Proses upload file KK
+        $fileKK = $this->request->getFile('file_kk');
+        if ($fileKK && $fileKK->isValid() && !$fileKK->hasMoved()) {
+            $namaFileKK = $fileKK->getRandomName();
+            $fileKK->move(FCPATH . 'uploads/pdf', $namaFileKK); // Simpan di public/uploads/pdf
+        }
+
+        // Cek dan proses file gambar HANYA JIKA ada yang di-upload
         $gambarFile = $this->request->getFile('gambar');
         if ($gambarFile && $gambarFile->isValid() && !$gambarFile->hasMoved()) {
             // Ambil koordinat dari EXIF jika ada (dari file temporer asli)
@@ -358,25 +355,27 @@ class BankelController extends BaseController
 
         }
 
-        // 3. Kumpulkan semua data untuk disimpan ke database
-        $data = [
-            'nik'              => $this->request->getPost('nik'),
-            'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
-            'id_kecamatan'     => $this->request->getPost('id_kecamatan'),
-            'id_kelurahan'     => $this->request->getPost('id_kelurahan'),
-            'dusun'            => $this->request->getPost('dusun'),
-            'rt'               => $this->request->getPost('rt'),
-            'rw'               => $this->request->getPost('rw'),
-            'alamat_lengkap'   => $this->request->getPost('alamat_lengkap'),
-            'kategori_bantuan' => $this->request->getPost('kategori_bantuan'),
-            'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
-            'id_kabupaten'     => $session->get('id_kabupaten'),
-            'id_admin_input'   => $session->get('user_id'),
+        // // 3. Kumpulkan semua data untuk disimpan ke database
+        // $data = [
+        //     'nik'              => $this->request->getPost('nik'),
+        //     'nama_lengkap'     => $this->request->getPost('nama_lengkap'),
+        //     'id_kecamatan'     => $this->request->getPost('id_kecamatan'),
+        //     'id_kelurahan'     => $this->request->getPost('id_kelurahan'),
+        //     'dusun'            => $this->request->getPost('dusun'),
+        //     'rt'               => $this->request->getPost('rt'),
+        //     'rw'               => $this->request->getPost('rw'),
+        //     'alamat_lengkap'   => $this->request->getPost('alamat_lengkap'),
+        //     'kategori_bantuan' => $this->request->getPost('kategori_bantuan'),
+        //     'tahun_penerimaan' => $this->request->getPost('tahun_penerimaan'),
+        //     'id_kabupaten'     => $session->get('id_kabupaten'),
+        //     'id_admin_input'   => $session->get('user_id'),
 
-            'gambar'           => $relativePath,
-            'koordinat'        => $koordinat,
+        //     'gambar'           => $relativePath,
+        //     'koordinat'        => $koordinat,
+        //     'file_ktp' => $namaFileKTP, // Masukkan nama file KTP
+        //     'file_kk' => $namaFileKK,   // Masukkan nama file KK
 
-        ];
+        // ];
 
         // 4. Simpan ke database
         if ($bankelModel->save($data)) {
@@ -384,6 +383,13 @@ class BankelController extends BaseController
         } else {
             return redirect()->back()->withInput()->with('errors', $bankelModel->errors());
         }
+    }
+
+    public function getKecamatanByKabupaten($id_kabupaten)
+    {
+        $kecamatanModel = new \App\Models\KecamatanModel();
+        $kecamatanList = $kecamatanModel->where('id_kabupaten', $id_kabupaten)->findAll();
+        return $this->response->setJSON($kecamatanList);
     }
 
     public function export()
@@ -504,26 +510,32 @@ class BankelController extends BaseController
     public function getChartData()
     {
         $bankelModel = new \App\Models\BankelModel();
-
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
 
         $chartData = $bankelModel->getChartDataByKecamatan($id_kabupaten);
-
         return $this->response->setJSON($chartData);
     }
 
     public function getChartDataByYear()
     {
         $bankelModel = new \App\Models\BankelModel();
-        
-
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
 
         $chartData = $bankelModel->getChartDataByYear($id_kabupaten);
-        
-
         return $this->response->setJSON($chartData);
     }
 

@@ -4,12 +4,10 @@ namespace App\Controllers;
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Shared\Date as ExcelDate;
 
 class MonevkuepController extends BaseController
 {
-    /**
-     * Menampilkan halaman utama SIM-MONEVKUEP (tabel data).
-     */
     public function index()
     {
         $monevModel = new \App\Models\MonevkuepModel();
@@ -24,6 +22,7 @@ class MonevkuepController extends BaseController
             'dtks'    => $this->request->getGet('dtks'),   // Ya/Tidak
             'sktm'    => $this->request->getGet('sktm'),   // Ada/Tidak Ada
             'jk'      => $this->request->getGet('jk'),     // Laki-laki/Perempuan
+            'id_kabupaten' => $this->request->getGet('id_kabupaten')
         ];
 
         // --- PAGINATION STYLE (mirip Bankel) ---
@@ -61,8 +60,13 @@ class MonevkuepController extends BaseController
         }
 
         // Filter wilayah untuk admin
-        
-        if ($role === 'admin') {
+        if ($role === 'superadmin') {
+            if (!empty($filters['id_kabupaten'])) {
+                // Jika superadmin memilih wilayah, filter berdasarkan pilihannya
+                $query->where('monevkuep_penerima.id_kabupaten', $filters['id_kabupaten']);
+            }
+            // Jika tidak, biarkan kosong (tampilkan semua)
+        }else{
             $query->where('monevkuep_penerima.id_kabupaten', $id_kabupaten_admin);
         }
 
@@ -99,6 +103,7 @@ class MonevkuepController extends BaseController
             'message' => session()->getFlashdata('message'),
             'title'   => $page_title,
             'filters' => $filters,
+            'kabupaten_list' => $kabupatenModel->findAll(),
             'breadcrumbs' => [
                 ['title' => 'Beranda', 'url' => '/dashboard'],
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],
@@ -115,6 +120,7 @@ class MonevkuepController extends BaseController
         $monevModel = new \App\Models\MonevkuepModel();
         $kecamatanModel = new \App\Models\KecamatanModel();
         $kelurahanModel = new \App\Models\KelurahanModel();
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
 
         $bantuanData = $monevModel->find($id);
         if (!$bantuanData) {
@@ -125,13 +131,15 @@ class MonevkuepController extends BaseController
             'bantuan' => $bantuanData,
             'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $bantuanData['id_kabupaten'])->findAll(),
             'kelurahan_list' => $kelurahanModel->where('id_kecamatan', $bantuanData['id_kecamatan'])->findAll(),
+            'kabupaten_list' => $kabupatenModel->findAll(), // Tambahkan ini
+            'role' => session()->get('role'), // Tambahkan ini
             'breadcrumbs' => [
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],
                 ['title' => 'Edit Data', 'url' => ''],
             ],
         ];
 
-        return view('monevkuep/edit_view', $data);
+        return view('monevkuep/edit_view', $data); // Pastikan nama view Anda benar
     }
 
     public function update($id = null)
@@ -160,8 +168,13 @@ class MonevkuepController extends BaseController
             'agama'            => $this->request->getPost('agama'),
             'pendidikan'       => $this->request->getPost('pendidikan'),
             'jenis_usaha'      => $this->request->getPost('jenis_usaha'),
-            'jenis_pendidikan' => $this->request->getPost('jenis_pendidikan'),
+            'jenis_pekerjaan'  => $this->request->getPost('jenis_pekerjaan'),
         ];
+
+        // Hanya superadmin yang boleh mengubah kabupaten
+        if (session()->get('role') === 'superadmin') {
+            $data['id_kabupaten'] = $this->request->getPost('id_kabupaten');
+        }
 
         // Tambahkan ID untuk UPDATE
         $data['id'] = $id;
@@ -192,10 +205,22 @@ class MonevkuepController extends BaseController
     public function new()
     {
         $kecamatanModel = new \App\Models\KecamatanModel();
-        $id_kabupaten_admin = session()->get('id_kabupaten');
+        $kabupatenModel = new \App\Models\KabupatenModel(); // Tambahkan ini
+        $session = session();
+
+        $role = $session->get('role');
+        $id_kabupaten_admin = $session->get('id_kabupaten');
+        $kecamatan_list = [];
+
+        // Jika admin, langsung ambil kecamatan berdasarkan session
+        if ($role === 'admin') {
+            $kecamatan_list = $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll();
+        }
 
         $data = [
-            'kecamatan_list' => $kecamatanModel->where('id_kabupaten', $id_kabupaten_admin)->findAll(),
+            'kecamatan_list' => $kecamatan_list, // Bisa jadi kosong untuk superadmin
+            'kabupaten_list' => $kabupatenModel->findAll(), // Kirim daftar kabupaten
+            'role' => $role, // Kirim role ke view
             'breadcrumbs' => [
                 ['title' => 'SIM-MONEVKUEP', 'url' => '/admin/monevkuep'],
                 ['title' => 'Tambah Data', 'url' => ''],
@@ -211,6 +236,15 @@ class MonevkuepController extends BaseController
     {
         $monevModel = new \App\Models\MonevkuepModel();
         $session = session();
+        $role = $session->get('role');
+
+        // Logika pengambilan id_kabupaten berdasarkan role
+        $id_kabupaten = 0;
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getPost('id_kabupaten');
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = $session->get('id_kabupaten');
+        }
 
         $data = [
             'nik'              => $this->request->getPost('nik'),
@@ -229,7 +263,7 @@ class MonevkuepController extends BaseController
             'pendidikan'       => $this->request->getPost('pendidikan') ?: null,
             'jenis_usaha'      => $this->request->getPost('jenis_usaha') ?: null,
             'jenis_pekerjaan'  => $this->request->getPost('jenis_pekerjaan') ?: null,
-            'id_kabupaten'     => $session->get('id_kabupaten'),
+            'id_kabupaten'     => $id_kabupaten, // Gunakan variabel yang sudah disiapkan
             'id_admin_input'   => $session->get('user_id'),
         ];
 
@@ -238,6 +272,13 @@ class MonevkuepController extends BaseController
         } else {
             return redirect()->back()->withInput()->with('errors', $monevModel->errors());
         }
+    }
+
+    public function getKecamatanByKabupaten($id_kabupaten)
+    {
+        $kecamatanModel = new \App\Models\KecamatanModel();
+        $kecamatanList = $kecamatanModel->where('id_kabupaten', $id_kabupaten)->findAll();
+        return $this->response->setJSON($kecamatanList);
     }
 
     public function export()
@@ -382,11 +423,112 @@ class MonevkuepController extends BaseController
     {
         $monevModel = new \App\Models\MonevkuepModel();
         $role = session()->get('role');
-        $id_kabupaten = ($role === 'admin') ? session()->get('id_kabupaten') : false;
+        $id_kabupaten = false; // Default untuk 'semua wilayah'
+
+        if ($role === 'superadmin') {
+            // Untuk superadmin, gunakan filter dari URL jika ada
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Untuk admin
+            // Untuk admin, selalu paksa gunakan wilayah dari session mereka
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
 
         $chartData = $monevModel->getChartDataByKecamatan($id_kabupaten);
         return $this->response->setJSON($chartData);
     }
+
+    // CHART NEW
+    public function getChartDataByYear()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else { // Jika role adalah 'admin'
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByYear($id_kabupaten));
+    }
+
+    public function getChartDataByGender()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else {
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByGender($id_kabupaten));
+    }
+
+    public function getChartDataByDTKS()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else {
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByDTKS($id_kabupaten));
+    }
+
+    public function getChartDataByAgama()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else {
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByAgama($id_kabupaten));
+    }
+
+    public function getChartDataByPendidikan()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else {
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByPendidikan($id_kabupaten));
+    }
+
+    public function getChartDataByJenisUsaha()
+    {
+        $model = new \App\Models\MonevkuepModel();
+        $role = session()->get('role');
+        $id_kabupaten = false;
+
+        if ($role === 'superadmin') {
+            $id_kabupaten = $this->request->getGet('id_kabupaten') ?: false;
+        } else {
+            $id_kabupaten = session()->get('id_kabupaten');
+        }
+
+        return $this->response->setJSON($model->getChartDataByJenisUsaha($id_kabupaten));
+    }
+
+
 
     ///////////////////////////////////////////////////////////////////////////////////////////
     //------------------------------------ IMPORT EXCEL -------------------------------------//
@@ -404,133 +546,211 @@ class MonevkuepController extends BaseController
     }
 
     public function processImport()
-    {
-        $file = $this->request->getFile('excel_file');
+{
+    $file = $this->request->getFile('excel_file');
 
-        if (!$file || !$file->isValid() || $file->hasMoved()) {
-            return redirect()->to('/admin/monevkuep/import')->with('error', 'Gagal mengupload file atau file tidak valid.');
-        }
-
-        $newName = $file->getRandomName();
-        $file->move(WRITEPATH . 'uploads', $newName);
-        $filePath = WRITEPATH . 'uploads/' . $newName;
-
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
-        $sheet = $spreadsheet->getActiveSheet();
-        $rows = $sheet->toArray();
-
-        $monevModel = new \App\Models\MonevkuepModel();
-        $kecamatanModel = new \App\Models\KecamatanModel();
-        $kelurahanModel = new \App\Models\KelurahanModel();
-
-        $dataToInsert = [];
-        $errors = [];
-        $rowCount = 0;
-
-        $session = session();
-        $id_kabupaten_admin = $session->get('id_kabupaten');
-        $id_admin_input = $session->get('user_id');
-
-        $kecamatanCache = [];
-        $kelurahanCache = [];
-
-        // Asumsi urutan kolom Excel:
-        // [0] NIK, [1] Nama, [2] Jenis Kelamin, [3] Tempat Lahir, [4] Tanggal Lahir (Y-m-d),
-        // [5] Alamat, [6] DTKS, [7] SKTM, [8] Jenis Usaha, [9] Jenis Pekerjaan,
-        // [10] Agama, [11] Pendidikan, [12] Kecamatan, [13] Kelurahan, [14] RAB
-        foreach ($rows as $index => $row) {
-            if ($index == 0) continue; // header
-            $excelRowNumber = $index + 1;
-            $rowCount++;
-
-            $nama_kecamatan = trim($row[12] ?? '');
-            $nama_kelurahan = trim($row[13] ?? '');
-
-            if (!isset($kecamatanCache[$nama_kecamatan])) {
-                $kec = $kecamatanModel->where('nama_kecamatan', $nama_kecamatan)
-                    ->where('id_kabupaten', $id_kabupaten_admin)
-                    ->first();
-                $kecamatanCache[$nama_kecamatan] = $kec ? $kec['id'] : null;
-            }
-            $id_kecamatan = $kecamatanCache[$nama_kecamatan];
-            if (!$id_kecamatan) {
-                $errors["Kecamatan '$nama_kecamatan' tidak ditemukan"][] = $excelRowNumber;
-                continue;
-            }
-
-            if (!isset($kelurahanCache[$nama_kelurahan])) {
-                $kel = $kelurahanModel->where('nama_kelurahan', $nama_kelurahan)
-                    ->where('id_kecamatan', $id_kecamatan)
-                    ->first();
-                $kelurahanCache[$nama_kelurahan] = $kel ? $kel['id'] : null;
-            }
-            $id_kelurahan = $kelurahanCache[$nama_kelurahan];
-            if (!$id_kelurahan) {
-                $errors["Kelurahan '$nama_kelurahan' tidak ditemukan di kec. '$nama_kecamatan'"][] = $excelRowNumber;
-                continue;
-            }
-
-            $rowData = [
-                'nik'               => preg_replace('/[^0-9]/', '', $row[0] ?? ''),
-                'nama_lengkap'      => $row[1] ?? '',
-                'jenis_kelamin'     => $row[2] ?? '',
-                'tempat_lahir'      => $row[3] ?? '',
-                'tanggal_lahir'     => $row[4] ?? null,
-                'alamat_lengkap'    => $row[5] ?? '',
-                'dtks'              => $row[6] ?? 'Tidak',
-                'sktm'              => $row[7] ?? 'Tidak Ada',
-                'jenis_usaha'       => $row[8] ?? 'Tidak Ada',
-                'jenis_pekerjaan'   => $row[9] ?? 'Tidak Ada',
-                'agama'             => $row[10] ?? 'Tidak Ada',
-                'pendidikan'        => $row[11] ?? 'Tidak Ada',
-                'rab_nominal'       => $row[14] ?? null,
-                'id_kecamatan'      => $id_kecamatan,
-                'id_kelurahan'      => $id_kelurahan,
-                'id_kabupaten'      => $id_kabupaten_admin,
-                'id_admin_input'    => $id_admin_input,
-            ];
-
-            // Validasi baris
-            if ($monevModel->validate($rowData) === false) {
-                $rowErrors = $monevModel->errors();
-                foreach ($rowErrors as $message) {
-                    $errors[$message][] = $excelRowNumber;
-                }
-                continue;
-            }
-
-            $dataToInsert[] = $rowData;
-        }
-
-        if (!empty($dataToInsert)) {
-            $monevModel->insertBatch($dataToInsert);
-        }
-
-        $successCount = count($dataToInsert);
-        $failCount = $rowCount - $successCount;
-        $message = "Proses import selesai. <strong>Berhasil: $successCount data.</strong>";
-
-        if ($failCount > 0) {
-            session()->setFlashdata('fail_count', $failCount);
-            session()->setFlashdata('errors_list', $errors);
-        }
-
-        @unlink($filePath);
-        return redirect()->to('/admin/monevkuep/import')->with('message', $message);
+    // Validasi Awal: Pastikan file benar-benar ada dan valid
+    if (!$file || !$file->isValid() || $file->hasMoved()) {
+        return redirect()->to('/admin/monevkuep/import')->with('error', 'Gagal mengupload file atau file tidak valid.');
     }
 
-    public function printAll()
-    {
-        $monevModel = new \App\Models\MonevkuepModel();
-        $role = session()->get('role');
-        $id_kabupaten_admin = session()->get('id_kabupaten');
+    // Pindahkan file ke folder writable/uploads
+    $newName = $file->getRandomName();
+    $file->move(WRITEPATH . 'uploads', $newName);
+    $filePath = WRITEPATH . 'uploads/' . $newName;
 
-        $data['all_data'] = $role === 'superadmin'
-            ? $monevModel->getMonevkuepData()
-            : $monevModel->getMonevkuepData($id_kabupaten_admin);
-
-        return view('admin/print_monevkuep', $data);
-    }
-
+    $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
+    $rows = $spreadsheet->getActiveSheet()->toArray();
     
+    $monevModel = new \App\Models\MonevkuepModel();
+    $kecamatanModel = new \App\Models\KecamatanModel();
+    $kelurahanModel = new \App\Models\KelurahanModel();
+
+    $dataToInsert = []; 
+    $errors = [];
+    $rowCount = 0;
+    $successCount = 0;
+    $session = session();
+    $id_kabupaten_admin = $session->get('id_kabupaten');
+    $id_admin_input = $session->get('user_id');
+    
+    $db = \Config\Database::connect();
+    
+    // Cache
+    $kecamatanCache = [];
+    $kelurahanCache = [];
+
+    foreach ($rows as $index => $row) {
+        if ($index == 0) continue; // Lewati header
+
+        // Cek apakah baris kosong (misalnya NIK dan nama kosong)
+        if (
+            empty(trim((string)($row[1] ?? ''))) && // NIK
+            empty(trim((string)($row[2] ?? ''))) && // Nama
+            empty(trim((string)($row[8] ?? ''))) && // Kecamatan
+            empty(trim((string)($row[9] ?? '')))    // Kelurahan
+        ) {
+            continue; // Lewati baris kosong
+        }
+
+        $rowCount++;
+        $excelRowNumber = $index + 1;
+        
+        $db->transStart();
+
+        // Ambil dan validasi ID Wilayah
+        $nama_kecamatan = trim($row[8]);
+        $nama_kelurahan = trim($row[9]);
+        
+        if (!isset($kecamatanCache[$nama_kecamatan])) {
+            $kec = $kecamatanModel->where([
+                'nama_kecamatan' => $nama_kecamatan,
+                'id_kabupaten'   => $id_kabupaten_admin
+            ])->first();
+            $kecamatanCache[$nama_kecamatan] = $kec['id'] ?? null;
+        }
+        $id_kecamatan = $kecamatanCache[$nama_kecamatan];
+
+        if (!$id_kecamatan) {
+            $errors["Kecamatan '$nama_kecamatan' tidak ditemukan"][] = $excelRowNumber;
+            $db->transRollback();
+            continue;
+        }
+        
+        if (!isset($kelurahanCache[$nama_kelurahan])) {
+            $kel = $kelurahanModel->where([
+                'nama_kelurahan' => $nama_kelurahan,
+                'id_kecamatan'   => $id_kecamatan
+            ])->first();
+            $kelurahanCache[$nama_kelurahan] = $kel['id'] ?? null;
+        }
+        $id_kelurahan = $kelurahanCache[$nama_kelurahan];
+
+        if (!$id_kelurahan) {
+            $errors["Kelurahan '$nama_kelurahan' tidak ditemukan di kec. '$nama_kecamatan'"][] = $excelRowNumber;
+            $db->transRollback();
+            continue;
+        }
+
+        // --- Normalisasi field ---
+        $jkRaw = trim((string) ($row[3] ?? ''));
+        $jenis_kelamin = null;
+        $jkUpper = strtoupper($jkRaw);
+        if (in_array($jkUpper, ['LAKI-LAKI','LAKI LAKI','LAKI', 'L'])) {
+            $jenis_kelamin = 'Laki-laki';
+        } elseif (in_array($jkUpper, ['PEREMPUAN','PEREM','P','PER'])) {
+            $jenis_kelamin = 'Perempuan';
+        } else {
+            $jenis_kelamin = $row[3];
+        }
+
+        // tanggal_lahir
+        $tanggalExcel = $row[5] ?? '';
+        $tanggal_lahir = null;
+        if (!empty($tanggalExcel) || $tanggalExcel === 0 || $tanggalExcel === '0') {
+            if (is_numeric($tanggalExcel)) {
+                try {
+                    $tanggal_lahir = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalExcel)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    $tanggal_lahir = null;
+                }
+            } else {
+                $formats = ['d/m/Y', 'Y-m-d', 'm/d/Y', 'd-m-Y'];
+                foreach ($formats as $fmt) {
+                    $d = \DateTime::createFromFormat($fmt, trim($tanggalExcel));
+                    if ($d && $d->format($fmt) === trim($tanggalExcel)) {
+                        $tanggal_lahir = $d->format('Y-m-d');
+                        break;
+                    }
+                }
+                if ($tanggal_lahir === null) {
+                    $ts = strtotime(trim($tanggalExcel));
+                    if ($ts !== false) {
+                        $tanggal_lahir = date('Y-m-d', $ts);
+                    }
+                }
+            }
+        }
+
+        // rab_nominal
+        $rabRaw = trim((string) ($row[17] ?? ''));
+        $rab_nominal = null;
+        if ($rabRaw !== '' && $rabRaw !== null) {
+            // Bersihkan semua karakter selain angka
+            // Contoh: "Rp 1.000.000" → "1000000"
+            $cleanRab = preg_replace('/[^0-9]/', '', $rabRaw);
+
+            if ($cleanRab !== '') {
+                // Simpan sebagai angka murni
+                $rab_nominal = (float) $cleanRab;
+            }
+        }
+
+
+        // dtks & sktm
+        $dtks = null;
+        $sktm = null;
+        $dtksRaw = trim((string) ($row[11] ?? ''));
+        $sktmRaw = trim((string) ($row[12] ?? ''));
+        $dtksLower = strtolower($dtksRaw);
+        if (in_array($dtksLower, ['ya','ada','iya','y'])) $dtks = 'Ya';
+        elseif (in_array($dtksLower, ['tidak','tidak ada','no','n'])) $dtks = 'Tidak';
+        else $dtks = $dtksRaw ?: null;
+
+        $sktmLower = strtolower($sktmRaw);
+        if (in_array($sktmLower, ['ada','ya'])) $sktm = 'Ada';
+        elseif (in_array($sktmLower, ['tidak','tidak ada','no'])) $sktm = 'Tidak Ada';
+        else $sktm = $sktmRaw ?: null;
+
+        // Data untuk insert
+        $rowData = [
+            'nik'                   => preg_replace('/[^0-9]/', '', $row[1]),
+            'nama_lengkap'          => $row[2],
+            'jenis_kelamin'         => $jenis_kelamin,
+            'tempat_lahir'          => $row[4],
+            'tanggal_lahir'         => $tanggal_lahir,
+            'usia'                  => $row[6],
+            'id_kabupaten'          => $id_kabupaten_admin,
+            'id_admin_input'        => $id_admin_input,
+            'id_kecamatan'          => $id_kecamatan,
+            'id_kelurahan'          => $id_kelurahan,
+            'alamat_lengkap'        => $row[10],
+            'dtks'                  => $dtks,
+            'sktm'                  => $sktm,
+            'agama'                 => $row[13],
+            'pendidikan'            => $row[14],
+            'jenis_usaha'           => $row[15],
+            'jenis_pekerjaan'       => $row[16],
+            'rab_nominal'           => $rab_nominal,
+        ];
+
+        if ($monevModel->validate($rowData) === false) {
+            foreach ($monevModel->errors() as $message) {
+                $errors[$message][] = $excelRowNumber;
+            }
+            $db->transRollback();
+            continue;
+        }
+
+        $monevModel->save($rowData);
+
+        if($db->transComplete()) {
+            $successCount++;
+        } else {
+            $errors["Gagal menyimpan ke database"][] = $excelRowNumber;
+        }
+    }
+
+    $failCount = $rowCount - $successCount;
+    $message = "Proses import selesai. <strong>Berhasil: $successCount data.</strong>";
+    if ($failCount > 0) {
+        $session->setFlashdata('fail_count', $failCount);
+        $session->setFlashdata('errors_list', $errors);
+    }
+
+    @unlink($filePath);
+    return redirect()->to('/admin/monevkuep/import')->with('message', $message);
+}
+
+
 }

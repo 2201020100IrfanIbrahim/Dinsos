@@ -33,6 +33,22 @@ $routes->get('peta/geojson_kuep/(:any)/(:any)', 'Peta::geojson_kuep/$1/$2');
 $routes->get('admin/bankel/printAll', 'BankelController::printAll'); // Memproses file
 $routes->get('admin/monevkuep/printAll', 'MonevkuepController::printAll'); // Memproses file
 
+// Rute untuk data Chart di Dashboard Superadmin
+$routes->get('/dashboard/chart-wilayah', 'DashboardController::chart_wilayah', ['filter' => 'auth']);
+$routes->get('/dashboard/chart-bankel-by-year', 'DashboardController::chart_bankel_by_year', ['filter' => 'auth']);
+$routes->get('/dashboard/chart-difabel-by-golongan', 'DashboardController::chart_difabel_by_golongan', ['filter' => 'auth']);
+$routes->get('/dashboard/chart-monevkuep-by-usaha', 'DashboardController::chart_monevkuep_by_usaha', ['filter' => 'auth']);
+// CHART KUEP
+// Chart endpoints MONEVKUEP
+$routes->group('monevkuep', ['namespace' => 'App\Controllers'], function($routes) {
+    $routes->get('chart-data-by-year', 'MonevkuepController::getChartDataByYear');
+    $routes->get('chart-data-by-gender', 'MonevkuepController::getChartDataByGender');
+    $routes->get('chart-data-by-dtks', 'MonevkuepController::getChartDataByDTKS');
+    $routes->get('chart-data-by-agama', 'MonevkuepController::getChartDataByAgama');
+    $routes->get('chart-data-by-pendidikan', 'MonevkuepController::getChartDataByPendidikan');
+    $routes->get('chart-data-by-jenis-usaha', 'MonevkuepController::getChartDataByJenisUsaha');
+});
+
 $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     //============================BANKEL=============================//
     // Rute untuk menampilkan daftar data (halaman utama)
@@ -49,6 +65,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     
     // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
     $routes->get('bankel/get-kelurahan/(:num)', 'BankelController::getKelurahanByKecamatan/$1');
+    $routes->get('bankel/get-kecamatan/(:num)', 'BankelController::getKecamatanByKabupaten/$1');
 
     // Rute untuk koordinat map
     $routes->get('bankel/leaflet_map/(:num)', 'BankelController::leaflet_map/$1');
@@ -61,6 +78,8 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     $routes->post('bankel/process-import', 'BankelController::processImport'); // Memproses file
     // Rute untuk data grafik berdasarkan tahun
     $routes->get('bankel/chart-data-by-year', 'BankelController::getChartDataByYear');
+    // Rute untuk AJAX, mengambil data kecamatan berdasarkan ID kabupaten
+    $routes->get('get-kecamatan/(:num)', 'BankelController::getKecamatanByKabupaten/$1');
 
 
     //============================MONEVKUEB=============================//
@@ -77,6 +96,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     
     // Rute untuk AJAX, mengambil data kelurahan berdasarkan ID kecamatan
     $routes->get('monevkuep/get-kelurahan/(:num)', 'MonevkuepController::getKelurahanByKecamatan/$1');
+    $routes->get('monevkuep/get-kecamatan/(:num)', 'MonevkuepController::getKecamatanByKabupaten/$1');
 
     // Rute untuk koordinat map
     $routes->get('monevkuep/leaflet_map/(:num)', 'MonevkuepController::leaflet_map/$1');
@@ -87,7 +107,7 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
     // Di dalam group('admin', ...)
     $routes->get('monevkuep/import', 'MonevkuepController::import'); // Menampilkan form
     $routes->post('monevkuep/process-import', 'MonevkuepController::processImport'); // Memproses file
-    
+
     //============================DIFABELKEPRI=============================//
     $routes->get('difabelkepri', 'DifabelkepriController::index');
     // Rute untuk menampilkan form tambah data baru
@@ -114,5 +134,18 @@ $routes->group('admin', ['filter' => 'auth'], static function ($routes) {
 
     $routes->get('difabelkepri/import', 'DifabelkepriController::import');
     $routes->post('difabelkepri/process-import', 'DifabelkepriController::processImport');
+    $routes->get('difabelkepri/get-kecamatan/(:num)', 'DifabelkepriController::getKecamatanByKabupaten/$1');
+    $routes->get('difabelkepri/get-kelurahan/(:num)', 'DifabelkepriController::getKelurahanByKecamatan/$1');
     // Rute-rute CRUD lainnya akan ditambahkan di sini nanti
+
+
+    // ==============================User===============================//
+    $routes->group('users', ['namespace' => 'App\Controllers'], function($routes) {
+        $routes->get('/', 'UserController::index');
+        $routes->get('edit/(:num)', 'UserController::edit/$1');
+        $routes->post('update/(:num)', 'UserController::update/$1');
+    });
+    // di dalam ->group('admin', ...)
+    $routes->get('profile', 'UserController::profile');
+    $routes->post('profile/update', 'UserController::updateProfile');
 });

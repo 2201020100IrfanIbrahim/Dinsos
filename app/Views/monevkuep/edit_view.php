@@ -21,6 +21,11 @@ Edit Data MONEVKUEP
 
 <?= $this->section('content') ?>
 <div class="form-card">
+    <div class="back">
+        <a href="<?= site_url('admin/monevkuep') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali</a>
+        <h1>Form Pengisian Data MONEVKUEP</h1>
+        <p style="color:#888888; font-size: small;">Note: (*) Wajib Isi</p>
+    </div>
 
     <?php if (session()->get('errors')): ?>
         <div class="error-box">
@@ -72,6 +77,21 @@ Edit Data MONEVKUEP
 
         <div class="form-section">
             <h3>Wilayah & Alamat</h3>
+
+            <?php if (isset($role) && $role === 'superadmin'): ?>
+            <div class="form-group">
+                <label for="id_kabupaten">Kabupaten/Kota <span class="required-star">*</span></label>
+                <select name="id_kabupaten" id="id_kabupaten" class="form-input" required>
+                    <option value="">-- Pilih Kabupaten --</option>
+                    <?php foreach ($kabupaten_list as $kab): ?>
+                        <option value="<?= $kab['id'] ?>" <?= (old('id_kabupaten', $bantuan['id_kabupaten']) == $kab['id']) ? 'selected' : '' ?>>
+                            <?= esc($kab['nama_kabupaten']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <?php endif; ?>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="id_kecamatan">Kecamatan</label>
@@ -165,32 +185,104 @@ Edit Data MONEVKUEP
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const kecamatanSelect = document.getElementById('id_kecamatan');
-        const kelurahanSelect = document.getElementById('id_kelurahan');
-        kecamatanSelect.addEventListener('change', function() {
-            const kecamatanId = this.value;
-            kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
-            if (kecamatanId) {
-                const url = `<?= site_url('admin/monevkuep/get-kelurahan/') ?>${kecamatanId}`;
-                fetch(url)
-                    .then(response => response.json())
-                    .then(data => {
-                        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
-                        data.forEach(kelurahan => {
-                            const option = document.createElement('option');
-                            option.value = kelurahan.id;
-                            option.textContent = kelurahan.nama_kelurahan;
-                            kelurahanSelect.appendChild(option);
-                        });
-                    })
-                    .catch(() => {
-                        kelurahanSelect.innerHTML = '<option value="">-- Gagal memuat --</option>';
-                    });
-            } else {
-                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
-            }
+document.addEventListener('DOMContentLoaded', function() {
+    const kabupatenSelect = document.getElementById('id_kabupaten');
+    const kecamatanSelect = document.getElementById('id_kecamatan');
+    const kelurahanSelect = document.getElementById('id_kelurahan');
+    const userRole = '<?= esc($role ?? 'admin') ?>';
+
+    // Nilai awal dari controller
+    const initialKabId = '<?= old('id_kabupaten', $bantuan['id_kabupaten'] ?? '') ?>';
+    const initialKecId = '<?= old('id_kecamatan', $bantuan['id_kecamatan'] ?? '') ?>';
+    const initialKelId = '<?= old('id_kelurahan', $bantuan['id_kelurahan'] ?? '') ?>';
+
+    // Fungsi memuat kecamatan berdasarkan ID kabupaten
+    function loadKecamatan(kabupatenId, selectedKecId = null) {
+        kecamatanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+        if (!kabupatenId) {
+            kecamatanSelect.innerHTML = '<option value="">-- Pilih Kabupaten Dulu --</option>';
+            return;
+        }
+        const url = `<?= site_url('admin/monevkuep/get-kecamatan/') ?>${kabupatenId}`;
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                kecamatanSelect.innerHTML = '<option value="">-- Pilih Kecamatan --</option>';
+                data.forEach(kec => {
+                    const opt = document.createElement('option');
+                    opt.value = kec.id;
+                    opt.textContent = kec.nama_kecamatan;
+                    if (kec.id == selectedKecId) {
+                        opt.selected = true;
+                    }
+                    kecamatanSelect.appendChild(opt);
+                });
+                // Jika ada kecamatan terpilih, langsung load kelurahannya
+                if (selectedKecId) {
+                    loadKelurahan(selectedKecId, initialKelId);
+                }
+            })
+            .catch(() => alert('Gagal memuat data kecamatan'));
+    }
+
+    // Fungsi memuat kelurahan berdasarkan ID kecamatan
+    function loadKelurahan(kecamatanId, selectedKelId = null) {
+        kelurahanSelect.innerHTML = '<option value="">-- Memuat... --</option>';
+        if (!kecamatanId) {
+            kelurahanSelect.innerHTML = '<option value="">-- Pilih Kecamatan Dulu --</option>';
+            return;
+        }
+        const url = `<?= site_url('admin/monevkuep/get-kelurahan/') ?>${kecamatanId}`;
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                kelurahanSelect.innerHTML = '<option value="">-- Pilih Kelurahan --</option>';
+                data.forEach(kel => {
+                    const opt = document.createElement('option');
+                    opt.value = kel.id;
+                    opt.textContent = kel.nama_kelurahan;
+                    if (kel.id == selectedKelId) {
+                        opt.selected = true;
+                    }
+                    kelurahanSelect.appendChild(opt);
+                });
+            })
+            .catch(() => alert('Gagal memuat data kelurahan'));
+    }
+
+    // Event Listener
+    if (userRole === 'superadmin' && kabupatenSelect) {
+        kabupatenSelect.addEventListener('change', function() {
+            loadKecamatan(this.value);
         });
+    }
+    kecamatanSelect.addEventListener('change', function() {
+        // Saat kecamatan diubah manual, kelurahan di-reset
+        loadKelurahan(this.value); 
     });
+
+    // --- INILAH BAGIAN PENTING UNTUK EDIT ---
+    // Saat halaman dimuat, panggil fungsi untuk mengisi dropdown
+    if (userRole === 'superadmin') {
+        if (initialKabId) {
+            loadKecamatan(initialKabId, initialKecId);
+        }
+    } else { // Jika role adalah admin
+        // Langsung load kelurahan karena kecamatan sudah ada dari controller
+        if(initialKecId) {
+            // Tampilkan opsi kecamatan yang sudah ada dari PHP
+            const existingKecamatanOptions = `<?= json_encode($kecamatan_list) ?>`;
+            JSON.parse(existingKecamatanOptions).forEach(kec => {
+                const opt = document.createElement('option');
+                opt.value = kec.id;
+                opt.textContent = kec.nama_kecamatan;
+                if (kec.id == initialKecId) opt.selected = true;
+                kecamatanSelect.appendChild(opt);
+            });
+            loadKelurahan(initialKecId, initialKelId);
+        }
+    }
+});
 </script>
 <?= $this->endSection() ?>
