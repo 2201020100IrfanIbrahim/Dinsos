@@ -5,7 +5,8 @@ use CodeIgniter\Router\RouteCollection;
 /**
  * @var RouteCollection $routes
  */
-$routes->get('/', 'Home::index');
+// Mengarahkan URL utama website ke WelcomeController
+$routes->get('/', 'WelcomeController::index');
 // ... kode rute lainnya
 
 // Rute untuk menampilkan halaman login
