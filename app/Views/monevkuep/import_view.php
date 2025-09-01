@@ -61,7 +61,7 @@ Import Data dari Excel
             <a href="<?= site_url('admin/monevkuep') ?>" class="back-button" style="margin-bottom: 20px; display: inline-block;"> Kembali ke Dashboard</a>
         </div>
     <div class="card-header">
-        <h3>Import Data Difabel dari Excel</h3>
+        <h3>Import Data UEP dari Excel</h3>
     </div>
     <div class="import-instructions">
         <p>Silakan upload file Excel (.xlsx) dengan format yang telah ditentukan.</p>
