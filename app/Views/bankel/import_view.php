@@ -78,6 +78,7 @@ Import Data dari Excel
                     <th style="background-color: #b9e1ffff;">F</th>
                     <th style="background-color: #b9e1ffff;">G</th>
                     <th style="background-color: #b9e1ffff;">H</th>
+                    <th style="background-color: #b9e1ffff;">I</th>
                 </tr>
                 <tr>
                     <th style="background-color: #b9e1ffff;">1</th>
@@ -89,6 +90,7 @@ Import Data dari Excel
                     <th>Kelurahan</th>
                     <th>Kategori Bantuan</th>
                     <th>Tahun</th>
+                    <th>Desil</th>
                 </tr>
                 <tr>
                     <th style="background-color: #b9e1ffff;">2</th>
@@ -98,8 +100,9 @@ Import Data dari Excel
                     <th>Kabupaten Lingga</th>
                     <th>Lingga</th>
                     <th>Daik</th>
-                    <th>Mie Ayam</th>
+                    <th>beras</th>
                     <th>2029</th>
+                    <th>1</th>
                 </tr>
             </thead>
         </table>

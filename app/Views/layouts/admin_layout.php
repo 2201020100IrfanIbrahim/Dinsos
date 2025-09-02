@@ -305,7 +305,7 @@
                         <img src="<?= base_url('assets/images/logo-pemprov.png') ?>" alt="Logo Pemprov">
                         <img src="<?= base_url('assets/images/logo-kemensos.png') ?>" alt="Logo Dinsos">
                         <div class="header-title">
-                            <h1>SPBS-D Kepri</h1>
+                            <h1>SPBS-Di Kepri</h1>
                             <p>Sistem Pengelolaan Bantuan Sosial & Difabel</p>
                         </div>
                     </div>

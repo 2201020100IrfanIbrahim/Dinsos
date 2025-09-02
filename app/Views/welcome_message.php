@@ -976,7 +976,7 @@
     
     <div class="hero-content">
         <h1>SPBS-D KEPRI</h1>
-        <p>Platform Terpadu untuk Monitoring dan Pendataan Bantuan Sosial, Penyandang Disabilitas, dan UMKM di Kepulauan Riau</p>
+        <p>Platform Terpadu Monitoring dan Pendataan Bantuan Sosial, Penyandang Disabilitas, dan UEP di Kepulauan Riau</p>
         <div class="cta-buttons">
             <a href="#features" class="btn btn-primary">
                 <i class="fa-solid fa-rocket"></i> Mulai Sekarang
