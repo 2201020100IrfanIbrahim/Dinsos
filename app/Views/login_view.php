@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,16 +29,16 @@
         .left-side {
             flex: 1.5;
             position: relative;
-            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), 
-                url('<?= base_url('images/login.jpeg') ?>') center/cover;            
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)),
+                url('<?= base_url('images/login.jpeg') ?>') center/cover;
             display: flex;
             align-items: flex-end;
             justify-content: flex-start;
             margin: 10px;
-            border-radius:20px;
+            border-radius: 20px;
             padding: 40px;
         }
-        
+
         .left-content {
             color: white;
             text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
@@ -226,25 +227,25 @@
             .login-wrapper {
                 flex-direction: column;
             }
-            
+
             .left-side {
                 flex: 0 0 200px;
                 padding: 20px;
             }
-            
+
             .left-content h1 {
                 font-size: 28px;
             }
-            
+
             .left-content p {
                 font-size: 14px;
             }
-            
+
             .right-side {
                 flex: 1;
                 padding: 20px;
             }
-            
+
             .title {
                 font-size: 24px;
             }
@@ -254,24 +255,25 @@
             .left-side {
                 flex: 0 0 150px;
             }
-            
+
             .login-container {
                 padding: 0 10px;
             }
-            
+
             .header {
                 margin-bottom: 30px;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="login-wrapper">
         <!-- Left Side - Image -->
         <div class="left-side">
             <div class="left-content">
                 <h1>SPBS-D Kepri v1.0</h1>
-                <p>Sistem Bantuan Pengelolaan Bantuan Sosial & Difabel</p>
+                <p>Sistem Pengelolaan Bantuan Sosial & Difabel</p>
             </div>
         </div>
 
@@ -289,7 +291,7 @@
                 </div>
 
                 <!-- Error Message (PHP will be processed server-side) -->
-                <?php if(session()->getFlashdata('error')): ?>
+                <?php if (session()->getFlashdata('error')): ?>
                     <div class="error-message">
                         <?= session()->getFlashdata('error') ?>
                     </div>
@@ -297,18 +299,18 @@
 
                 <form action="<?= site_url('login') ?>" method="post" id="loginForm">
                     <?= csrf_field() ?>
-                    
+
                     <div class="form-group">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" id="username" name="username" class="form-input" required 
-                               placeholder="superadmin" value="superadmin">
+                        <input type="text" id="username" name="username" class="form-input" required
+                            placeholder="username" value="">
                         <span class="input-icon">👤</span>
                     </div>
 
                     <div class="form-group">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" id="password" name="password" class="form-input" required 
-                               placeholder="superadmin123" value="superadmin123">
+                        <input type="password" id="password" name="password" class="form-input" required
+                            placeholder="password" value="">
                         <span id="togglePassword" class="input-icon">👁</span>
                     </div>
 
@@ -330,11 +332,11 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const button = this.querySelector('.login-button');
             const container = this.closest('.login-container');
-            
+
             // Add loading state
             container.classList.add('loading');
             button.innerHTML = '🔄 Memverifikasi...';
-            
+
             // Note: In real implementation, this would be handled by the server
             // This is just for visual feedback
         });
@@ -353,10 +355,10 @@
         const togglePassword = document.getElementById('togglePassword');
         const passwordInput = document.getElementById('password');
 
-        togglePassword.addEventListener('click', function () {
+        togglePassword.addEventListener('click', function() {
             const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
             passwordInput.setAttribute('type', type);
-            
+
             if (type === 'password') {
                 this.innerHTML = '👁';
                 this.classList.remove('active');
@@ -367,4 +369,5 @@
         });
     </script>
 </body>
+
 </html>
