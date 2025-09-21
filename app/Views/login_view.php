@@ -284,10 +284,7 @@
                     <h1 class="title">SPPS</h1>
                     <p class="subtitle">Sistem Pengamatan & Penilaian Bantuan Sosial</p>
                     <p class="subtitle">Dinas Sosial Provinsi Kepulauan Riau</p>
-                    <!-- <div class="government-badge">
-                        <span>🏛️</span>
-                        Portal Resmi Pemerintah
-                    </div> -->
+
                 </div>
 
                 <!-- Error Message (PHP will be processed server-side) -->
