@@ -295,7 +295,6 @@ Manajemen SIM-BANKEL
     /* STYLE UNTUK TAMPILAN HP                       */
     /* ============================================= */
     @media (max-width: 768px) {
-        /* 1. Mengubah layout visualisasi menjadi atas-bawah */
         #map{
             height: 300px
         }
@@ -322,7 +321,7 @@ Manajemen SIM-BANKEL
         .tahun{
             justify-content: space-between;
         }
-        /* 2. Menyesuaikan ukuran font */
+
         h1 { font-size: 22px; }
         h2 { font-size: 18px; }
         table, .add-button, .export-button, .filter-form input, .filter-form button, .filter-form a {
@@ -330,26 +329,26 @@ Manajemen SIM-BANKEL
         }
         /* === TAMBAHKAN ATURAN BARU DI SINI === */
         .chart-container {
-            flex-direction: column; /* Mengubah arah item menjadi ke bawah */
-            height: auto; /* Biarkan tinggi menyesuaikan konten */
+            flex-direction: column; 
+            height: auto; 
         }
         .chart-canvas-container {
-            width: 100%; /* Lebar penuh */
-            height: 250px; /* Atur tinggi tetap untuk canvas */
+            width: 100%; 
+            height: 250px; 
         }
         .chart-legend-container {
-            margin-top: 20px; /* Beri jarak dari chart di atasnya */
-            max-height: 150px; /* Batasi tinggi legenda agar tidak terlalu panjang */
+            margin-top: 20px; 
+            max-height: 150px; 
         }
 
         .chart-section, .doughnut-container {
-            flex-direction: column; /* Mengubah susunan dari horizontal ke vertikal */
-            align-items: center;    /* (Opsional) Menengahkan chart dan legenda */
+            flex-direction: column; 
+            align-items: center;    
         }
-        /* 3. Membuat form filter menjadi responsif */
+        
         .filter-form form {
-            flex-direction: column;   /* Mengubah arah item menjadi ke bawah */
-            align-items: stretch;   /* Membuat semua item selebar kontainer */
+            flex-direction: column;   
+            align-items: stretch;   
             gap: 15px;
         }
 
@@ -360,17 +359,17 @@ Manajemen SIM-BANKEL
             padding: 20px 0px;
         }
         .card-header .tombol {
-            flex-direction: column; /* Ubah arah item menjadi ke bawah */
-            align-items: stretch; /* Buat item meregang selebar card */
+            flex-direction: column; 
+            align-items: stretch; 
             gap: 15px;
         }
         .card-header .tombol-aksi {
             display: grid;
-            grid-template-columns: 1fr 1fr; /* Buat 2 kolom tombol */
+            grid-template-columns: 1fr 1fr; 
             gap: 10px;
         }
         .card-header .add-button {
-            grid-column: 1 / -1; /* Buat tombol "Tambah Data" mengambil lebar penuh */
+            grid-column: 1 / -1; 
         }
     } 
 </style>

@@ -1,13 +1,11 @@
 <?php
 
-namespace App\Controllers; // Pastikan namespace ini benar
+namespace App\Controllers;
 
-use App\Models\UserModel; // Jika Anda sudah membuat model
+use App\Models\UserModel;
 
-// Pastikan nama class sama dengan nama file
 class AuthController extends BaseController 
 {
-    // Pastikan nama method 'login'
     public function login(): string
     {
         return view('login_view');
@@ -32,8 +30,6 @@ class AuthController extends BaseController
                 'isLoggedIn'    => TRUE
             ];
             $session->set($sessionData);
-            
-            // Arahkan ke rute dashboard setelah login berhasil
             return redirect()->to('/dashboard'); 
         } else {
             $session->setFlashdata('error', 'Username atau Password salah.');
