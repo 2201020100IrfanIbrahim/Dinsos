@@ -272,7 +272,7 @@
         <!-- Left Side - Image -->
         <div class="left-side">
             <div class="left-content">
-                <h1>SPBS-D Kepri v1.0</h1>
+                <h1>SPBS-Di Kepri v1.0</h1>
                 <p>Sistem Pengelolaan Bantuan Sosial & Difabel</p>
             </div>
         </div>
