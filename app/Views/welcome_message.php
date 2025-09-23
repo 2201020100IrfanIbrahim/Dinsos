@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>SPBS-D - Sistem Informasi Manajemen Data Sosial</title>
+    <title>SPBS-Di - Sistem Informasi Manajemen Data Sosial</title>
     <meta name="description" content="Platform terpadu untuk monitoring dan pendataan bantuan sosial, penyandang disabilitas, dan UMKM">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" type="image/png" href="/favicon.ico">
@@ -938,7 +938,7 @@
         <div class="logo-container">
             <a href="/">
                 <img src="images/logo.png" alt="Logo SPBS-D KEPRI" class="main-logo">
-                <h1>SPBS-D KEPRI</h1>
+                <h1>SPBS-Di KEPRI</h1>
             </a>
         </div>
         
@@ -1083,7 +1083,7 @@
 <footer>
     <div class="footer-grid">
         <div class="footer-col">
-            <h4>SPBS-D KEPRI</h4>
+            <h4>SPBS-Di KEPRI</h4>
             <p>Platform digital terintegrasi untuk manajemen data sosial di Provinsi Kepulauan Riau. Mendukung transparansi dan akuntabilitas.</p>
         </div>
         <div class="footer-col">
